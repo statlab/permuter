@@ -1,5 +1,15 @@
-stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = FALSE, 
-    seed = 101) {
+#' Description about the function
+#' 
+#' @param x A number.
+#' @param y A number.
+#' @param z
+#' @param alt
+#' @param B
+#' @param cat
+#' @param rep
+#' @param seed
+#' @return something
+stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = FALSE, seed = 101) {
     
     K = length(unique(x))
     g = unique(sort(x))

@@ -1,3 +1,12 @@
+#' Description about the function
+#' 
+#' @param x A number.
+#' @param y A number.
+#' @param B
+#' @param repeated
+#' @param trend
+#' @param alt
+#' @return something
 umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL) {
     
     

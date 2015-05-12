@@ -1,3 +1,7 @@
+#' Description about the function
+#' 
+#' @param P something
+#' @return something
 FWE.minP <- function(P) {
     
     

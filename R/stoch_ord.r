@@ -1,3 +1,11 @@
+#' Description about the function
+#' 
+#' @param x A number.
+#' @param y A number.
+#' @param alt
+#' @param B
+#' @param seed
+#' @return something
 stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
     
     K = length(unique(x))

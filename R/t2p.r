@@ -1,3 +1,7 @@
+#' Description about the function
+#' 
+#' @param T
+#' @return something
 t2p <- function(T) {
     
     if (is.null(dim(T))) {

@@ -1,3 +1,13 @@
+#' Description about the function
+#' 
+#' @param x1 
+#' @param x2 
+#' @param conf.lev
+#' @param B
+#' @param max.delta
+#' @param length.delta
+#' @param exact
+#' @return something
 IC <- function(x1, x2, conf.lev = 0.95, B = 1000, max.delta = 20, length.delta = 100) {
     
     n1 <- length(x1)
