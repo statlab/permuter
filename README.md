@@ -10,7 +10,6 @@ http://www.wiley.com/legacy/wileychi/pesarin/material.html
 
 The development process will follow the conventions in [R Packages](http://r-pkgs.had.co.nz).
 
-* R_functions/ contains the original files. R/ contains the versions for development.
 
 * You will need the following packages: `devtools`, `roxygen2`, and `testthat`.
 
