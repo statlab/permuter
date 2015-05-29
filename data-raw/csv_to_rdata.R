@@ -27,8 +27,9 @@ setwd("../examples_chapters_1-4/")
 for(i in 1:length(thefiles.examples)){
   temp <- read.csv(thefiles.examples[i], stringsAsFactors = FALSE)
   assign(thedata.examples[i], temp)
+  save(list=thedata.examples[i], file = paste("../../data/", thedata.examples[i], ".RData", sep = ""))
+
 }
-save(list=thedata.examples, file = "../../data/examples_ch_1-4.RData")
 
 
 setwd("../survival/")
