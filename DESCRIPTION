@@ -3,9 +3,11 @@ Title: permuter: Permutation Tests
 Version: 0.1
 Authors@R: c(person("Kellie", "Ottoboni", role = c("aut", "cre"), email = "kellieotto@berkeley.edu"), person("Jarrod", "Millman"), person("Philip", "Stark"))
 Description: R functions to develop the application examples presented in "Permutation Tests for Complex Data: Theory, Applications and Software" - Pesarin, Salmaso
-Depends:
+Depends: 
     R (>= 3.0.2),
 License: What license is it under?
 LazyData: true
-Suggests:
-    testthat
+Suggests: 
+    testthat,
+    knitr
+VignetteBuilder: knitr

@@ -1,0 +1,75 @@
+---
+title: "chrom17m"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Vignette Info
+
+notes from textbook - where is this example?
+
+
+```{r}
+library(permuter)
+data(chrom17m)
+```
+
+
+```{r firstanalysis}
+source("../R/t2p.r")
+
+B=100
+
+G = chrom17m[,1] ; f1 = chrom17m[,2] ; f2 = chrom17m[,3]
+X1 = rep(G,f1) ; X2 = rep(G,f2); K = dim(chrom17m)[1]
+n1 = sum(f1) ; n2 = sum(f2); n = n1+n2
+
+L = rep(c(1,2),c(n1,n2))
+X = c(X1,X2)  		## note: the factors are automatically recoded as integer
+
+data = chrom17m[,-1]
+
+T=array(0,dim=c((B+1),K))
+
+
+for(i in 1:K){
+T[1,i] = (data[i,1] - (sum(data[i,]))*n1/n)^2/((sum(data[i,]))*n1/n)
+}
+
+
+for(bb in 2:(B+1)){
+
+X.star = sample(X)
+data.star = table(X.star,L)
+
+for(i in 1:K){
+T[bb,i] = (data.star[i,1] - (sum(data.star[i,]))*n1/n)^2/((sum(data.star[i,]))*n1/n)
+}
+
+}
+
+
+P = t2p(T)
+p.part =t2p(T)[1,]
+names(p.part)=G
+p.part
+
+FWE.p = t(FWE.minP(P)); colnames(FWE.p) = G;
+FWE.p
+```
+
+## Globals
+```{r globals}
+T.Tipp = apply(P,1,min)
+T.Fish = apply(P,1,function(x){-2*log(prod(x))})
+T.Lipt = apply(P,1,function(x){sum(qnorm(1-x))})
+
+p.glob.Tipp = mean(T.Tipp[-1]<=T.Tipp[1])
+p.glob.Fish = mean(T.Fish[-1]>=T.Fish[1])
+p.glob.Lipt = mean(T.Lipt[-1]>=T.Lipt[1])
+```

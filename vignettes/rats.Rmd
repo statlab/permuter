@@ -1,0 +1,42 @@
+---
+title: "Analysis of Experimental Tumour Growth Curves"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+## Vignette Info
+
+This example comes from the textbook section 8.3 (p 397-398). It involves testing for stochastic ordering of time curves.
+
+```{r load}
+library(permuter)
+data(rats)
+source("t2p.r")
+```
+
+
+```{r analysis}
+g = rats[,1]
+B=100
+data=rats[,-c(1,2)]
+p=dim(data)[2]
+P=array(0,dim=c((B+1),p))
+
+for(j in 1:p){
+  P[,j] = stoch.ord(data[,j],g,alt=-1,B=B)
+  cat(j,"variable/",p,"\n")
+}
+
+
+colnames(P)=colnames(data)
+P.FWE = FWE.minP(P)
+res = cbind(P[1,],P.FWE)
+colnames(res)=c("Raw-p","Adj-p")
+res
+```

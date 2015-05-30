@@ -1,0 +1,97 @@
+---
+title: "Analysis of PERC Data"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+## Vignette Info
+
+This example comes from the textbook section 8.4.4 (p 410-413).
+
+**Why is the data called PERC in the text but called PERCH in the code?**
+
+```{r load}
+library(permuter)
+data(perch)
+source("../R/t2p.r")
+```
+
+```{r analysis1}
+class = c(rep("integer",2),rep("factor",23),rep("numeric",6))
+
+dose=perch$dose
+time = perch$testtime
+mouse = perch$rat
+
+data = perch[,-c(1:3)]
+
+B=1000
+p=dim(data)[2]
+t=length(unique(time))
+
+P<-array(1,dim=c((B+1),p,t))
+
+seed=101
+
+for(k in 1:t){
+  tt = unique(time)[k]
+  cat("Time = ",as.factor(tt),"\n\n")
+  for(j in 1:p){
+    cat = ifelse(is.factor(data[,j]),1,0)
+    tab = table(data[time==tt,j])
+    if(length(tab[tab>0])>1){ 
+      dose.t = dose[time==tt] 
+      P[,j,k] = stoch.ord2(data[time==tt,j],dose.t,alt=-1,B=B,cat=cat,seed=seed)
+      }
+    cat('Processing variable:',j,"\n")
+  }
+}
+
+
+res=P[1,,]
+rownames(res) = colnames(data)
+colnames(res) = c('T0','T4','T24')
+res
+```
+
+```{r plots, fig.show='hold'}
+par(mfrow=c(1,3))
+j=28
+boxplot(data[time==0,j]~as.factor(dose[time==0]),xlab='Dose',ylab='Temperature',main='T0')
+boxplot(data[time==4,j]~as.factor(dose[time==4]),xlab='Dose',ylab='Temperature',main='T4')
+boxplot(data[time==24,j]~as.factor(dose[time==24]),xlab='Dose',ylab='Temperature',main='T24')
+```
+
+## Domains
+
+```{r domains}
+dom = c(rep(1,6),rep(2,4),rep(3,6),rep(4,3),rep(5,6),rep(6,3))
+T.dom=array(0,dim=c((B+1),6,t))
+for(d in 1:6){
+  T.dom[,d,] = apply(P[,dom==d,],c(1,3),function(x){-2*log(prod(x))})
+}
+
+P.dom=t2p(T.dom)
+res.dom = P.dom[1,,]
+rownames(res.dom)=c('Autonomic','Sensorimotor','Excitability','Neuromuscular','Activity','Physiologic')
+colnames(res.dom)=c('T0','T4','T24')
+res.dom
+
+T.time = array(0,dim=c(B+1,6))
+for(d in 1:6){
+  T.time[,d] = apply(P.dom[,d,],1,function(x){-2*log(prod(x))})
+}
+
+P.time = t2p(T.time)
+res.glob.adj = FWE.minP(P.time)
+res.glob = cbind(P.time[1,],res.glob.adj)
+rownames(res.glob)=rownames(res.dom)
+colnames(res.glob)=c('p','p.adj')
+res.glob
+```

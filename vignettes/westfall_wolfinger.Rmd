@@ -1,0 +1,85 @@
+---
+title: "Mult Data Example: Comparing Combining Functions"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Vignette Info
+
+This example comes from the textbook section 5.5 (p 273-276).
+
+We analyze the mult data, previously discussed in Westfall and Wolfinger (2000), to test for equality of the multivariate distribution of three variables Y1, Y2, and Y3 in the two groups labeled by the binary variable X (two independent samples test). The aim of this example is to show how the closed testing procedure performs when different combining functions are applied.
+
+```{r load}
+library(permuter)
+source("../R/t2p.r")
+data(mult)
+attach(mult)
+```
+
+```{r get-pvalues}
+n = table(X)
+p = dim(mult)[2]-1
+contr <- rep(c(1/n[1],-1/n[2]),n)
+ 
+B=500
+n = dim(mult)[1]
+Y = as.matrix(mult[,-1])
+T = array(0,dim=c((B+1),p))
+ 
+T[1,] = t(Y)%*%contr
+ 
+for(bb in 2:(B+1)){
+  Y.star = Y[sample(1:n),]
+  T[bb,] = t(Y.star)%*%contr
+}
+
+P = t2p(abs(T))
+p.raw = P[1,] 
+p.raw
+```
+
+## Order the raw p-values increasingly
+
+```{r incr}
+p.ord<-sort(p.raw,decreasing=FALSE)
+o<-order(p.raw,decreasing=FALSE)
+
+B=dim(P)[1]-1
+p=dim(P)[2]
+
+p.ris<-array(0,dim=c(p,1))
+P.ord<-P[,o]
+```
+
+## Perform the step-up procedure with Liptak's combining function
+
+```{r npc}
+#T=apply(P.ord,1,min)                             #Tippett's			
+#T=apply(P.ord,1,function(x){-2*log(prod(x))})		#Fisher's		
+T=apply(P.ord,1,function(x){sum(qnorm(1-x))})           #Liptak's		
+
+#p.ris[1] = mean(T[-1]<=T[1])	#Tippett's
+p.ris[1] = mean(T[-1]>=T[1])	#Fisher's & Liptak's
+
+if(p>2){
+  for(j in 2:(p-1)){
+    #T=apply(P.ord[,j:p],1,min)                           #Tippett's				
+    #T=apply(P.ord[,j:p],1,function(x){-2*log(prod(x))})  #Fisher's			
+    T=apply(P.ord[,j:p],1,function(x){sum(qnorm(1-x))})   #Liptak's			
+    
+    #p.ris[j] = max(mean(T[-1]<=T[1]),p.ris[(j-1)])
+    p.ris[j] = max(mean(T[-1]>=T[1]),p.ris[(j-1)])  #Fisher's & Liptak's
+    }
+}
+p.ris[p] = max(p.ord[p],p.ris[p-1])
+p.ris[o]=p.ris
+
+rownames(p.ris)=colnames(data)[-1]
+p.ris
+```

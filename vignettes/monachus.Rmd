@@ -1,0 +1,45 @@
+---
+title: "Monachus Data: Shape Analysis"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+## Vignette Info
+
+This example comes from the textbook section 10.5.3 (p 459-462).
+
+```{r analysis}
+library(permuter)
+data(monachus)
+source("../R/t2p.r")
+
+
+p = dim(monachus)[2]-1
+n = table(monachus[,1]) ; n
+
+
+contr = rep(c(1/sum(n[2]),-1/sum(n[1])),n[2:1])
+
+
+B = 5000
+T=array(0,dim=c((B+1),p))
+
+g = monachus[,1]
+data = monachus[,-1]
+
+T[1,] = t(data)%*%contr
+
+for(bb in 2:(B+1)){
+  data.star=data[sample(1:sum(n)),]
+  T[bb,] = t(data.star)%*%contr
+}
+
+P = t2p(abs(T)); colnames(P)=colnames(data)
+cat("Rough p-values \n"); t(t(P[1,]))
+```
