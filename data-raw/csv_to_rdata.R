@@ -34,7 +34,7 @@ for(i in 1:length(thefiles.examples)){
 
 setwd("../survival/")
 for(i in 1:length(thefiles.surv)){
-  temp <- read.csv(thefiles.surv[i], stringsAsFactors = FALSE)
+  temp <- read.csv(thefiles.surv[i], stringsAsFactors = FALSE, na.strings="?")
   assign(thedata.surv[i], temp)
 }
 save(list=thedata.surv, file = "../../data/survival.RData")
