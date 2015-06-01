@@ -1,0 +1,64 @@
+---
+title: "GERMINA Data: An Example of a MNAR Model"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Vignette Info
+
+This example comes from the textbook Section 7.11.4 (p 361-364).
+
+```{r germina}
+library(permuter)
+source("../R/t2p.r")
+data(germina)
+
+
+B=500
+n=dim(germina)[1]
+p=dim(germina)[2]-1
+T<-array(0,dim=c((B+1),p))
+colnames(T)=c("O","X","Y","Y2")
+
+O = table(germina[,1],germina[,2]);
+Z = germina[,-c(1,2)]
+
+T[1,1] = prod(diag(O))
+nu = O[,2]
+
+contr = rep(c(-sqrt(nu[2]/nu[1]),sqrt(nu[1]/nu[2])),nu)
+T[1,-1] = t(Z[germina[,2]>0,])%*%contr
+
+
+set.seed(10)
+for(bb in 2:(B+1)){
+  germina.star = cbind(germina[,1], germina[sample(1:n),-1])
+  O.star = table(germina.star[,1],germina.star[,2])
+  Z.star = germina.star[,-c(1,2)]
+  T[bb,1] = prod(diag(O.star))
+  nu = O.star[,2]
+  contr.star = rep(c(-sqrt(nu[2]/nu[1]),sqrt(nu[1]/nu[2])),nu)
+  T[bb,-1] = t(Z.star[germina.star[,2]>0,])%*%contr
+}
+
+P = t2p(T)
+cat("Partial p-values:","\n"); P[1,]
+
+
+T.Y = apply(P[,3:4],1,function(x){-2*log(prod(x))})
+P.Y = t2p(T.Y)
+P=cbind(P[,1:2],P.Y) ; colnames(P)[3] = "Y"
+cat("Partial p-values:","\n"); P[1,]
+
+
+cat("Adjusted Partial p-values:","\n"); FWE.minP(P)
+
+
+T.G = apply(P,1,function(x){-2*log(prod(x))})
+p.G = t2p(T.G)[1]; p.G
+```

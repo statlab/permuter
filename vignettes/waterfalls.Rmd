@@ -1,0 +1,88 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+## Vignette Info
+This example comes from the textbook section 7.15.2 (p 382-384).
+
+```{r load}
+library(permuter)
+source("../R/t2p.r")
+data(waterfalls)
+```
+
+```{r analysis}
+B = 500
+attach(waterfalls)
+
+data = waterfalls[,-c(1,2)]
+L = unique(Panelist)
+l = length(L)
+n = dim(data)[1]
+p = dim(data)[2]
+C = n/l
+ 
+D = array(0,dim=c(C,p,l))
+ 
+for(j in 1:l){
+  D[,,j]=as.matrix(data[Panelist==j,])
+}
+
+DD = D  	# auxiliary
+
+for(i in 1:l){
+  for(j in 1:C){
+    DD[j,,i]=D[j,,i]-D[1,,i]
+  }
+}
+
+D = DD[-1,,]
+
+T = array(0,dim=c((B+1),p,(C-1)))		
+
+for(j in 1:(C-1)){
+  T[1,,] = t(apply(D,c(1,2),sum))
+}
+
+for(bb in 2:(B+1)){
+  D.star=D
+  for(j in 1:l){
+    S.star =  1-2*rbinom((C-1),1,.5)
+    D.star[,,j] = D[,,j]*S.star
+  }
+  for(j in 1:(C-1)){
+    T[bb,,] = t(apply(D.star,c(1,2),sum))
+  }
+}
+
+P=t2p(T)
+partial.p = P[1,,] 
+rownames(partial.p) = colnames(data)
+colnames(partial.p) = c('s-r', 't-r','v-r','w-r','x-r')
+
+partial.p
+```
+
+## Domains
+```{r domains}
+dom = rep(c(1:5),each=3)
+T.dom=array(0,dim=c((B+1),5,5))
+
+for(d in 1:5){
+  T.dom[,d,] = apply(P[,dom==d,],c(1,3),function(x){-2*log(prod(x))})
+}
+
+P.dom = t2p(T.dom)
+res = P.dom[1,,]
+rownames(res) = c('Bloom','Dry','Long','Neat','Wet')
+colnames(res) = c('r-s','r-t','r-v','r-w','r-x')
+res
+```

@@ -1,0 +1,73 @@
+---
+title: "Kenya Data: A Case Study in Population Genetics"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+## Vignette Info
+
+This example comes from the textbook section 6.9.3 (p 321).
+
+```{r kenya}
+library(permuter)
+source("../R/t2p.r")
+data(kenya)
+B=100
+
+X1 = kenya[,2] ; X2 = kenya[,3]
+K = dim(kenya)[1]
+
+o1 = order(X1,decreasing = TRUE)
+o2 = order(X2,decreasing = TRUE)
+
+C1 = X1[o1]
+C2 = X2[o2]
+C = cbind(C1,C2)
+C = C[C1>0,]
+
+k = seq(1,dim(C)[1])
+
+Y1 = rep(k,C[,1])
+Y2 = rep(k,C[,2])
+n1 = length(Y1)
+n2 = length(Y2);
+Y = c(Y1,Y2)
+
+G = rep(c(1,2),c(n1,n2))
+
+T.G<-array(0,dim=c((B+1),1))
+T.S<-array(0,dim=c((B+1),1))
+T.R<-array(0,dim=c((B+1),1))
+
+T.G[1] = sum((C[,1]/n1)^2-(C[,2]/n2)^2)
+T.S[1] = sum((C[,1]/n1)*ifelse(C[,1]==0,0,log(C[,1]/n1))-(C[,2]/n2)*ifelse(C[,2]==0,0,log(C[,2]/n2)))
+T.R[1] = log(max(C[,1]/n1))-log(max(C[,2]/n2))
+
+
+for(bb in 2:(B+1)){
+  Y.star = sample(Y)
+  C.star = table(Y.star,G)
+  T.G[bb] = sum((C.star[,1]/n1)^2-(C.star[,2]/n2)^2)
+  T.S[bb] = sum((C.star[,1]/n1)*ifelse(C.star[,1]==0,0,log(C.star[,1]/n1))-(C.star[,2]/n2)*ifelse(C.star[,2]==0,0,log(C.star[,2]/n2)))
+  T.R[bb] = log(max(C.star[,1]/n1))-log(max(C.star[,2]/n2))
+}
+```
+
+Set Het(1) > Het(2), then $1-\sum_k p_{(k)1}^2 > 1-\sum_k p_{(k)2}^2$. We care about when $\sum_k p_{(k)1}^2 - p_{(k)2}^2< 0$; small is significant.
+
+```{r kenya2}
+p.G = t2p(-T.G)[1]
+p.S = t2p(-T.S)[1]
+p.R = t2p(-T.R)[1]
+
+res = c(p.G,p.S,p.R)
+res
+```
+
+

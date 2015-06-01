@@ -1,0 +1,28 @@
+---
+title: "Urology Data: Logistic Regression"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Vignette Info
+
+This example comes from the textbook section 12.6.4 (p 541). We compare a standard logistic regression analysis with a nonparametric combination of tests.
+
+## Standard Logistic Regression
+```{r logistic}
+library(permuter)
+data(urology)
+
+mod1 <- glm(group~., family=binomial(link="logit"), data = urology)
+summary(mod1)
+mod2 <- glm(group~., family=binomial(link="logit"), data = urology[,-ncol(urology)])
+summary(mod2)
+step(mod2)
+```
+
+## To do: compare to some permutation method
