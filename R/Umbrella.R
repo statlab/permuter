@@ -53,8 +53,7 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
             ID.not <- g[(-c(1:j))]
             
             
-            T[1, k.hat, 1] <- T[1, k.hat, 1] + mean(x[y %in% ID.not]) - mean(x[y %in% 
-                ID])
+            T[1, k.hat, 1] <- T[1, k.hat, 1] + mean(x[y %in% ID.not]) - mean(x[y %in% ID])
             
             
         }
@@ -70,8 +69,7 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
             
             
             
-            T[1, k.hat, 2] <- T[1, k.hat, 2] + mean(x[y %in% ID]) - mean(x[y %in% 
-                ID.not])
+            T[1, k.hat, 2] <- T[1, k.hat, 2] + mean(x[y %in% ID]) - mean(x[y %in% ID.not])
         }
         
         
@@ -109,8 +107,7 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
                 ID.not <- g[(-c(1:j))]
                 
                 
-                T[bb, k.hat, 1] <- T[bb, k.hat, 1] + mean(x.perm[y.perm %in% ID.not]) - 
-                  mean(x.perm[y.perm %in% ID])
+                T[bb, k.hat, 1] <- T[bb, k.hat, 1] + mean(x.perm[y.perm %in% ID.not]) - mean(x.perm[y.perm %in% ID])
                 
                 
             }
@@ -125,8 +122,7 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
                 
                 
                 
-                T[bb, k.hat, 2] <- T[bb, k.hat, 2] + mean(x.perm[y.perm %in% ID]) - 
-                  mean(x.perm[y.perm %in% ID.not])
+                T[bb, k.hat, 2] <- T[bb, k.hat, 2] + mean(x.perm[y.perm %in% ID]) - mean(x.perm[y.perm %in% ID.not])
                 
                 
                 
@@ -180,8 +176,4 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
     ris <- list(Global.p.value = P.glob, Partial.p.values = p.part, Max = max)  ##,T=T,U=U
     return(ris)
     # return(T2)
-}
-
-
-
- 
+} 

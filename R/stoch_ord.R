@@ -25,8 +25,7 @@ stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
         
         # cat('ID:',ID,'\t ID.not:',ID.not,'\n')
         
-        s = (sum((y[x %in% ID] - mean(y[x %in% ID]))^2) + sum((y[x %in% ID.not] - 
-            mean(y[x %in% ID.not]))^2))/(sum(n) - 2)
+        s = (sum((y[x %in% ID] - mean(y[x %in% ID]))^2) + sum((y[x %in% ID.not] - mean(y[x %in% ID.not]))^2))/(sum(n) - 2)
         
         if (alt == -1) {
             T[1, j] <- (mean(y[x %in% ID]) - mean(y[x %in% ID.not]))/sqrt(s)
@@ -51,8 +50,7 @@ stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
             # cat('ID:',ID,'\t ID.not:',ID.not,'\n')
             
             
-            s = (sum((y.perm[x %in% ID] - mean(y.perm[x %in% ID]))^2) + sum((y.perm[x %in% 
-                ID.not] - mean(y.perm[x %in% ID.not]))^2))/(sum(n) - 2)
+            s = (sum((y.perm[x %in% ID] - mean(y.perm[x %in% ID]))^2) + sum((y.perm[x %in% ID.not] - mean(y.perm[x %in% ID.not]))^2))/(sum(n) - 2)
             
             if (alt == -1) {
                 T[bb, j] <- (mean(y.perm[x %in% ID]) - mean(y.perm[x %in% ID.not]))/sqrt(s)

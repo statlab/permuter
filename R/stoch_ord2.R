@@ -33,8 +33,7 @@ stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = 
         # cat('ID:',ID,'\t ID.not:',ID.not,'\n')
         
         if (cat == 0) {
-            s = (sum((y[x %in% ID] - mean(y[x %in% ID]))^2) + sum((y[x %in% ID.not] - 
-                mean(y[x %in% ID.not]))^2))/(sum(n) - 2)
+            s = (sum((y[x %in% ID] - mean(y[x %in% ID]))^2) + sum((y[x %in% ID.not] - mean(y[x %in% ID.not]))^2))/(sum(n) - 2)
             if (alt == -1) {
                 T[1, j] <- (mean(y[x %in% ID]) - mean(y[x %in% ID.not]))/sqrt(s)
             }
@@ -68,12 +67,10 @@ stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = 
                 N = apply(N, 2, cumsum)
                 
                 if (alt == 1) {
-                  T[1, j] <- sum(N[, 1]/(apply(N, 1, sum) * (sum(N) - apply(N, 1, 
-                    sum)))^0.5)
+                  T[1, j] <- sum(N[, 1]/(apply(N, 1, sum) * (sum(N) - apply(N, 1, sum)))^0.5)
                 }
                 if (alt == -1) {
-                  T[1, j] <- sum(N[, 2]/(apply(N, 1, sum) * (sum(N) - apply(N, 1, 
-                    sum)))^0.5)
+                  T[1, j] <- sum(N[, 2]/(apply(N, 1, sum) * (sum(N) - apply(N, 1, sum)))^0.5)
                 }
                 
             }  ## end cat
@@ -109,8 +106,7 @@ stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = 
             # cat('ID:',ID,'\t ID.not:',ID.not,'\n')
             
             if (cat == 0) {
-                s = (sum((y.perm[x %in% ID] - mean(y.perm[x %in% ID]))^2) + sum((y.perm[x %in% 
-                  ID.not] - mean(y.perm[x %in% ID.not]))^2))/(sum(n) - 2)
+                s = (sum((y.perm[x %in% ID] - mean(y.perm[x %in% ID]))^2) + sum((y.perm[x %in% ID.not] - mean(y.perm[x %in% ID.not]))^2))/(sum(n) - 2)
                 if (alt == -1) {
                   T[bb, j] <- (mean(y.perm[x %in% ID]) - mean(y.perm[x %in% ID.not]))/sqrt(s)
                 }
@@ -141,12 +137,10 @@ stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = 
                   N = apply(N, 2, cumsum)
                   
                   if (alt == 1) {
-                    T[bb, j] <- sum(N[, 1]/(apply(N, 1, sum) * (sum(N) - apply(N, 
-                      1, sum)))^0.5)
+                    T[bb, j] <- sum(N[, 1]/(apply(N, 1, sum) * (sum(N) - apply(N, 1, sum)))^0.5)
                   }
                   if (alt == -1) {
-                    T[bb, j] <- sum(N[, 2]/(apply(N, 1, sum) * (sum(N) - apply(N, 
-                      1, sum)))^0.5)
+                    T[bb, j] <- sum(N[, 2]/(apply(N, 1, sum) * (sum(N) - apply(N, 1, sum)))^0.5)
                   }
                   
                 }  ## end cat
