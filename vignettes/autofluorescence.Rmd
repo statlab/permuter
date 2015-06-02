@@ -48,7 +48,7 @@ for(bb in 2:(B+1)){
 Y.star = Y[sample(1:n),,]
 for(i in 1:2){ for(j in 1:3){ R[bb,,j,i]=COV(Y.star[,,i],X[,,j]) } }
 }
-P=t2p(-R)
+P=t2p_old(-R)
 
 AF.res = data.frame(colnames(X1),P[1,,1,1],P[1,,1,2])
 colnames(AF.res) = c("Time","Oct","Micro")
@@ -60,18 +60,18 @@ colnames(DRU.res) = c("Time","Oct","Micro")
 
 
 T.glob = apply(P,c(1,3,4),function(x){-2*log(prod(x))}) 
-P.glob = t2p(T.glob)[1,,] ; colnames(P.glob)=c("Oct","Micro") 
+P.glob = t2p_old(T.glob)[1,,] ; colnames(P.glob)=c("Oct","Micro") 
 rownames(P.glob) = c("Auto","PIG","DRU") ; P.glob
 
 
-P.Oct= t2p(T.glob)[,,1] ; P.Mic= t2p(T.glob)[,,2]
+P.Oct= t2p_old(T.glob)[,,1] ; P.Mic= t2p_old(T.glob)[,,2]
 FWE.res<-cbind(FWE.minP(P.Oct),FWE.minP(P.Mic))
 rownames(FWE.res) = c("Auto","PIG","DRU") 
 colnames(FWE.res)=c("Oct","Micro") ; FWE.res
 
 
-T.APD = apply(t2p(T.glob),c(1,2),function(x){-2*log(prod(x))})
-P.APD = t2p(T.APD) ; colnames(P.APD)=c("Auto","PIG","DRU")
+T.APD = apply(t2p_old(T.glob),c(1,2),function(x){-2*log(prod(x))})
+P.APD = t2p_old(T.APD) ; colnames(P.APD)=c("Auto","PIG","DRU")
 P.APD[1,]
 
 ```
@@ -100,12 +100,12 @@ colnames(RES)=c("Auto","PIG","DRU")
 
 
 T.glob <- apply(P,c(1,3,4),function(x){-2*log(prod(x))})
-P.glob <- t2p(T.glob)[1,,] 
+P.glob <- t2p_old(T.glob)[1,,] 
 rownames(P.glob)=c("Auto","PIG","DRU")
 colnames(P.glob) = c("Oct","Micro"); P.glob
 
 
-T.FWE = t2p(T.glob)
+T.FWE = t2p_old(T.glob)
 P.FWE = cbind(FWE.minP(T.FWE[,,1]),FWE.minP(T.FWE[,,2]))
 names(P.FWE) = names(P.glob); P.FWE
 

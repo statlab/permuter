@@ -52,7 +52,7 @@ for(bb in 2:(B+1)){
   }
 }
 
-P = t2p(T)
+P = t2p_old(T)
 colnames(P) = unique(Stain)
 P[1,]
 
@@ -78,7 +78,7 @@ for(dd in 1:3){
   T.dom[,dd] = apply(P[,dom==dd],1,function(x){-2*log(prod(x))})
 }
 
-P.dom = t2p(T.dom)
+P.dom = t2p_old(T.dom)
 P.dom[1,]
 FWE.minP(P.dom)
 ```

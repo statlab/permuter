@@ -46,12 +46,12 @@ for(bb in 2:(B+1)){
   T[bb,-1] = t(Z.star[germina.star[,2]>0,])%*%contr
 }
 
-P = t2p(T)
+P = t2p_old(T)
 cat("Partial p-values:","\n"); P[1,]
 
 
 T.Y = apply(P[,3:4],1,function(x){-2*log(prod(x))})
-P.Y = t2p(T.Y)
+P.Y = t2p_old(T.Y)
 P=cbind(P[,1:2],P.Y) ; colnames(P)[3] = "Y"
 cat("Partial p-values:","\n"); P[1,]
 
@@ -60,5 +60,5 @@ cat("Adjusted Partial p-values:","\n"); FWE.minP(P)
 
 
 T.G = apply(P,1,function(x){-2*log(prod(x))})
-p.G = t2p(T.G)[1]; p.G
+p.G = t2p_old(T.G)[1]; p.G
 ```

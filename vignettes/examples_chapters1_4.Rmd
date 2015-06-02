@@ -30,11 +30,11 @@ T[bb] = t(d)%*%(1-2*rbinom(n,1,.5))
 }
 ```
 
-The array T contains has dimension (B + 1) × 1 and contains the null distribution of the test statistic. The first value is the observed value. In order to obtain a p-value we need to load the function t2p, that returns an array of p- values from an array of permutation values of the test statistic (i.e. it compares each element of T with the whole distribution according with the rule large is significant).
+The array T contains has dimension (B + 1) × 1 and contains the null distribution of the test statistic. The first value is the observed value. In order to obtain a p-value we need to load the function t2p_old, that returns an array of p- values from an array of permutation values of the test statistic (i.e. it compares each element of T with the whole distribution according with the rule large is significant).
 
-```{r show_t2p}
+```{r show_t2p_old}
 source("../R/t2p.r")
-t2p(T)[1]
+t2p_old(T)[1]
 ```
 
 The first element of the output is the p-value of this analysis. In this case the null hypothesis $H0 : Y_1 =d Y_2$ is rejected if favor of the alternative $H_1: Y_1 >d Y_2$.  Let's calculate the conditional power.
@@ -51,7 +51,7 @@ for(cc in 1:R){
   for(bb in 2:(B+1)){
     T[bb] = t(d)%*%(1-2*rbinom(n,1,.5))
   }
-  p.val[cc]=t2p(T)[1]
+  p.val[cc]=t2p_old(T)[1]
 }
 
 alpha = 0.0005
@@ -87,7 +87,7 @@ for(bb in 2:(B+1)){
   T[bb] = X.star%*%contr
 }
 
-P=t2p(T); P[1]
+P=t2p_old(T); P[1]
 ```
 
 ### Confidence interval
@@ -145,10 +145,10 @@ for(bb in 2:(B+1)){
   X.star=sample(X)
   T[bb] = ( t(X.star)%*%I )^2%*%n
 }
-t2p(T)[1]
+t2p_old(T)[1]
 ```
 
-The p-value of the test is again obtained by applying the t2p function to the vector $T$, and by considering the first element of the vector of results. In this case we can conclude that there is a strong evidence against the null hypothesis.
+The p-value of the test is again obtained by applying the t2p_old function to the vector $T$, and by considering the first element of the vector of results. In this case we can conclude that there is a strong evidence against the null hypothesis.
 
 ## Anderson-Darling
 The data of Table 1 can be obtained by inserting the absolute frequencies of groups 1 and 2, obtaining their cumulative sum and binding together the four vectors:
@@ -189,7 +189,7 @@ for(bb in 2:(B+1)){
   D.star = N2.star/sqrt(N*(n-N))
   T[bb] = sum(D.star[1:4])
 }
-t2p(T)[1]
+t2p_old(T)[1]
 ```
 
 ## Blood testosterone levels in 11 women
@@ -210,23 +210,23 @@ The commands above assign the dataset to the object +testosterone+ and represent
 n=dim(testosterone)[1]
 p = dim(testosterone)[2]
 B=100
-m = mean(mean(testosterone))
 m.col = apply(testosterone,2,mean)
+m = mean(m.col)
 SSB = n*sum((m.col-m)^2)
 T<-array(0,dim=c((B+1),1))
 T[1] = SSB
-data.star = data
+data.star = testosterone
 for(bb in 2:(B+1)){
   U = matrix(runif(n*p),nrow=n) ## U is n x p
   R = apply(U,1,rank)           ## R is p x n
   for(i in 1:n){
-    data.star[i,] = data[i,R[,i]]
+    data.star[i,] = testosterone[i,R[,i]]
   }
   m.col = apply(data.star,2,mean)
   SSB =  n*sum((m.col-m)^2)
   T[bb] = SSB
 }
-t2p(T)[1]
+t2p_old(T)[1]
 ```
 
 
@@ -236,7 +236,7 @@ In this example we have two samples from two species of flies and seven variable
 
 $$H_1: \left\lbrace \left\[ \cup_{1\leq h \leq 6} (\mu_{1h}<\mu_{2h}) \cup (\mu_{17}>\mu_{27}) \right] \right\rbrace$$
 
-where $\mu_{ih}$ is the mean of the $h$th variable in group $i$, $i=1,2$, $h=1,\dots,7$. This can be done by performing one partial test for each variable (according to the related alternative), and then by combining the partial tests into a global test. A vector of contrasts will be again useful in obtaining the test statistic $T_h^* = \bar{x}_{2h}^* - \bar{x}_{1h}^*$.  The first column of the dataset contains an indicator variable of the species (0=Leptoconops Carteri, 1=Leptoconops Torrens). Since the t2p function is set according to the *large is significant rule*, we will have to change the signs of the permutation distribution of $T_7^*$ before obtaining its p-value.
+where $\mu_{ih}$ is the mean of the $h$th variable in group $i$, $i=1,2$, $h=1,\dots,7$. This can be done by performing one partial test for each variable (according to the related alternative), and then by combining the partial tests into a global test. A vector of contrasts will be again useful in obtaining the test statistic $T_h^* = \bar{x}_{2h}^* - \bar{x}_{1h}^*$.  The first column of the dataset contains an indicator variable of the species (0=Leptoconops Carteri, 1=Leptoconops Torrens). Since the t2p_old function is set according to the *large is significant rule*, we will have to change the signs of the permutation distribution of $T_7^*$ before obtaining its p-value.
 
 ```{r flies1}
 data(fly)
@@ -253,21 +253,21 @@ for(bb in 2:(B+1)){
   T[bb,] = t(contr)%*%fly.star
 }
 T[,7] = -T[,7]
-P = t2p(T)
+P = t2p_old(T)
 partial.p = P[1,] ; names(partial.p) = colnames(fly);
 round(partial.p,digits=4)
 ```
 
-The vector $partial.p$ contains the partial p-values of each variable. The matrix $P$ contains the null distribution of partial p-values. It results that X1, X3 and X5 are strongly significant and X7 is moderately significant. We combine the partial tests with Fisher’s, Liptak’s, and Tippett’s combining functions. Note that if Tippett’s combining function is applied, the rule is small is significant, therefore we run the t2p function to the inverse of the vector containing Tippett’s combination of the rows of $P$.
+The vector $partial.p$ contains the partial p-values of each variable. The matrix $P$ contains the null distribution of partial p-values. It results that X1, X3 and X5 are strongly significant and X7 is moderately significant. We combine the partial tests with Fisher’s, Liptak’s, and Tippett’s combining functions. Note that if Tippett’s combining function is applied, the rule is small is significant, therefore we run the t2p_old function to the inverse of the vector containing Tippett’s combination of the rows of $P$.
 
 ** NB the naming convention here is very bad -- in R, F means false and T means true!**
 ```{r fly2}
 F = apply(P,1,function(x){-2*log(prod(x))})
 L = apply(P,1,function(x){sum(qnorm(1-x))})
 T = apply(P,1,min)
-P.F = t2p(F)
-P.L = t2p(L)
-P.T = t2p(1/T);
+P.F = t2p_old(F)
+P.L = t2p_old(L)
+P.T = t2p_old(1/T);
 globs = c(P.F[1],P.L[1],P.T[1])
 names(globs) = c("Fisher","Liptak","Tippett")
 globs

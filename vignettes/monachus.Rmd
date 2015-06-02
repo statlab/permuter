@@ -40,6 +40,6 @@ for(bb in 2:(B+1)){
   T[bb,] = t(data.star)%*%contr
 }
 
-P = t2p(abs(T)); colnames(P)=colnames(data)
+P = t2p_old(abs(T)); colnames(P)=colnames(data)
 cat("Rough p-values \n"); t(t(P[1,]))
 ```

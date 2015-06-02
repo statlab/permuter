@@ -90,7 +90,7 @@ T[bb,j] = T[bb,j] + sum(y[paz==1])*sqrt(nu[2]/nu[1])/nu[1]-sum(y[paz==2])*sqrt(n
 for(j in 1:p){  T[,j]=T[,j]*alternative[j]  }
 
 source("../R/t2p.r")
-P=t2p(T) 
+P=t2p_old(T) 
 
 res =  data.frame(colnames(botulinum),P[1,]);
 colnames(res) = c("Variable","Raw p-values")
@@ -176,7 +176,7 @@ T[bb,j] = T[bb,j] +
 }
 
 
-P=t2p(T)
+P=t2p_old(T)
 
 P[1,]
 

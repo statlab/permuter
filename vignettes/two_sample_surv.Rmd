@@ -75,10 +75,10 @@ for(bb in 2:(B+1)){
   }
 }
 
-P=t2p(abs(T))			## two.sided
-#P=t2p(-T)			## one.sided: H1  g1 > g0	
+P=t2p_old(abs(T))			## two.sided
+#P=t2p_old(-T)			## one.sided: H1  g1 > g0	
 T1=apply(P,1,function(x){-2*log(prod(x))})		# no strata 
-t2p(T1)[1,]
+t2p_old(T1)[1,]
 ```
 
 ## Plots
@@ -165,8 +165,8 @@ for(bb in 2:(B+1)){
   }
 }
 
-P=t2p(abs(T))			## two.sided
-#P=t2p(-T)			## one.sided: H1  g1 > g0	
+P=t2p_old(abs(T))			## two.sided
+#P=t2p_old(-T)			## one.sided: H1  g1 > g0	
 T1=apply(P,c(1,3),function(x){-2*log(prod(x))})
-t2p(T1)[1,]
+t2p_old(T1)[1,]
 ```

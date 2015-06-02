@@ -63,7 +63,7 @@ for(bb in 2:(B+1)){
   }
 }
 
-P=t2p(T)
+P=t2p_old(T)
 partial.p = P[1,,] 
 rownames(partial.p) = colnames(data)
 colnames(partial.p) = c('s-r', 't-r','v-r','w-r','x-r')
@@ -80,7 +80,7 @@ for(d in 1:5){
   T.dom[,d,] = apply(P[,dom==d,],c(1,3),function(x){-2*log(prod(x))})
 }
 
-P.dom = t2p(T.dom)
+P.dom = t2p_old(T.dom)
 res = P.dom[1,,]
 rownames(res) = c('Bloom','Dry','Long','Neat','Wet')
 colnames(res) = c('r-s','r-t','r-v','r-w','r-x')

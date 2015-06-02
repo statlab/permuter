@@ -41,7 +41,7 @@ for(bb in 2:(B+1)){
   T[bb,2] = mean(y.star[ID==1]^2)-mean(y.star[ID==2]^2)
 }
 
-P = t2p(abs(T))
+P = t2p_old(abs(T))
 P[1,]
 ```
 

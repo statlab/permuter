@@ -7,7 +7,7 @@ t2p_old <- function(T) {
     if (is.null(dim(T))) {
         T <- array(T, dim = c(length(T), 1))
     }
-    oth <- seq(1:length(dim(T)))[-1]
+    oth <- seq(2:length(dim(T)))
     
     B <- dim(T)[1] - 1
     p <- dim(T)[2]
@@ -16,7 +16,7 @@ t2p_old <- function(T) {
     }
     
     
-    rango <- function(x) {
+    rango <- function(x) { # rango is the Italian word for rank
         r = 1 - rank(x[-1], ties.method = "min")/B + 1/B
         return(c(mean(x[-1] >= x[1]), r))
     }

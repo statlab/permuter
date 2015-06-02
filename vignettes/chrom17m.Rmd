@@ -54,8 +54,8 @@ T[bb,i] = (data.star[i,1] - (sum(data.star[i,]))*n1/n)^2/((sum(data.star[i,]))*n
 }
 
 
-P = t2p(T)
-p.part =t2p(T)[1,]
+P = t2p_old(T)
+p.part =t2p_old(T)[1,]
 names(p.part)=G
 p.part
 

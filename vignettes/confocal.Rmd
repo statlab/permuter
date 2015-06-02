@@ -59,8 +59,8 @@ D5= as.matrix(d5[1:nT5,-c(1:3)]-d5[-c(1:nT5),-c(1:3)])
  }
  }
 
- P0<-t2p(abs(T0))  ;  colnames(P0)=colnames(D0)
- P5<-t2p(abs(T5))  ;  colnames(P5)=colnames(D5)
+ P0<-t2p_old(abs(T0))  ;  colnames(P0)=colnames(D0)
+ P5<-t2p_old(abs(T5))  ;  colnames(P5)=colnames(D5)
 
   par.res = cbind(P0[1,],P5[1,]); colnames(par.res) = c("T0","T5")
   par.res 
@@ -82,7 +82,7 @@ D5= as.matrix(d5[1:nT5,-c(1:3)]-d5[-c(1:nT5),-c(1:3)])
  TD5[,k] = apply(as.matrix(P5[,dom==k]),1,function(x){-2*log(prod(x))})
  
  }
- PD0<-t2p(TD0); PD5<-t2p(TD5)
+ PD0<-t2p_old(TD0); PD5<-t2p_old(TD5)
  colnames(PD0) = colnames(PD5) = paste("dom",seq(1,4),sep="")
  dom.res=cbind(PD0[1,],PD5[1,]);colnames(dom.res)=c("T0","T5")
  dom.res
@@ -120,7 +120,7 @@ for(bb in 2:(B+1)){## independently within variables
   }
 }
 
-PT=t2p(abs(TT)) ; PNT=t2p(abs(TNT))
+PT=t2p_old(abs(TT)) ; PNT=t2p_old(abs(TNT))
 colnames(PT)=colnames(dT) ; colnames(PNT)=colnames(PT)
 TNT.res = cbind(PT[1,],PNT[1,]) ; colnames(TNT.res) = c("T","NT")
 TNT.res

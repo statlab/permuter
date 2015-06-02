@@ -39,7 +39,7 @@ for(bb in 2:(B+1)){
   T[bb,] = t(Y.star)%*%contr
 }
 
-P = t2p(abs(T))
+P = t2p_old(abs(T))
 p.raw = P[1,] 
 p.raw
 ```

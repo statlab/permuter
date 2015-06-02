@@ -62,9 +62,9 @@ for(bb in 2:(B+1)){
 Set Het(1) > Het(2), then $1-\sum_k p_{(k)1}^2 > 1-\sum_k p_{(k)2}^2$. We care about when $\sum_k p_{(k)1}^2 - p_{(k)2}^2< 0$; small is significant.
 
 ```{r kenya2}
-p.G = t2p(-T.G)[1]
-p.S = t2p(-T.S)[1]
-p.R = t2p(-T.R)[1]
+p.G = t2p_old(-T.G)[1]
+p.S = t2p_old(-T.S)[1]
+p.R = t2p_old(-T.R)[1]
 
 res = c(p.G,p.S,p.R)
 res

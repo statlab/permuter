@@ -68,7 +68,7 @@ for(j in 1:4){
   T1[,j,]=T[,j,]*alternative[j]
 }
 
-P=t2p(T1)
+P=t2p_old(T1)
 P=ifelse(is.na(P)==TRUE,1,P)
 
 res = t(P[1,,])
@@ -101,12 +101,12 @@ for(k in 1:nstr){
   T.glob.s[,k] = apply(P[,,k],1,function(x){-2*log(prod(x))})
 }
 
-t2p(T.glob.s)[1,]
+t2p_old(T.glob.s)[1,]
 ```
 
 ## Global test
 ```{r global}
 T.glob = apply(T.glob.s,1,function(x){-2*log(prod(x))}) # In the original script, this says apply(P.glob.s,....) but P.glob.s does not exist
-p.glob = t2p(T.glob)[1]
+p.glob = t2p_old(T.glob)[1]
 p.glob
 ```
