@@ -4,14 +4,14 @@
 \alias{t2p}
 \title{Use the empirical distribution of a test statistic to get p-values.}
 \usage{
-t2p(t, distr, alternative = c("upper", "lower", "two-sided"))
+t2p(t, distr, alternative = c("greater", "less", "two-sided"))
 }
 \arguments{
 \item{t}{The observed test statistic}
 
 \item{distr}{The empirical distribution, computed by Monte Carlo}
 
-\item{alternative}{P-value desired: 'upper', 'lower', 'two-sided' (may specify more than one)}
+\item{alternative}{P-value desired: 'greater', 'less', 'two-sided' (may specify more than one)}
 }
 \value{
 something

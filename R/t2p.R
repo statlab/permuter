@@ -30,9 +30,9 @@ t2p_old <- function(T) {
 #' 
 #' @param t           The observed test statistic
 #' @param distr       The empirical distribution, computed by Monte Carlo
-#' @param alternative P-value desired: 'upper', 'lower', 'two-sided' (may specify more than one)
+#' @param alternative P-value desired: 'greater', 'less', 'two-sided' (may specify more than one)
 #' @return something
-t2p <- function(t, distr, alternative = c("upper", "lower", "two-sided")) {
+t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
     
     # check that distr is a vector with appropriate size
     B <- sum(!is.na(distr))
@@ -47,7 +47,7 @@ t2p <- function(t, distr, alternative = c("upper", "lower", "two-sided")) {
     # + 1/B pboth <- mean(abs(distr) >= abs(t), na.rm=T) + 1/B
     
     P <- c(pupper = pupper, plower = plower, pboth = pboth)
-    alt <- c("upper", "lower", "two-sided")
+    alt <- c("greater", "less", "two-sided")
     keep <- alt %in% alternative
     return(P[keep])
 } 
