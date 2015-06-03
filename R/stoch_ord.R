@@ -8,9 +8,9 @@
 #' @return something
 stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
     
-    K = length(unique(x))
-    g = unique(sort(x))
-    n = table(x)
+    K <- length(unique(x))
+    g <- unique(sort(x))
+    n <- table(x)
     
     if (K == 1) {
         return(1)
@@ -25,7 +25,8 @@ stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
         
         # cat('ID:',ID,'\t ID.not:',ID.not,'\n')
         
-        s = (sum((y[x %in% ID] - mean(y[x %in% ID]))^2) + sum((y[x %in% ID.not] - mean(y[x %in% ID.not]))^2))/(sum(n) - 2)
+        s <- (sum((y[x %in% ID] - mean(y[x %in% ID]))^2) + sum((y[x %in% ID.not] - 
+            mean(y[x %in% ID.not]))^2))/(sum(n) - 2)
         
         if (alt == -1) {
             T[1, j] <- (mean(y[x %in% ID]) - mean(y[x %in% ID.not]))/sqrt(s)
@@ -50,7 +51,8 @@ stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
             # cat('ID:',ID,'\t ID.not:',ID.not,'\n')
             
             
-            s = (sum((y.perm[x %in% ID] - mean(y.perm[x %in% ID]))^2) + sum((y.perm[x %in% ID.not] - mean(y.perm[x %in% ID.not]))^2))/(sum(n) - 2)
+            s <- (sum((y.perm[x %in% ID] - mean(y.perm[x %in% ID]))^2) + sum((y.perm[x %in% 
+                ID.not] - mean(y.perm[x %in% ID.not]))^2))/(sum(n) - 2)
             
             if (alt == -1) {
                 T[bb, j] <- (mean(y.perm[x %in% ID]) - mean(y.perm[x %in% ID.not]))/sqrt(s)
@@ -64,14 +66,14 @@ stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
     }  #fine bb
     
     
-    P = t2p(T)
+    P <- t2p(T)
     
     T1 <- apply(P, 1, function(x) {
         -2 * log(prod(x))
     })
     
-    P1 = t2p(T1)
+    P1 <- t2p(T1)
     
-    p.val = P1[1]
+    p.val <- P1[1]
     return(P1)
 } 

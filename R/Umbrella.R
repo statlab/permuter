@@ -16,7 +16,7 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
     source("combine.r")
     source("T_to_P.r")
     
-    K = length(unique(y))
+    K <- length(unique(y))
     label <- unique(y)
     
     N <- length(x)
@@ -30,7 +30,7 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
     
     
     if (repeated == TRUE) {
-        n = N/K
+        n <- N/K
         U <- array(runif(n * B * K), dim = c(B, n, K))
         U <- aperm(apply(U, c(1, 2), rank), c(2, 1, 3))
     }
@@ -46,21 +46,22 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
         
         g <- c(1:k.hat)
         if (k.hat == 1) {
-            g = c(1, 1)
+            g <- c(1, 1)
         }
         for (j in 1:(length(g) - 1)) {
             ID <- g[c(1:j)]
             ID.not <- g[(-c(1:j))]
             
             
-            T[1, k.hat, 1] <- T[1, k.hat, 1] + mean(x[y %in% ID.not]) - mean(x[y %in% ID])
+            T[1, k.hat, 1] <- T[1, k.hat, 1] + mean(x[y %in% ID.not]) - mean(x[y %in% 
+                ID])
             
             
         }
         
         g <- c(k.hat:K)
         if (k.hat == K) {
-            g = c(K, K)
+            g <- c(K, K)
         }
         for (j in 1:(length(g) - 1)) {
             ID <- g[c(1:j)]
@@ -69,7 +70,8 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
             
             
             
-            T[1, k.hat, 2] <- T[1, k.hat, 2] + mean(x[y %in% ID]) - mean(x[y %in% ID.not])
+            T[1, k.hat, 2] <- T[1, k.hat, 2] + mean(x[y %in% ID]) - mean(x[y %in% 
+                ID.not])
         }
         
         
@@ -80,7 +82,7 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
             
             if (repeated == FALSE) {
                 x.perm <- x[U[, (bb - 1)]]
-                y.perm = y
+                y.perm <- y
             }
             
             if (repeated == TRUE) {
@@ -100,21 +102,22 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
             
             g <- c(1:k.hat)
             if (k.hat == 1) {
-                g = c(1, 1)
+                g <- c(1, 1)
             }
             for (j in 1:(length(g) - 1)) {
                 ID <- g[c(1:j)]
                 ID.not <- g[(-c(1:j))]
                 
                 
-                T[bb, k.hat, 1] <- T[bb, k.hat, 1] + mean(x.perm[y.perm %in% ID.not]) - mean(x.perm[y.perm %in% ID])
+                T[bb, k.hat, 1] <- T[bb, k.hat, 1] + mean(x.perm[y.perm %in% ID.not]) - 
+                  mean(x.perm[y.perm %in% ID])
                 
                 
             }
             
             g <- c(k.hat:K)
             if (k.hat == K) {
-                g = c(K, K)
+                g <- c(K, K)
             }
             for (j in 1:(length(g) - 1)) {
                 ID <- g[c(1:j)]
@@ -122,7 +125,8 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
                 
                 
                 
-                T[bb, k.hat, 2] <- T[bb, k.hat, 2] + mean(x.perm[y.perm %in% ID]) - mean(x.perm[y.perm %in% ID.not])
+                T[bb, k.hat, 2] <- T[bb, k.hat, 2] + mean(x.perm[y.perm %in% ID]) - 
+                  mean(x.perm[y.perm %in% ID.not])
                 
                 
                 
@@ -161,13 +165,13 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
         
         if (alt == "less") {
             cat("\n Know peak equal to", K, "\n")
-            P.glob = P1[1, K]
+            P.glob <- P1[1, K]
             max <- K
         }
         if (alt == "greater") {
             cat("\n Know peak equal to", 1, "\n")
-            P.glob = P1[1, 1]
-            max = 1
+            P.glob <- P1[1, 1]
+            max <- 1
         }
     }
     

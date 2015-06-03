@@ -19,8 +19,8 @@ IC <- function(x1, x2, conf.lev = 0.95, B = 1000, max.delta = 20, length.delta =
     
     delta <- seq(1/length.delta, max.delta, length.out = length.delta)
     
-    p = 1
-    k = 1
+    p <- 1
+    k <- 1
     
     while (p > alpha & k < length(delta)) {
         
@@ -45,7 +45,7 @@ IC <- function(x1, x2, conf.lev = 0.95, B = 1000, max.delta = 20, length.delta =
         
         ################################################## 
         cat(p, k, "\n")
-        k = k + 1
+        k <- k + 1
         
     }
     
@@ -68,8 +68,8 @@ IC <- function(x1, x2, conf.lev = 0.95, B = 1000, max.delta = 20, length.delta =
     
     delta <- seq(1/length.delta, max.delta, length.out = length.delta)
     
-    p = 1
-    k = 1
+    p <- 1
+    k <- 1
     
     while (p > alpha & k < length(delta)) {
         
@@ -94,7 +94,7 @@ IC <- function(x1, x2, conf.lev = 0.95, B = 1000, max.delta = 20, length.delta =
         
         ################################################## 
         cat("iter:", k, "\t p.val:", p, "\n")
-        k = k + 1
+        k <- k + 1
         
     }
     
@@ -106,4 +106,5 @@ IC <- function(x1, x2, conf.lev = 0.95, B = 1000, max.delta = 20, length.delta =
     
 }
 
-## in Job satisfaction example: set.seed(101) IC(X[Y==1],X[Y==2],max.delta=10,length.delta=100) [1] 8.805303 25.778030 
+## in Job satisfaction example: set.seed(101)
+## IC(X[Y==1],X[Y==2],max.delta=10,length.delta=100) [1] 8.805303 25.778030 

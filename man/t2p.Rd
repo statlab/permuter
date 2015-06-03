@@ -11,7 +11,7 @@ t2p(t, distr, alternative = c("upper", "lower", "two-sided"))
 
 \item{distr}{The empirical distribution, computed by Monte Carlo}
 
-\item{alternative}{P-value desired: "upper", "lower", "two-sided" (may specify more than one)}
+\item{alternative}{P-value desired: 'upper', 'lower', 'two-sided' (may specify more than one)}
 }
 \value{
 something

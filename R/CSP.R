@@ -65,11 +65,13 @@ CSP <- function(y, x, C = 1000, exact = FALSE) {
     
     # Factor A
     
-    # for(i in 1:(A-1)){ for(s in (i+1):A){ T.A[1]<-T.A[1]+(sum(Y[i,,])-sum(Y[s,,]))^2 } }
+    # for(i in 1:(A-1)){ for(s in (i+1):A){
+    # T.A[1]<-T.A[1]+(sum(Y[i,,])-sum(Y[s,,]))^2 } }
     
     # Factor B
     
-    # for(j in 1:(B-1)){ for(h in (j+1):B){ T.B[1]<-T.B[1]+(sum(Y[,j,])-sum(Y[,h,]))^2 } }
+    # for(j in 1:(B-1)){ for(h in (j+1):B){
+    # T.B[1]<-T.B[1]+(sum(Y[,j,])-sum(Y[,h,]))^2 } }
     
     # Interaction (a)
     
@@ -77,7 +79,8 @@ CSP <- function(y, x, C = 1000, exact = FALSE) {
     
     # for(j in 1:(B-1)){ for(h in (j+1):B){
     
-    # T.AB.a[1]<-T.AB.a[1] + (sum(Y[i,j, ])-sum(Y[s,j, ])-sum(Y[i,h, ])+sum(Y[s,h, ]))^2
+    # T.AB.a[1]<-T.AB.a[1] + (sum(Y[i,j, ])-sum(Y[s,j, ])-sum(Y[i,h, ])+sum(Y[s,h,
+    # ]))^2
     
     # } } } }
     
@@ -124,7 +127,8 @@ CSP <- function(y, x, C = 1000, exact = FALSE) {
                     
                     
                     # Interaction (a)
-                    T.AB.a[cc] <- T.AB.a[cc] + (sum(Y.perm[i, j, ]) - sum(Y.perm[s, j, ]) - sum(Y.perm[i, h, ]) + sum(Y.perm[s, h, ]))^2
+                    T.AB.a[cc] <- T.AB.a[cc] + (sum(Y.perm[i, j, ]) - sum(Y.perm[s, 
+                      j, ]) - sum(Y.perm[i, h, ]) + sum(Y.perm[s, h, ]))^2
                     
                     
                   }
@@ -162,7 +166,8 @@ CSP <- function(y, x, C = 1000, exact = FALSE) {
                     
                     
                     # Interaction (b)
-                    T.AB.b[cc] <- T.AB.b[cc] + (sum(Y.perm[i, j, ]) - sum(Y.perm[s, j, ]) - sum(Y.perm[i, h, ]) + sum(Y.perm[s, h, ]))^2
+                    T.AB.b[cc] <- T.AB.b[cc] + (sum(Y.perm[i, j, ]) - sum(Y.perm[s, 
+                      j, ]) - sum(Y.perm[i, h, ]) + sum(Y.perm[s, h, ]))^2
                     
                   }
                 }
@@ -172,7 +177,7 @@ CSP <- function(y, x, C = 1000, exact = FALSE) {
         
     }  #end cc
     
-    C = C - 1
+    C <- C - 1
     
     T.A <- round(T.A, digits = 8)
     T.B <- round(T.B, digits = 8)
@@ -195,8 +200,9 @@ CSP <- function(y, x, C = 1000, exact = FALSE) {
     ###### RESULTS
     
     
-    min.sig = rep(2/choose(2 * n, n), 2)
+    min.sig <- rep(2/choose(2 * n, n), 2)
     
-    return(list(pa = pa, pb = pb, pab = pab, pab.a = pab.a, pab.b = pab.b, TA = T.A[1], TB = T.B[1], TAB.a = T.AB.a[1], TAB.b = T.AB.b[1], type = "Constrained", C = C, min.sig = min.sig, 
-        exact = exact))
+    return(list(pa = pa, pb = pb, pab = pab, pab.a = pab.a, pab.b = pab.b, TA = T.A[1], 
+        TB = T.B[1], TAB.a = T.AB.a[1], TAB.b = T.AB.b[1], type = "Constrained", 
+        C = C, min.sig = min.sig, exact = exact))
 } 
