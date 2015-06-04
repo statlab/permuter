@@ -21,140 +21,183 @@ library(permuter)
 data(confocal)
 source("../R/t2p.r")
 data <- confocal
+
+ 
+
+
 ```
 
 ```{r cleandata}
-ID<-data$FU_BA=='FU' & (data$PAT_ID==16 | data$PAT_ID==26); 
-data = data[ID==FALSE,]
- 
- 
-d0<-data[data$FU_BA=='BASELINE',]
-d5<-data[data$FU_BA=='FU',]
+ID <- data$FU_BA == "FU" & (data$PAT_ID == 16 | data$PAT_ID == 26)
+data <- data[ID == FALSE, ]
 
-nT0  <-dim(d0)[1]/2
-nT5  <-dim(d5)[1]/2
+
+d0 <- data[data$FU_BA == "BASELINE", ]
+d5 <- data[data$FU_BA == "FU", ]
+
+nT0 <- dim(d0)[1]/2
+nT5 <- dim(d5)[1]/2
+
+ 
+
+
 ```
 
 ## Test T vs. NT
 ```{r test1}
-D0= as.matrix(d0[1:nT0,-c(1:3)]-d0[-c(1:nT0),-c(1:3)])
-D5= as.matrix(d5[1:nT5,-c(1:3)]-d5[-c(1:nT5),-c(1:3)])
+D0 <- as.matrix(d0[1:nT0, -c(1:3)] - d0[-c(1:nT0), -c(1:3)])
+D5 <- as.matrix(d5[1:nT5, -c(1:3)] - d5[-c(1:nT5), -c(1:3)])
 
- B=200
- p=dim(D0)[2]
- T0<-array(0,dim=c((B+1),p))
- T5<-array(0,dim=c((B+1),p))
- 
- T0[1,] = apply(D0,2,sum)
- T5[1,] = apply(D5,2,sum)
- 
- for(bb in 2:(B+1)){## independently within variabiles
- 
- S0=array(1-2*rbinom(nT0*p,1,.5),dim=dim(D0))
- S5=array(1-2*rbinom(nT5*p,1,.5),dim=dim(D5))
- 
- for(j in 1:p){
- T0[bb,j] = D0[,j]%*%S0[,j]
- T5[bb,j] = D5[,j]%*%S5[,j]
- }
- }
+B <- 200
+p <- dim(D0)[2]
+T0 <- array(0, dim = c((B + 1), p))
+T5 <- array(0, dim = c((B + 1), p))
 
- P0<-t2p_old(abs(T0))  ;  colnames(P0)=colnames(D0)
- P5<-t2p_old(abs(T5))  ;  colnames(P5)=colnames(D5)
+T0[1, ] <- apply(D0, 2, sum)
+T5[1, ] <- apply(D5, 2, sum)
 
-  par.res = cbind(P0[1,],P5[1,]); colnames(par.res) = c("T0","T5")
-  par.res 
+for (bb in 2:(B + 1)) {
+    ## independently within variabiles
+    
+    S0 <- array(1 - 2 * rbinom(nT0 * p, 1, 0.5), dim = dim(D0))
+    S5 <- array(1 - 2 * rbinom(nT5 * p, 1, 0.5), dim = dim(D5))
+    
+    for (j in 1:p) {
+        T0[bb, j] <- D0[, j] %*% S0[, j]
+        T5[bb, j] <- D5[, j] %*% S5[, j]
+    }
+}
+
+P0 <- t2p_old(abs(T0))
+colnames(P0) <- colnames(D0)
+P5 <- t2p_old(abs(T5))
+colnames(P5) <- colnames(D5)
+
+par.res <- cbind(P0[1, ], P5[1, ])
+colnames(par.res) <- c("T0", "T5")
+par.res
+
+
+ 
+
 
 ```
 
 ## Domains
 ```{r domains}
- dom<-c(rep(1,3),rep(2,5),3,rep(4,5))
- dom
+dom <- c(rep(1, 3), rep(2, 5), 3, rep(4, 5))
+dom
 
 
- TD0<-array(0,dim=c((B+1),4))
- TD5<-array(0,dim=c((B+1),4))
+TD0 <- array(0, dim = c((B + 1), 4))
+TD5 <- array(0, dim = c((B + 1), 4))
+
+for (k in 1:4) {
+    
+    TD0[, k] <- apply(as.matrix(P0[, dom == k]), 1, function(x) {
+        -2 * log(prod(x))
+    })
+    TD5[, k] <- apply(as.matrix(P5[, dom == k]), 1, function(x) {
+        -2 * log(prod(x))
+    })
+    
+}
+PD0 <- t2p_old(TD0)
+PD5 <- t2p_old(TD5)
+colnames(PD0) <- colnames(PD5) <- paste("dom", seq(1, 4), sep = "")
+dom.res <- cbind(PD0[1, ], PD5[1, ])
+colnames(dom.res) <- c("T0", "T5")
+dom.res
+
  
- for(k in 1:4){
- 
- TD0[,k] = apply(as.matrix(P0[,dom==k]),1,function(x){-2*log(prod(x))})
- TD5[,k] = apply(as.matrix(P5[,dom==k]),1,function(x){-2*log(prod(x))})
- 
- }
- PD0<-t2p_old(TD0); PD5<-t2p_old(TD5)
- colnames(PD0) = colnames(PD5) = paste("dom",seq(1,4),sep="")
- dom.res=cbind(PD0[1,],PD5[1,]);colnames(dom.res)=c("T0","T5")
- dom.res
+
+
 ```
 
 ## FU vs. Baseline
 ```{r test3}
 data <- confocal
 
-dT<-data[data$T_NT=='T',] ; dNT<-data[data$T_NT=='NT',]
+dT <- data[data$T_NT == "T", ]
+dNT <- data[data$T_NT == "NT", ]
 
 IDT <- dT$PAT_ID == 16 | dT$PAT_ID == 26
-IDNT<- dNT$PAT_ID == 16 | dNT$PAT_ID == 26  
+IDNT <- dNT$PAT_ID == 16 | dNT$PAT_ID == 26
 
-dT<-dT[IDT==FALSE,] ; dNT<-dNT[IDNT==FALSE,]
+dT <- dT[IDT == FALSE, ]
+dNT <- dNT[IDNT == FALSE, ]
 
-dT=as.matrix(dT[,-c(1:3)]) ; dNT=as.matrix(dNT[,-c(1:3)])
-p=dim(dT)[2]
-n=dim(dT)[1]/2
+dT <- as.matrix(dT[, -c(1:3)])
+dNT <- as.matrix(dNT[, -c(1:3)])
+p <- dim(dT)[2]
+n <- dim(dT)[1]/2
 
 
-DT= dT[1:n,]-dT[-c(1:n),]
-DNT=dNT[1:n,]-dNT[-c(1:n),]
+DT <- dT[1:n, ] - dT[-c(1:n), ]
+DNT <- dNT[1:n, ] - dNT[-c(1:n), ]
 
-TT<-array(0,dim=c((B+1),p)) ; TNT<-array(0,dim=c((B+1),p))
-TT[1,] = apply(DT,2,sum)
-TNT[1,] = apply(DNT,2,sum)
+TT <- array(0, dim = c((B + 1), p))
+TNT <- array(0, dim = c((B + 1), p))
+TT[1, ] <- apply(DT, 2, sum)
+TNT[1, ] <- apply(DNT, 2, sum)
 
-for(bb in 2:(B+1)){## independently within variables 
-  ST=array(1-2*rbinom(n*p,1,.5),dim=dim(DT))
-  SNT=array(1-2*rbinom(n*p,1,.5),dim=dim(DNT))
-  for(j in 1:p){
-    TT[bb,j] = DT[,j]%*%ST[,j]
-    TNT[bb,j] = DNT[,j]%*%SNT[,j]
-  }
+for (bb in 2:(B + 1)) {
+    ## independently within variables
+    ST <- array(1 - 2 * rbinom(n * p, 1, 0.5), dim = dim(DT))
+    SNT <- array(1 - 2 * rbinom(n * p, 1, 0.5), dim = dim(DNT))
+    for (j in 1:p) {
+        TT[bb, j] <- DT[, j] %*% ST[, j]
+        TNT[bb, j] <- DNT[, j] %*% SNT[, j]
+    }
 }
 
-PT=t2p_old(abs(TT)) ; PNT=t2p_old(abs(TNT))
-colnames(PT)=colnames(dT) ; colnames(PNT)=colnames(PT)
-TNT.res = cbind(PT[1,],PNT[1,]) ; colnames(TNT.res) = c("T","NT")
+PT <- t2p_old(abs(TT))
+PNT <- t2p_old(abs(TNT))
+colnames(PT) <- colnames(dT)
+colnames(PNT) <- colnames(PT)
+TNT.res <- cbind(PT[1, ], PNT[1, ])
+colnames(TNT.res) <- c("T", "NT")
 TNT.res
 
-FWE.res = cbind(FWE.minP(PT),FWE.minP(PNT))
-colnames(FWE.res)=c("T","NT") ; rownames(FWE.res)=colnames(dT)
+FWE.res <- cbind(FWE.minP(PT), FWE.minP(PNT))
+colnames(FWE.res) <- c("T", "NT")
+rownames(FWE.res) <- colnames(dT)
 FWE.res
+
+ 
+
+
 ```
 
 ## Two-way ANOVA
 ```{r twoway_anova}
 data <- confocal
-data = data[data$PAT_ID != 16 & data$PAT_ID != 26,]
+data <- data[data$PAT_ID != 16 & data$PAT_ID != 26, ]
 
-x=data[,2:3]
-x[,1]=ifelse(x[,1]=='FU',1,2)
-x[,2]=ifelse(x[,2]=='T',1,2)
+x <- data[, 2:3]
+x[, 1] <- ifelse(x[, 1] == "FU", 1, 2)
+x[, 2] <- ifelse(x[, 2] == "T", 1, 2)
 
 
-p=dim(data)[2]-3
-P = array(0,dim=c(p,3))
+p <- dim(data)[2] - 3
+P <- array(0, dim = c(p, 3))
 
-C = 2000
+C <- 2000
 
-for(j in 4:(3+p)){
-  y = data[,j]
-  t = CSP(y,x,C=C)
-  P[(j-3),] = c(t$pa,t$pb,t$pab)
-  print((j-3))
+for (j in 4:(3 + p)) {
+    y <- data[, j]
+    t <- CSP(y, x, C = C)
+    P[(j - 3), ] <- c(t$pa, t$pb, t$pab)
+    print((j - 3))
 }
-rownames(P) = colnames(data[,-c(1:3)])
-colnames(P) = c("FU/BASELINE","T/NT","Interaction")
+rownames(P) <- colnames(data[, -c(1:3)])
+colnames(P) <- c("FU/BASELINE", "T/NT", "Interaction")
 
-y = data[,4]
-t=CSP(y,x)
-#synchro.summary(t)
+y <- data[, 4]
+t <- CSP(y, x)
+# synchro.summary(t)
+
+ 
+
+
 ```

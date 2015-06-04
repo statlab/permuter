@@ -13,6 +13,10 @@ vignette: >
 
 ```{r}
 library(permuter)
+
+ 
+
+
 ```
 
 
@@ -24,18 +28,23 @@ We'd like to do a paired test: the column `YA` contains the first measurement an
 
 ```{r ipat, tidy = TRUE, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(ipat)
-d <- ipat$YA-ipat$YB
+d <- ipat$YA - ipat$YB
 n <- nrow(ipat)
-B=1000
+B <- 1000
 observed <- mean(d)
 distr <- one_sample(x = d, reps = B)
 
-# this is the old code, for comparison. The test statistic they use is the sum of the differences; we use the mean.
-T<-array(0,dim=c((B+1),1))
-T[1] = sum(d)
-for(bb in 2:(B+1)){
-  T[bb] = t(d)%*%(1-2*rbinom(n,1,.5))
+# this is the old code, for comparison. The test statistic they use is the sum
+# of the differences; we use the mean.
+T <- array(0, dim = c((B + 1), 1))
+T[1] <- sum(d)
+for (bb in 2:(B + 1)) {
+    T[bb] <- t(d) %*% (1 - 2 * rbinom(n, 1, 0.5))
 }
+
+ 
+
+
 ```
 
 The vector `distr` has length `B` and contains the null distribution of the test statistic. In order to obtain a p-value we need to use the function `t2p` that returns the p-value from a distribution of permutation values of the test statistic (i.e. it compares the observed test statistic with the whole distribution). You may specify an alternative ('greater', 'less', or 'two-sided') or leave the argument `alternative` blank to get all three p-values.
@@ -43,35 +52,43 @@ The vector `distr` has length `B` and contains the null distribution of the test
 ```{r show_t2p_old, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 t2p_old(T)[1]
 t2p(observed, distr)
+
+ 
+
+
 ```
 
 The output is the p-value of this analysis. In this case the null hypothesis $H_0 : Y_1 \,{\buildrel d \over =}\, Y_2$ is rejected if favor of the alternative $H_1: Y_1 \,{\buildrel d \over >}\, Y_2$.  Let's calculate the conditional power for the 'greater than' alternative.
 
 ```{r conditional_power, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 R <- 100
-p.val <- array(0,dim=c(R,1))
+p.val <- array(0, dim = c(R, 1))
 pval <- rep(0, R)
-Z = ipat[,1]-ipat[,2]-sum(d)
-for(cc in 1:R){
-  # new
-  d.star <- sample(d)
-  distr <- one_sample(x = d.star, reps = B)
-  pval[cc] <- t2p(mean(d.star), distr, alternative = "greater")
-  
-  # old
-  Z.star <- sample(Z)
-  Z.star <- Z.star + sum(d)
-  T<-array(0,dim <- c((B+1),1))
-  T[1] <- sum(d)
-  for(bb in 2:(B+1)){
-    T[bb] <- t(d)%*%(1-2*rbinom(n,1,.5))
-  }
-  p.val[cc] <- t2p_old(T)[1]
+Z <- ipat[, 1] - ipat[, 2] - sum(d)
+for (cc in 1:R) {
+    # new
+    d.star <- sample(d)
+    distr <- one_sample(x = d.star, reps = B)
+    pval[cc] <- t2p(mean(d.star), distr, alternative = "greater")
+    
+    # old
+    Z.star <- sample(Z)
+    Z.star <- Z.star + sum(d)
+    T <- array(0, dim <- c((B + 1), 1))
+    T[1] <- sum(d)
+    for (bb in 2:(B + 1)) {
+        T[bb] <- t(d) %*% (1 - 2 * rbinom(n, 1, 0.5))
+    }
+    p.val[cc] <- t2p_old(T)[1]
 }
 
-alpha = 0.05
-pow = list("new version" = mean(pval <= alpha), "old version" = mean(p.val <= alpha))
+alpha <- 0.05
+pow <- list(`new version` = mean(pval <= alpha), `old version` = mean(p.val <= alpha))
 pow
+
+ 
+
+
 ```
 
 ## Job Satisfaction
@@ -82,26 +99,35 @@ We can obtain the test statistic $T^∗ = \bar{X}_1^∗ − \bar{X}_2^∗$ by mu
 ```{r jobsatis1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(job)
 head(job)
-Y = job[,1]
-X = job[,2]
+Y <- job[, 1]
+X <- job[, 2]
 
-n = table(Y)
-C = length(n)
-contr = rep(1/n,n)
-contr[-c(1:n[1])] = -contr[-c(1:n[1])]
-round(contr,digits=3)
+n <- table(Y)
+C <- length(n)
+contr <- rep(1/n, n)
+contr[-c(1:n[1])] <- -contr[-c(1:n[1])]
+round(contr, digits = 3)
+
+ 
+
+
 ```
 
 ```{r jobsatis2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-B = 100
-T <- array(0,dim=c((B+1),1))
-T[1] = X%*%contr
-for(bb in 2:(B+1)){
-  X.star = sample(X)
-  T[bb] = X.star%*%contr
+B <- 100
+T <- array(0, dim = c((B + 1), 1))
+T[1] <- X %*% contr
+for (bb in 2:(B + 1)) {
+    X.star <- sample(X)
+    T[bb] <- X.star %*% contr
 }
 
-P=t2p_old(T); P[1]
+P <- t2p_old(T)
+P[1]
+
+ 
+
+
 ```
 
 ### New method
@@ -109,21 +135,29 @@ We'd like to test whether there's a difference in job satisfaction between the t
 ```{r jobsatis3, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(job)
 head(job)
-group1 <- job[job$Y == 1,"X"]
-group2 <- job[job$Y == 2,"X"]
+group1 <- job[job$Y == 1, "X"]
+group2 <- job[job$Y == 2, "X"]
 
 observed <- mean(group1) - mean(group2)
 distr <- two_sample(group1, group2)
 pvalue <- t2p(observed, distr)
 pvalue
+
+ 
+
+
 ```
 
 
 
 ### Confidence interval
 ```{r jobsatis_confint, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
-IC(X[Y==1],X[Y==2],conf.lev=0.95,max.delta=10,length.delta=50)
+IC(X[Y == 1], X[Y == 2], conf.lev = 0.95, max.delta = 10, length.delta = 50)
 CI_mean(group1, group2, alpha = 0.05)
+
+ 
+
+
 ```
 
 ### Conditional Power 
@@ -131,23 +165,29 @@ We'll use the IC function. In the book it is obtained as in "IPAT Data" example.
 ```{r jobsatis_power, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
 ## Old way
 MB <- 100
-ICr <- array(0,dim=c(B,2))
-CI_perm <- matrix(rep(0, 2*MB), ncol = 2)
-Z <- c(group1-observed,group2)
+ICr <- array(0, dim = c(B, 2))
+CI_perm <- matrix(rep(0, 2 * MB), ncol = 2)
+Z <- c(group1 - observed, group2)
 n <- length(group1)
-for(bb in 1:MB){
-  # new way
-  Z.perm <- sample(Z)
-  Z.perm[1:n] <- Z.perm[1:n] + observed
-  CI_perm[bb,] <- CI_mean(Z.perm[1:n], Z.perm[-(1:n)])
-  
-  # old way
-  Z.perm=sample(Z)
-  Z.perm[Y==1]=Z.perm[Y==1]+m
-  ICr[bb,]=IC(Z.perm[Y==1],Z.perm[Y==2],conf.lev=0.95,max.delta=10,length.delta=50)
+for (bb in 1:MB) {
+    # new way
+    Z.perm <- sample(Z)
+    Z.perm[1:n] <- Z.perm[1:n] + observed
+    CI_perm[bb, ] <- CI_mean(Z.perm[1:n], Z.perm[-(1:n)])
+    
+    # old way
+    Z.perm <- sample(Z)
+    Z.perm[Y == 1] <- Z.perm[Y == 1] + m
+    ICr[bb, ] <- IC(Z.perm[Y == 1], Z.perm[Y == 2], conf.lev = 0.95, max.delta = 10, 
+        length.delta = 50)
 }
-pow = list("new version" = 1-mean(CI_perm[,1]<0 & CI_perm[,2]>0), "old version" = 1-mean(ICr[,1]<0 & ICr[,2]>0))
+pow <- list(`new version` = 1 - mean(CI_perm[, 1] < 0 & CI_perm[, 2] > 0), `old version` = 1 - 
+    mean(ICr[, 1] < 0 & ICr[, 2] > 0))
 pow
+
+ 
+
+
 ```
 
 
@@ -156,20 +196,28 @@ This is an example of one way ANOVA analysis, where the factor is given by the g
 
 ```{r worms1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(worms)
-Y <- worms[,1]
-X <- worms[,2]
-n = table(Y)
-C = length(n)
+Y <- worms[, 1]
+X <- worms[, 2]
+n <- table(Y)
+C <- length(n)
 n
+
+ 
+
+
 ```
 
 It is easy to show that, conditionally, the usual F test statistic for the one-way ANOVA is permutationally equivalent to $T^{obs} = \sum_{j=1}^3 n_j \bar{X}_j^2$. We can obtain the distribution of the test statistic by computing, at each permutation, the values of $\bar{X}_j^2, j=1,2,3$. This can be done with the auxiliary dummy variables $I$:
 
 ```{r worms2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-I = array(0,dim=c(sum(n),C))
-for(i in 1:C){
-I[,i]<-ifelse(Y==names(n)[i],1/n[i],0)
+I <- array(0, dim = c(sum(n), C))
+for (i in 1:C) {
+    I[, i] <- ifelse(Y == names(n)[i], 1/n[i], 0)
 }
+
+ 
+
+
 ```
 
 The $i$th element of the $j$th column of matrix $I$ is equal to $1/n_j$ if the $i$th
@@ -178,13 +226,17 @@ $j = 1,2,3$. Thus the vector of means-by-group $\bar{x} = [\bar{x}_1, \bar{x}_2,
 the vector $n$. The permutation values of $T^* = \sum_{j=1}^3n_j {\bar{X}_j^*}^2$ can be obtained similarly by replacing $X$ with $X.star$, a random permutation of $X$:
 
 ```{r worms3, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-T = array(0,dim=c((B+1),1))
-T[1] = ( t(X)%*%I )^2%*%n
-for(bb in 2:(B+1)){
-  X.star=sample(X)
-  T[bb] = ( t(X.star)%*%I )^2%*%n
+T <- array(0, dim = c((B + 1), 1))
+T[1] <- (t(X) %*% I)^2 %*% n
+for (bb in 2:(B + 1)) {
+    X.star <- sample(X)
+    T[bb] <- (t(X.star) %*% I)^2 %*% n
 }
 t2p_old(T)[1]
+
+ 
+
+
 ```
 
 The p-value of the test is again obtained by applying the t2p_old function to the vector $T$, and by considering the first element of the vector of results. In this case we can conclude that there is a strong evidence against the null hypothesis.
@@ -195,20 +247,30 @@ The data of Table 1 can be obtained by inserting the absolute frequencies of gro
 **to do: use xtable to generate Table 1 nicely**
 
 ```{r ad, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-f1 = c(8,9,6,8,9) ; f2 = c(17,6,6,3,8);
-N1 = cumsum(f1) ; N2 = cumsum(f2);
-N = f1+f2
-n = sum(N);
-cbind(f1,f2,N1,N2,N)
+f1 <- c(8, 9, 6, 8, 9)
+f2 <- c(17, 6, 6, 3, 8)
+N1 <- cumsum(f1)
+N2 <- cumsum(f2)
+N <- f1 + f2
+n <- sum(N)
+cbind(f1, f2, N1, N2, N)
+
+ 
+
+
 ```
 
 The test statistic $T_D^*$ is a sum over $k-1 = 4$ categories of the quantities $D_i = N_{2i}/[N_{.i}\times(n-N_{.i})]^{1/2}$, $i=1,\dots,4$. It is then easier to create a vector containing the $D_i$'s and then sum its elements to obtain $T_D^*$. For the observed data:
 
 ```{r ad2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-B=100
-T = array(0,dim=c((B+1),1))
-D = N2/sqrt(N*(n-N))
-T[1] = sum(D[1:4])
+B <- 100
+T <- array(0, dim = c((B + 1), 1))
+D <- N2/sqrt(N * (n - N))
+T[1] <- sum(D[1:4])
+
+ 
+
+
 ```
 
 A random permutation of data can be obtained by re-creating the original data that gives the observed frequencies f1 and f2. Indeed, we have to obtain all possible configurations of frequencies $\{f_{i1},f_{i2}\}$ that satisfies the row and columns totals. To do that, first we create the vectors X1 and X2 containing the categories of each observation in each sample (for semplicity we indicate the categories with the numbers from one to five). Later on, concatenate the vectors X1 and X2 in the vector X and let X.star be a random permutation of X. Create a binary vector of group labels Y. In this example X1 and X2 are vectors of lengths 40, X and Y have lengths equal to 80. X1 and X2 are such that table(X1) = f1 and table(X2) = f2.
@@ -216,19 +278,23 @@ A random permutation of data can be obtained by re-creating the original data th
 Finally, the frequency table corresponding to a random permutation can be obtained by applying the function table to the elements of $X.star$ belonging to the first and second sample, respectively. The permutation values of the test statistic are then obtained as above. Note that this way of proceeding guarantees that the marginal distributions of Table 1 are fixed, therefore we only need to obtain the frequency distribution in the second sample.
 
 ```{r ad3, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-X1<-rep(seq(1,5),f1)
-X2<-rep(seq(1,5),f2)
-X<-c(X1,X2)
-Y <-rep(c(1,2),c(sum(f1),sum(f2)))
-options(warn=-1)
-for(bb in 2:(B+1)){
-  X.star=sample(X)
-  f2.star = table(X.star[Y==2])
-  N2.star = cumsum(f2.star)
-  D.star = N2.star/sqrt(N*(n-N))
-  T[bb] = sum(D.star[1:4])
+X1 <- rep(seq(1, 5), f1)
+X2 <- rep(seq(1, 5), f2)
+X <- c(X1, X2)
+Y <- rep(c(1, 2), c(sum(f1), sum(f2)))
+options(warn = -1)
+for (bb in 2:(B + 1)) {
+    X.star <- sample(X)
+    f2.star <- table(X.star[Y == 2])
+    N2.star <- cumsum(f2.star)
+    D.star <- N2.star/sqrt(N * (n - N))
+    T[bb] <- sum(D.star[1:4])
 }
 t2p_old(T)[1]
+
+ 
+
+
 ```
 
 ## Blood testosterone levels in 11 women
@@ -237,35 +303,43 @@ The purpose was to evaluate whether the level of testosterone in the blood is su
 
 ```{r testosterone1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(testosterone)
-Y = rep(seq(1,5),each=11)
-Time = colnames(testosterone)
-boxplot(unlist(testosterone)~Y,xlab="Time",ylab="Testosterone",names=Time)
-lines(seq(1,5),apply(testosterone,2,mean),lty="dotted")
+Y <- rep(seq(1, 5), each = 11)
+Time <- colnames(testosterone)
+boxplot(unlist(testosterone) ~ Y, xlab = "Time", ylab = "Testosterone", names = Time)
+lines(seq(1, 5), apply(testosterone, 2, mean), lty = "dotted")
+
+ 
+
+
 ```
 
 The commands above assign the dataset to the object +testosterone+ and represent it with a box-plot, the dotted line linking the sample means at each time. The deviance decomposition can be written as $SST = SSA + SSB + SSR$, where $SST$ is the total deviance, $SSA$ and $SSB$ are the deviances due to the main effects and $SSR$ is the residual deviance. Note that $SST$ is constant at each permutation, and so is $SSA$ since we permute observations within the rows of data. On the other hand, $SSB$ and $SSR$ vary at each permutation. The test statistic for the time effect is $F_B = (df_{SSR}/df_{SSB}) \times SSB/SSR$. Leaving out the degrees of freedom $df_{SSB}$ and $df_{SSR}$ that are permutationally invariant, the easiest way to obtain the residual deviance at each permutation is to write it as $SSR^* = SST − SSA − SSB^*$. Therefore, the F statistic can be written as $F^* = SSB^*/(SS − SSB^*)$, where $SS$ is constant at each permutation. It is easy to see that $F^*$ is a monotone function of $T^* = SSB^*$.
 
 ```{r testosterone2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-n=dim(testosterone)[1]
-p = dim(testosterone)[2]
-B=100
-m.col = apply(testosterone,2,mean)
-m = mean(m.col)
-SSB = n*sum((m.col-m)^2)
-T<-array(0,dim=c((B+1),1))
-T[1] = SSB
-data.star = testosterone
-for(bb in 2:(B+1)){
-  U = matrix(runif(n*p),nrow=n) ## U is n x p
-  R = apply(U,1,rank)           ## R is p x n
-  for(i in 1:n){
-    data.star[i,] = testosterone[i,R[,i]]
-  }
-  m.col = apply(data.star,2,mean)
-  SSB =  n*sum((m.col-m)^2)
-  T[bb] = SSB
+n <- dim(testosterone)[1]
+p <- dim(testosterone)[2]
+B <- 100
+m.col <- apply(testosterone, 2, mean)
+m <- mean(m.col)
+SSB <- n * sum((m.col - m)^2)
+T <- array(0, dim = c((B + 1), 1))
+T[1] <- SSB
+data.star <- testosterone
+for (bb in 2:(B + 1)) {
+    U <- matrix(runif(n * p), nrow = n)  ## U is n x p
+    R <- apply(U, 1, rank)  ## R is p x n
+    for (i in 1:n) {
+        data.star[i, ] <- testosterone[i, R[, i]]
+    }
+    m.col <- apply(data.star, 2, mean)
+    SSB <- n * sum((m.col - m)^2)
+    T[bb] <- SSB
 }
 t2p_old(T)[1]
+
+ 
+
+
 ```
 
 
@@ -279,36 +353,49 @@ where $\mu_{ih}$ is the mean of the $h$th variable in group $i$, $i=1,2$, $h=1,\
 
 ```{r flies1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(fly)
-N = dim(fly)[1]
-p = dim(fly)[2]-1
-n = table(fly[,1])
-B = 100
-contr = as.vector(c(rep(-1/n[1], n[1]), rep(1/n[2], n[2])))
-data = as.matrix(fly[,-1])
-T<-array(0,dim=c((B+1),p))
-T[1,] = t(contr)%*%data
-for(bb in 2:(B+1)){
-  fly.star = data[sample(1:N),]
-  T[bb,] = t(contr)%*%fly.star
+N <- dim(fly)[1]
+p <- dim(fly)[2] - 1
+n <- table(fly[, 1])
+B <- 100
+contr <- as.vector(c(rep(-1/n[1], n[1]), rep(1/n[2], n[2])))
+data <- as.matrix(fly[, -1])
+T <- array(0, dim = c((B + 1), p))
+T[1, ] <- t(contr) %*% data
+for (bb in 2:(B + 1)) {
+    fly.star <- data[sample(1:N), ]
+    T[bb, ] <- t(contr) %*% fly.star
 }
-T[,7] = -T[,7]
-P = t2p_old(T)
-partial.p = P[1,] ; names(partial.p) = colnames(data);
-round(partial.p,digits=4)
+T[, 7] <- -T[, 7]
+P <- t2p_old(T)
+partial.p <- P[1, ]
+names(partial.p) <- colnames(data)
+round(partial.p, digits = 4)
+
+ 
+
+
 ```
 
 The vector $partial.p$ contains the partial p-values of each variable. The matrix $P$ contains the null distribution of partial p-values. It results that X1, X3 and X5 are strongly significant and X7 is moderately significant. We combine the partial tests with Fisher’s, Liptak’s, and Tippett’s combining functions. Note that if Tippett’s combining function is applied, the rule is small is significant, therefore we run the t2p_old function to the inverse of the vector containing Tippett’s combination of the rows of $P$.
 
 ** NB the naming convention here is very bad -- in R, F means false and T means true!**
 ```{r fly2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-F = apply(P,1,function(x){-2*log(prod(x))})
-L = apply(P,1,function(x){sum(qnorm(1-x))})
-T = apply(P,1,min)
-P.F = t2p_old(F)
-P.L = t2p_old(L)
-P.T = t2p_old(1/T);
-globs = c(P.F[1],P.L[1],P.T[1])
-names(globs) = c("Fisher","Liptak","Tippett")
+F <- apply(P, 1, function(x) {
+    -2 * log(prod(x))
+})
+L <- apply(P, 1, function(x) {
+    sum(qnorm(1 - x))
+})
+T <- apply(P, 1, min)
+P.F <- t2p_old(F)
+P.L <- t2p_old(L)
+P.T <- t2p_old(1/T)
+globs <- c(P.F[1], P.L[1], P.T[1])
+names(globs) <- c("Fisher", "Liptak", "Tippett")
 globs
+
+ 
+
+
 ```
 

@@ -18,11 +18,15 @@ This example comes from the textbook section 12.6.4 (p 541). We compare a standa
 library(permuter)
 data(urology)
 
-mod1 <- glm(group~., family=binomial(link="logit"), data = urology)
+mod1 <- glm(group ~ ., family = binomial(link = "logit"), data = urology)
 summary(mod1)
-mod2 <- glm(group~., family=binomial(link="logit"), data = urology[,-ncol(urology)])
+mod2 <- glm(group ~ ., family = binomial(link = "logit"), data = urology[, -ncol(urology)])
 summary(mod2)
 step(mod2)
+
+ 
+
+
 ```
 
 ## To do: compare to some permutation method

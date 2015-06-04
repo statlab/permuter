@@ -17,62 +17,86 @@ summary of the vignette
 
 ```{r analysis1}
 library(permuter)
-COV<-function(x,y){
-n=dim(x)[1] ; p=dim(x)[2];
-r=apply(x*y,2,mean)-apply(x,2,mean)*apply(y,2,mean)
-return(r)
+COV <- function(x, y) {
+    n <- dim(x)[1]
+    p <- dim(x)[2]
+    r <- apply(x * y, 2, mean) - apply(x, 2, mean) * apply(y, 2, mean)
+    return(r)
 }
 
-data(autofluorescence) 
-Y1<-oct
-Y2<-micro
-X1<-autofl 
-X2<-pigment
-X3<-drusen
+data(autofluorescence)
+Y1 <- oct
+Y2 <- micro
+X1 <- autofl
+X2 <- pigment
+X3 <- drusen
 
-n=dim(Y1)[1] ; p=dim(Y1)[2]
-Y=array(0,dim=c(n,p,2))
-Y[,,1] = as.matrix(Y1) ; Y[,,2] = as.matrix(Y2)
+n <- dim(Y1)[1]
+p <- dim(Y1)[2]
+Y <- array(0, dim = c(n, p, 2))
+Y[, , 1] <- as.matrix(Y1)
+Y[, , 2] <- as.matrix(Y2)
 
-X=array(0,dim=c(n,p,3))
-X[,,1] = as.matrix(X1)
-X[,,2] = as.matrix(X2)
-X[,,3] = as.matrix(X3)
+X <- array(0, dim = c(n, p, 3))
+X[, , 1] <- as.matrix(X1)
+X[, , 2] <- as.matrix(X2)
+X[, , 3] <- as.matrix(X3)
 
-B=100
-R<-array(0,dim=c((B+1),p,3,2))
+B <- 100
+R <- array(0, dim = c((B + 1), p, 3, 2))
 
-for(i in 1:2){ for(j in 1:3){ R[1,,j,i]=COV(Y[,,i],X[,,j]) } }
-
-for(bb in 2:(B+1)){
-Y.star = Y[sample(1:n),,]
-for(i in 1:2){ for(j in 1:3){ R[bb,,j,i]=COV(Y.star[,,i],X[,,j]) } }
+for (i in 1:2) {
+    for (j in 1:3) {
+        R[1, , j, i] <- COV(Y[, , i], X[, , j])
+    }
 }
-P=t2p_old(-R)
 
-AF.res = data.frame(colnames(X1),P[1,,1,1],P[1,,1,2])
-colnames(AF.res) = c("Time","Oct","Micro")
-PIG.res = data.frame(colnames(X2),P[1,,2,1],P[1,,2,2])
-colnames(PIG.res) = c("Time","Oct","Micro")
-DRU.res = data.frame(colnames(X3),P[1,,3,1],P[1,,3,2])
-colnames(DRU.res) = c("Time","Oct","Micro")
+for (bb in 2:(B + 1)) {
+    Y.star <- Y[sample(1:n), , ]
+    for (i in 1:2) {
+        for (j in 1:3) {
+            R[bb, , j, i] <- COV(Y.star[, , i], X[, , j])
+        }
+    }
+}
+P <- t2p_old(-R)
 
-
-
-T.glob = apply(P,c(1,3,4),function(x){-2*log(prod(x))}) 
-P.glob = t2p_old(T.glob)[1,,] ; colnames(P.glob)=c("Oct","Micro") 
-rownames(P.glob) = c("Auto","PIG","DRU") ; P.glob
-
-
-P.Oct= t2p_old(T.glob)[,,1] ; P.Mic= t2p_old(T.glob)[,,2]
-FWE.res<-cbind(FWE.minP(P.Oct),FWE.minP(P.Mic))
-rownames(FWE.res) = c("Auto","PIG","DRU") 
-colnames(FWE.res)=c("Oct","Micro") ; FWE.res
+AF.res <- data.frame(colnames(X1), P[1, , 1, 1], P[1, , 1, 2])
+colnames(AF.res) <- c("Time", "Oct", "Micro")
+PIG.res <- data.frame(colnames(X2), P[1, , 2, 1], P[1, , 2, 2])
+colnames(PIG.res) <- c("Time", "Oct", "Micro")
+DRU.res <- data.frame(colnames(X3), P[1, , 3, 1], P[1, , 3, 2])
+colnames(DRU.res) <- c("Time", "Oct", "Micro")
 
 
-T.APD = apply(t2p_old(T.glob),c(1,2),function(x){-2*log(prod(x))})
-P.APD = t2p_old(T.APD) ; colnames(P.APD)=c("Auto","PIG","DRU")
-P.APD[1,]
+
+T.glob <- apply(P, c(1, 3, 4), function(x) {
+    -2 * log(prod(x))
+})
+P.glob <- t2p_old(T.glob)[1, , ]
+colnames(P.glob) <- c("Oct", "Micro")
+rownames(P.glob) <- c("Auto", "PIG", "DRU")
+P.glob
+
+
+P.Oct <- t2p_old(T.glob)[, , 1]
+P.Mic <- t2p_old(T.glob)[, , 2]
+FWE.res <- cbind(FWE.minP(P.Oct), FWE.minP(P.Mic))
+rownames(FWE.res) <- c("Auto", "PIG", "DRU")
+colnames(FWE.res) <- c("Oct", "Micro")
+FWE.res
+
+
+T.APD <- apply(t2p_old(T.glob), c(1, 2), function(x) {
+    -2 * log(prod(x))
+})
+P.APD <- t2p_old(T.APD)
+colnames(P.APD) <- c("Auto", "PIG", "DRU")
+P.APD[1, ]
+
+
+ 
+
 
 ```
 
@@ -81,32 +105,40 @@ P.APD[1,]
 ```{r analysis2}
 set.seed(101)
 
-P = array(0,dim=c((B+1),p,3,2))
+P <- array(0, dim = c((B + 1), p, 3, 2))
 
-for(i in 1:p){
-for(j in 1:3){
-for(k in 1:2){
-P[ ,i,j,k] = stoch.ord(Y[,i,k],X[,i,j],alt=-1,B=B) 
+for (i in 1:p) {
+    for (j in 1:3) {
+        for (k in 1:2) {
+            P[, i, j, k] <- stoch.ord(Y[, i, k], X[, i, j], alt = -1, B = B)
+        }
+    }
+    print(i)
 }
-} 
-print(i)
-}
 
 
-RES = P[1,,,] ; 
-rownames(RES)<-paste("T",seq(1,p),sep="")
-colnames(RES)=c("Auto","PIG","DRU")
+RES <- P[1, , , ]
+rownames(RES) <- paste("T", seq(1, p), sep = "")
+colnames(RES) <- c("Auto", "PIG", "DRU")
 
 
 
-T.glob <- apply(P,c(1,3,4),function(x){-2*log(prod(x))})
-P.glob <- t2p_old(T.glob)[1,,] 
-rownames(P.glob)=c("Auto","PIG","DRU")
-colnames(P.glob) = c("Oct","Micro"); P.glob
+T.glob <- apply(P, c(1, 3, 4), function(x) {
+    -2 * log(prod(x))
+})
+P.glob <- t2p_old(T.glob)[1, , ]
+rownames(P.glob) <- c("Auto", "PIG", "DRU")
+colnames(P.glob) <- c("Oct", "Micro")
+P.glob
 
 
-T.FWE = t2p_old(T.glob)
-P.FWE = cbind(FWE.minP(T.FWE[,,1]),FWE.minP(T.FWE[,,2]))
-names(P.FWE) = names(P.glob); P.FWE
+T.FWE <- t2p_old(T.glob)
+P.FWE <- cbind(FWE.minP(T.FWE[, , 1]), FWE.minP(T.FWE[, , 2]))
+names(P.FWE) <- names(P.glob)
+P.FWE
+
+
+ 
+
 
 ```

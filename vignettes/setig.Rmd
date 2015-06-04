@@ -18,95 +18,128 @@ This example comes from the textbook section 12.3.3 (p 513-516).
 library(permuter)
 data(setig)
 source("../R/t2p.r")
+
+ 
+
+
 ```
 
 ```{r analysis1}
-alternative = c(1,-1,1,1)
-strata = setig[,1]
-ID = setig[,2]
-data = setig[,-c(1,2)]
+alternative <- c(1, -1, 1, 1)
+strata <- setig[, 1]
+ID <- setig[, 2]
+data <- setig[, -c(1, 2)]
 
-p=dim(data)[2]
-nstr = length(table(strata))
+p <- dim(data)[2]
+nstr <- length(table(strata))
 
-B=100
-T=array(0,dim=c((B+1),p,nstr))
-for(s in 1:nstr){
-  Y=data[strata==s,]
-  for(j in 1:p){
-    paz = ID[strata==s]
-    O = ifelse(is.na(Y[,j])==TRUE,0,1)
-    y = ifelse(is.na(Y[,j])==TRUE,0,Y[,j])
-    nu = table(O,paz)
-    if(dim(nu)[1]>1){nu=nu[2,]}
-    D1 = sum(y[paz==1])
-    D2 = sum(y[paz==2])
-    T[1,j,s] = D1*sqrt(nu[2]/nu[1])-D2*sqrt(nu[1]/nu[2])
-  }
-}
-
-for(bb in 2:(B+1)){
-  for(s in 1:nstr){
-    Y=data[strata==s,]
-    n=dim(Y)[1]
-    Y.star = Y[sample(1:n),]
-    for(j in 1:p){
-      paz = ID[strata==s]
-      O = ifelse(is.na(Y.star[,j])==TRUE,0,1)
-      y = ifelse(is.na(Y.star[,j])==TRUE,0,Y.star[,j])
-      nu = table(O,paz)
-      if(dim(nu)[1]>1){nu=nu[2,]}
-      D1 = sum(y[paz==1]) ;  D2 = sum(y[paz==2])
-      T[bb,j,s] =  D1*sqrt(nu[2]/nu[1])-D2*sqrt(nu[1]/nu[2])
-      if(T[bb,j,s]=='NaN'){T[bb,j,s] = Inf}
+B <- 100
+T <- array(0, dim = c((B + 1), p, nstr))
+for (s in 1:nstr) {
+    Y <- data[strata == s, ]
+    for (j in 1:p) {
+        paz <- ID[strata == s]
+        O <- ifelse(is.na(Y[, j]) == TRUE, 0, 1)
+        y <- ifelse(is.na(Y[, j]) == TRUE, 0, Y[, j])
+        nu <- table(O, paz)
+        if (dim(nu)[1] > 1) {
+            nu <- nu[2, ]
+        }
+        D1 <- sum(y[paz == 1])
+        D2 <- sum(y[paz == 2])
+        T[1, j, s] <- D1 * sqrt(nu[2]/nu[1]) - D2 * sqrt(nu[1]/nu[2])
     }
-  }
 }
 
-T1=T
-for(j in 1:4){
-  T1[,j,]=T[,j,]*alternative[j]
+for (bb in 2:(B + 1)) {
+    for (s in 1:nstr) {
+        Y <- data[strata == s, ]
+        n <- dim(Y)[1]
+        Y.star <- Y[sample(1:n), ]
+        for (j in 1:p) {
+            paz <- ID[strata == s]
+            O <- ifelse(is.na(Y.star[, j]) == TRUE, 0, 1)
+            y <- ifelse(is.na(Y.star[, j]) == TRUE, 0, Y.star[, j])
+            nu <- table(O, paz)
+            if (dim(nu)[1] > 1) {
+                nu <- nu[2, ]
+            }
+            D1 <- sum(y[paz == 1])
+            D2 <- sum(y[paz == 2])
+            T[bb, j, s] <- D1 * sqrt(nu[2]/nu[1]) - D2 * sqrt(nu[1]/nu[2])
+            if (T[bb, j, s] == "NaN") {
+                T[bb, j, s] <- Inf
+            }
+        }
+    }
 }
 
-P=t2p_old(T1)
-P=ifelse(is.na(P)==TRUE,1,P)
+T1 <- T
+for (j in 1:4) {
+    T1[, j, ] <- T[, j, ] * alternative[j]
+}
 
-res = t(P[1,,])
-colnames(res) = colnames(data)
-rownames(res) = seq(1,s)
+P <- t2p_old(T1)
+P <- ifelse(is.na(P) == TRUE, 1, P)
+
+res <- t(P[1, , ])
+colnames(res) <- colnames(data)
+rownames(res) <- seq(1, s)
 res
 
-p.fwe = array(0,dim=c(nstr,p))
-for(s in 1:nstr){
-  p.fwe[s,] = FWE.minP(P[,,s])
+p.fwe <- array(0, dim = c(nstr, p))
+for (s in 1:nstr) {
+    p.fwe[s, ] <- FWE.minP(P[, , s])
 }
-colnames(p.fwe) = colnames(res)
-rownames(p.fwe) = rownames(res)
+colnames(p.fwe) <- colnames(res)
+rownames(p.fwe) <- rownames(res)
 p.fwe
+
+ 
+
+
 ```
 
 ## Within-variable analysis
 ```{r within-var, eval=FALSE}
-P.glob.v = array(0,dim=c(B+1),4)
+P.glob.v <- array(0, dim = c(B + 1), 4)
 
-for(j in 1:p){
-  P.glob.v[,j] = apply(P[,j,],1,function(x){-2*log(prod(x))})
+for (j in 1:p) {
+    P.glob.v[, j] <- apply(P[, j, ], 1, function(x) {
+        -2 * log(prod(x))
+    })
 }
+
+ 
+
+
 ```
 
 ## Within-stratum analysis
 ```{r within-str}
-T.glob.s = array(0,dim=c((B+1),s))
-for(k in 1:nstr){
-  T.glob.s[,k] = apply(P[,,k],1,function(x){-2*log(prod(x))})
+T.glob.s <- array(0, dim = c((B + 1), s))
+for (k in 1:nstr) {
+    T.glob.s[, k] <- apply(P[, , k], 1, function(x) {
+        -2 * log(prod(x))
+    })
 }
 
-t2p_old(T.glob.s)[1,]
+t2p_old(T.glob.s)[1, ]
+
+ 
+
+
 ```
 
 ## Global test
 ```{r global}
-T.glob = apply(T.glob.s,1,function(x){-2*log(prod(x))}) # In the original script, this says apply(P.glob.s,....) but P.glob.s does not exist
-p.glob = t2p_old(T.glob)[1]
+T.glob <- apply(T.glob.s, 1, function(x) {
+    -2 * log(prod(x))
+})  # In the original script, this says apply(P.glob.s,....) but P.glob.s does not exist
+p.glob <- t2p_old(T.glob)[1]
 p.glob
+
+ 
+
+
 ```

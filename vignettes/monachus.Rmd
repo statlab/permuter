@@ -20,26 +20,33 @@ data(monachus)
 source("../R/t2p.r")
 
 
-p = dim(monachus)[2]-1
-n = table(monachus[,1]) ; n
+p <- dim(monachus)[2] - 1
+n <- table(monachus[, 1])
+n
 
 
-contr = rep(c(1/sum(n[2]),-1/sum(n[1])),n[2:1])
+contr <- rep(c(1/sum(n[2]), -1/sum(n[1])), n[2:1])
 
 
-B = 5000
-T=array(0,dim=c((B+1),p))
+B <- 5000
+T <- array(0, dim = c((B + 1), p))
 
-g = monachus[,1]
-data = monachus[,-1]
+g <- monachus[, 1]
+data <- monachus[, -1]
 
-T[1,] = t(data)%*%contr
+T[1, ] <- t(data) %*% contr
 
-for(bb in 2:(B+1)){
-  data.star=data[sample(1:sum(n)),]
-  T[bb,] = t(data.star)%*%contr
+for (bb in 2:(B + 1)) {
+    data.star <- data[sample(1:sum(n)), ]
+    T[bb, ] <- t(data.star) %*% contr
 }
 
-P = t2p_old(abs(T)); colnames(P)=colnames(data)
-cat("Rough p-values \n"); t(t(P[1,]))
+P <- t2p_old(abs(T))
+colnames(P) <- colnames(data)
+cat("Rough p-values \n")
+t(t(P[1, ]))
+
+ 
+
+
 ```

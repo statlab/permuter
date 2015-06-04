@@ -16,6 +16,10 @@ These examples come from the textbook section 4.6.
 ```{r package}
 library(permuter)
 source("../R/t2p.r")
+
+ 
+
+
 ```
 
 ## Massaro-Blair
@@ -27,22 +31,26 @@ This exerpt comes from p 238.
 
 ```{r massaro-blair}
 data(massaro_blair)
-B = 500
-T = array(0,dim=c((B+1),2))
-ID = massaro_blair[,"group"]
-Y = massaro_blair[,"Y"]
+B <- 500
+T <- array(0, dim = c((B + 1), 2))
+ID <- massaro_blair[, "group"]
+Y <- massaro_blair[, "Y"]
 
-T[1,1] = mean(Y[ID==1])-mean(Y[ID==2])
-T[1,2] = mean(Y[ID==1]^2)-mean(Y[ID==2]^2)
+T[1, 1] <- mean(Y[ID == 1]) - mean(Y[ID == 2])
+T[1, 2] <- mean(Y[ID == 1]^2) - mean(Y[ID == 2]^2)
 
-for(bb in 2:(B+1)){
-  y.star=sample(Y)
-  T[bb,1] = mean(y.star[ID==1])-mean(y.star[ID==2])
-  T[bb,2] = mean(y.star[ID==1]^2)-mean(y.star[ID==2]^2)
+for (bb in 2:(B + 1)) {
+    y.star <- sample(Y)
+    T[bb, 1] <- mean(y.star[ID == 1]) - mean(y.star[ID == 2])
+    T[bb, 2] <- mean(y.star[ID == 1]^2) - mean(y.star[ID == 2]^2)
 }
 
-P = t2p_old(abs(T))
-P[1,]
+P <- t2p_old(abs(T))
+P[1, ]
+
+ 
+
+
 ```
 
 ## Flies
