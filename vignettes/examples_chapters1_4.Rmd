@@ -151,8 +151,13 @@ pvalue
 
 
 ### Confidence interval
+<<<<<<< HEAD
 ```{r jobsatis_confint, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
 IC(X[Y == 1], X[Y == 2], conf.lev = 0.95, max.delta = 10, length.delta = 50)
+=======
+```{r jobsatis_confint, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+IC(X[Y==1],X[Y==2],conf.lev=0.95,max.delta=10,length.delta=50)
+>>>>>>> BUG: bug in the post hoc power calc chunk
 CI_mean(group1, group2, alpha = 0.05)
 
  
@@ -162,23 +167,24 @@ CI_mean(group1, group2, alpha = 0.05)
 
 ### Conditional Power 
 We'll use the IC function. In the book it is obtained as in "IPAT Data" example.
-```{r jobsatis_power, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
+```{r jobsatis_power, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 ## Old way
 MB <- 100
 ICr <- array(0, dim = c(B, 2))
 CI_perm <- matrix(rep(0, 2 * MB), ncol = 2)
 Z <- c(group1 - observed, group2)
 n <- length(group1)
-for (bb in 1:MB) {
-    # new way
-    Z.perm <- sample(Z)
-    Z.perm[1:n] <- Z.perm[1:n] + observed
-    CI_perm[bb, ] <- CI_mean(Z.perm[1:n], Z.perm[-(1:n)])
-    
-    # old way
-    Z.perm <- sample(Z)
-    Z.perm[Y == 1] <- Z.perm[Y == 1] + m
-    ICr[bb, ] <- IC(Z.perm[Y == 1], Z.perm[Y == 2], conf.lev = 0.95, max.delta = 10, 
+
+for(bb in 1:MB){
+  # new way
+  Z.perm <- sample(Z)
+  Z.perm[1:n] <- Z.perm[1:n] + observed
+  CI_perm[bb,] <- CI_mean(Z.perm[1:n], Z.perm[-(1:n)], reps = 100)
+  
+  # old way
+#  Z.perm <- sample(Z)
+#  Z.perm[ Y == 1] <- Z.perm[ Y == 1]+observed
+#  ICr[bb, ] <- IC(Z.perm[Y == 1], Z.perm[Y == 2], conf.lev = 0.95, max.delta = 10, 
         length.delta = 50)
 }
 pow <- list(`new version` = 1 - mean(CI_perm[, 1] < 0 & CI_perm[, 2] > 0), `old version` = 1 - 
