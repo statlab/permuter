@@ -18,67 +18,85 @@ library(permuter)
 source("../R/t2p.r")
 data(washing_test)
 attach(washing_test)
+
+ 
+
+
 ```
 
 ```{r analysis}
-C = length(unique(Product))
-p = length(unique(Stain))
-r = dim(washing_test)[1]/(C*p)
+C <- length(unique(Product))
+p <- length(unique(Stain))
+r <- dim(washing_test)[1]/(C * p)
 
-B=100
+B <- 100
 
-contr = array(0,dim=c(r*C,C))
-for(cc in 1:C){
-  contr[((cc-1)*r+1):(cc*r),cc] = rep(1/r,r)
+contr <- array(0, dim = c(r * C, C))
+for (cc in 1:C) {
+    contr[((cc - 1) * r + 1):(cc * r), cc] <- rep(1/r, r)
 }
 
-T = array(0,dim=c((B+1),p))
-M = array(0,dim=c((B+1),p,C))
+T <- array(0, dim = c((B + 1), p))
+M <- array(0, dim = c((B + 1), p, C))
 
-for(j in 1:p){
-  M[1,j,] = Reflectance[((j-1)*r*C+1):(j*C*r)]%*%contr
-  T[1,j] = sum(M[1,j,]^2)
+for (j in 1:p) {
+    M[1, j, ] <- Reflectance[((j - 1) * r * C + 1):(j * C * r)] %*% contr
+    T[1, j] <- sum(M[1, j, ]^2)
 }
 
 
 
-for(bb in 2:(B+1)){
-  for(j in 1:p){
-    R = Reflectance[((j-1)*r*C+1):(j*C*r)]
-    n = length(R)
-    R.star = R[sample(1:n)]
-    M[bb,j,] = R.star%*%contr  	
-    T[bb,j] = sum(M[bb,j,]^2)
-  }
+for (bb in 2:(B + 1)) {
+    for (j in 1:p) {
+        R <- Reflectance[((j - 1) * r * C + 1):(j * C * r)]
+        n <- length(R)
+        R.star <- R[sample(1:n)]
+        M[bb, j, ] <- R.star %*% contr
+        T[bb, j] <- sum(M[bb, j, ]^2)
+    }
 }
 
-P = t2p_old(T)
-colnames(P) = unique(Stain)
-P[1,]
+P <- t2p_old(T)
+colnames(P) <- unique(Stain)
+P[1, ]
 
-p.FWE = FWE.minP(P)
-dom=c(rep(1,6),rep(2,14),rep(3,5))
-res=data.frame(Category=unique(Category)[dom],p = P[1,],p.fWE = p.FWE)
+p.FWE <- FWE.minP(P)
+dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
+res <- data.frame(Category = unique(Category)[dom], p = P[1, ], p.fWE = p.FWE)
 res
+
+ 
+
+
 ```
 
 ## Plot
 
 ```{r plot}
-plot(washing_test[Stain=='Blueberry juice',4]~factor(rep(1:8,each=4)))
-summary(aov(washing_test[Stain=='Blueberry juice',4]~factor(rep(1:8,each=4))))
+plot(washing_test[Stain == "Blueberry juice", 4] ~ factor(rep(1:8, each = 4)))
+summary(aov(washing_test[Stain == "Blueberry juice", 4] ~ factor(rep(1:8, each = 4))))
+
+ 
+
+
 ```
 
 ## Domains
 ```{r domains}
-T.dom = array(0,dim=c((B+1),3))
-dom=c(rep(1,6),rep(2,14),rep(3,5))
+T.dom <- array(0, dim = c((B + 1), 3))
+dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
 
-for(dd in 1:3){
-  T.dom[,dd] = apply(P[,dom==dd],1,function(x){-2*log(prod(x))})
+for (dd in 1:3) {
+    T.dom[, dd] <- apply(P[, dom == dd], 1, function(x) {
+        -2 * log(prod(x))
+    })
 }
 
-P.dom = t2p_old(T.dom)
-P.dom[1,]
+P.dom <- t2p_old(T.dom)
+P.dom[1, ]
 FWE.minP(P.dom)
+
+ 
+
+
 ```
