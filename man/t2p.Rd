@@ -14,7 +14,7 @@ t2p(t, distr, alternative = c("greater", "less", "two-sided"))
 \item{alternative}{P-value desired: 'greater', 'less', 'two-sided' (may specify more than one)}
 }
 \value{
-something
+the p-value(s)
 }
 \description{
 Use the empirical distribution of a test statistic to get p-values.

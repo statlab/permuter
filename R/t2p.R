@@ -1,7 +1,7 @@
 #' Use the empirical distribution of a test statistic to get p-values.
 #' 
-#' @param T\t\tA vector with the observed test statistic in the first entry and the empirical distribution in the remaining entries
-#' @return \t\tsomething
+#' @param T an array/vector with the observed test statistic in the first entry and the empirical distribution in the remaining entries
+#' @return An array of dimension (B+1)\times `dim(T)`. The first element (of the first dimension) contains the p-value
 t2p_old <- function(T) {
     
     if (is.null(dim(T))) {
@@ -31,7 +31,7 @@ t2p_old <- function(T) {
 #' @param t           The observed test statistic
 #' @param distr       The empirical distribution, computed by Monte Carlo
 #' @param alternative P-value desired: 'greater', 'less', 'two-sided' (may specify more than one)
-#' @return something
+#' @return the p-value(s)
 t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
     
     # check that distr is a vector with appropriate size
@@ -43,8 +43,9 @@ t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
     pboth <- mean(abs(distr) >= abs(t), na.rm = T)
     
     # adjust so there are no 0 p-values? This is what their original code does.
-    # pupper <- mean(distr >= t, na.rm=T) + 1/B plower <- mean(distr <= t, na.rm=T)
-    # + 1/B pboth <- mean(abs(distr) >= abs(t), na.rm=T) + 1/B
+    # pupper <- mean(distr >= t, na.rm=T) + 1/B 
+    # plower <- mean(distr <= t, na.rm=T) + 1/B 
+    # pboth <- mean(abs(distr) >= abs(t), na.rm=T) + 1/B
     
     P <- c(pupper = pupper, plower = plower, pboth = pboth)
     alt <- c("greater", "less", "two-sided")
