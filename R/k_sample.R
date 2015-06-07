@@ -1,8 +1,8 @@
 #' Permute within groups
 #'
 #' Permute values within groups
-#' @param x     vector of responses
-#' @param group vector of group assignments
+#' @param x     vector of exchangeable values
+#' @param group vector of fixed group assignments
 #' @return a vector of length(x)
 permute_within_groups <- function(x, group){
   groups <- unique(group)
@@ -32,7 +32,7 @@ k_sample <- function(x, group, group2=NULL, reps=1000, stat = "oneway_anova"){
     k <- unique(group)
     xbar <- rep(NA, length(k))
     for(gg in k){
-      xbar[gg] <- mean(X[group == gg])
+      xbar[gg] <- mean(x[group == gg])
     }
     tst <- sum(xbar^2*n) # The permutation ANOVA statistic: sum_{j in groups} n_j*(mean(X_j))^2
     return(tst)
@@ -40,8 +40,8 @@ k_sample <- function(x, group, group2=NULL, reps=1000, stat = "oneway_anova"){
   twoway_anova <- function(group){
     k <- unique(group)
     xbar <- rep(NA, length(k))
-    for(gg in k){
-      xbar[gg] <- mean(X[group == gg])
+    for(gg in 1:length(k)){
+      xbar[gg] <- mean(x[group == k[gg]])
     }
     xbarbar <- mean(xbar)
     tst <- sum((xbar - xbarbar)^2) # The permutation two-way ANOVA stat is SSB=sum_{j in groups} (mean(X_j) - grand mean)^2
