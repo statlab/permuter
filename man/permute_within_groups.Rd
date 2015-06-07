@@ -7,9 +7,9 @@
 permute_within_groups(x, group)
 }
 \arguments{
-\item{x}{vector of responses}
+\item{x}{vector of exchangeable values}
 
-\item{group}{vector of group assignments}
+\item{group}{vector of fixed group assignments}
 }
 \value{
 a vector of length(x)

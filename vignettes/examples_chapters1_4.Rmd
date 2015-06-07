@@ -214,7 +214,7 @@ It is easy to show that, conditionally, the usual F test statistic for the one-w
 ### Old method
 This can be done with the auxiliary dummy variables $I$:
 
-```{r worms2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+```{r worms2, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
 I <- array(0, dim = c(sum(n), C))
 for (i in 1:C) {
     I[, i] <- ifelse(Y == names(n)[i], 1/n[i], 0)
@@ -230,7 +230,7 @@ observation belongs to group $j$ and zero otherwise, $i = 1,...,N$, $N = \sum_j 
 $j = 1,2,3$. Thus the vector of means-by-group $\bar{x} = [\bar{x}_1, \bar{x}_2,\bar{x}_3]$ can be easily derived by multiplying $t(X)$ (with dimension $1 \times N$) and $I$ (with dimension $N \times 3$), and the test statistic can be derived by multiplying the square of $\bar{x}$ and
 the vector $n$. The permutation values of $T^* = \sum_{j=1}^3n_j {\bar{X}_j^*}^2$ can be obtained similarly by replacing $X$ with $X.star$, a random permutation of $X$:
 
-```{r worms3, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+```{r worms3, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
 T <- array(0, dim = c((B + 1), 1))
 T[1] <- (t(X) %*% I)^2 %*% n
 for (bb in 2:(B + 1)) {
@@ -259,20 +259,22 @@ t2p(observed, distr, alternative = "greater")
 ```
 
 ## Anderson-Darling
-The data of Table 1 can be obtained by inserting the absolute frequencies of groups 1 and 2, obtaining their cumulative sum and binding together the four vectors:
 
-**to do: use xtable to generate Table 1 nicely**
+Suppose we observe samples from two distributions $X_1$ and $X_2$ of ordered categorical data. We record the frequencies in `f1` and `f2`. We'd like to test the null hypothesis $H_0: X_1\,{\buildrel d \over =}\, X_2$. We can obtain the empirical CDFs $F_1$ and $F_2$ of groups $X_1$ and $X_2$ by taking the cumulative sums of the frequencies and normalizing. We obtain the overall empirical CDF by summing the frequencies `f1` and `f2`, then applying the same procedure:
 
 ```{r ad, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+x <- 1:5
 f1 <- c(8, 9, 6, 8, 9)
 f2 <- c(17, 6, 6, 3, 8)
 N1 <- cumsum(f1)
 N2 <- cumsum(f2)
-N <- f1 + f2
+N <- cumsum(f1 + f2)
 n <- sum(N)
-cbind(f1, f2, N1, N2, N)
 
- 
+temp <- cbind(f1, f2, N1/sum(f1), N2/sum(f2), N/sum(f1+f2))
+rownames(temp) <- x
+library(knitr)
+kable(temp, row.names = TRUE, col.names = c("f1", "f2", "F_1", "F_2", "F"))
 
 
 ```
@@ -316,7 +318,7 @@ t2p_old(T)[1]
 
 ## Blood testosterone levels in 11 women
 
-The purpose was to evaluate whether the level of testosterone in the blood is subject to change during the day. This example has the peculiarity that the ob- servations are dependent since they are related to different women. Therefore, under H0 we can permute the data inside the rows of the data-set indepen- dently. This problem can be viewed as a two-way ANOVA experiment without interaction, where main factors are ”time” (factor B) and ”woman” (factor A: blocking factor, not of interest).
+The purpose was to evaluate whether the level of testosterone in the blood is subject to change during the day. The null hypothesis is that there is no change in testosterone across time. This example has the peculiarity that the observations are dependent since testosterone levels were recorded for the same woman over the course of a day. Therefore, under $H_0$ we can permute the data inside the rows of the dataset independently. This problem can be viewed as a two-way ANOVA experiment without interaction, where main factors are "time" (factor B) and "individual" (factor A: blocking factor, not of interest).
 
 ```{r testosterone1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(testosterone)
@@ -330,9 +332,10 @@ lines(seq(1, 5), apply(testosterone, 2, mean), lty = "dotted")
 
 ```
 
-The commands above assign the dataset to the object +testosterone+ and represent it with a box-plot, the dotted line linking the sample means at each time. The deviance decomposition can be written as $SST = SSA + SSB + SSR$, where $SST$ is the total deviance, $SSA$ and $SSB$ are the deviances due to the main effects and $SSR$ is the residual deviance. Note that $SST$ is constant at each permutation, and so is $SSA$ since we permute observations within the rows of data. On the other hand, $SSB$ and $SSR$ vary at each permutation. The test statistic for the time effect is $F_B = (df_{SSR}/df_{SSB}) \times SSB/SSR$. Leaving out the degrees of freedom $df_{SSB}$ and $df_{SSR}$ that are permutationally invariant, the easiest way to obtain the residual deviance at each permutation is to write it as $SSR^* = SST − SSA − SSB^*$. Therefore, the F statistic can be written as $F^* = SSB^*/(SS − SSB^*)$, where $SS$ is constant at each permutation. It is easy to see that $F^*$ is a monotone function of $T^* = SSB^*$.
+The commands above assign the dataset to the object `testosterone` and represent it with a box-plot, the dotted line linking the sample means at each time. The deviance decomposition can be written as $SST = SSA + SSB + SSR$, where $SST$ is the total deviance, $SSA$ and $SSB$ are the deviances due to the main effects and $SSR$ is the residual deviance. Note that $SST$ is constant at each permutation, and so is $SSA$ since we permute observations within the rows of data. On the other hand, $SSB$ and $SSR$ vary at each permutation. The test statistic for the time effect is $F_B = (df_{SSR}/df_{SSB}) \times SSB/SSR$. Leaving out the degrees of freedom $df_{SSB}$ and $df_{SSR}$ that are permutationally invariant, the easiest way to obtain the residual deviance at each permutation is to write it as $SSR^* = SST − SSA − SSB^*$. Therefore, the F statistic can be written as $F^* = SSB^*/(SS − SSB^*)$, where $SS$ is constant at each permutation. It is easy to see that $F^*$ is a monotone function of $T^* = SSB^*$. Thus, $SSB^*$ is the test statistic we will use.
 
 ```{r testosterone2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+## OLD METHOD
 n <- dim(testosterone)[1]
 p <- dim(testosterone)[2]
 B <- 100
@@ -355,7 +358,17 @@ for (bb in 2:(B + 1)) {
 t2p_old(T)[1]
 
  
+## NEW METHOD
+library(reshape2)
 
+m.col <- apply(testosterone, 2, mean)
+m <- mean(m.col)
+SSB <- sum((m.col - m)^2)
+testosterone$woman <- rownames(testosterone)
+testosterone <- melt(testosterone)
+distr <- k_sample(x = testosterone$value, group = testosterone$variable, group2 = testosterone$woman,
+         stat = "twoway_anova")
+t2p(SSB, distr)
 
 ```
 
