@@ -13,7 +13,7 @@ vignette: >
 
 ```{r}
 library(permuter)
-
+set.seed(101)
  
 
 
@@ -151,13 +151,8 @@ pvalue
 
 
 ### Confidence interval
-<<<<<<< HEAD
-```{r jobsatis_confint, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
-IC(X[Y == 1], X[Y == 2], conf.lev = 0.95, max.delta = 10, length.delta = 50)
-=======
 ```{r jobsatis_confint, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-IC(X[Y==1],X[Y==2],conf.lev=0.95,max.delta=10,length.delta=50)
->>>>>>> BUG: bug in the post hoc power calc chunk
+IC(X[Y == 1], X[Y == 2], conf.lev = 0.95, max.delta = 10, length.delta = 50)
 CI_mean(group1, group2, alpha = 0.05)
 
  
@@ -166,7 +161,8 @@ CI_mean(group1, group2, alpha = 0.05)
 ```
 
 ### Conditional Power 
-We'll use the IC function. In the book it is obtained as in "IPAT Data" example.
+We compute the conditional power by randomly generating 100 datasets under the null, conditional on the data we observed. **flesh out explanation** For each permuted dataset, we compute a $95\%$ confidence interval for the difference in means between the two groups. The proportion of these confidence intervals that do not cover $0$ is the conditional power.
+
 ```{r jobsatis_power, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 ## Old way
 MB <- 100
@@ -185,7 +181,7 @@ for(bb in 1:MB){
 #  Z.perm <- sample(Z)
 #  Z.perm[ Y == 1] <- Z.perm[ Y == 1]+observed
 #  ICr[bb, ] <- IC(Z.perm[Y == 1], Z.perm[Y == 2], conf.lev = 0.95, max.delta = 10, 
-        length.delta = 50)
+#        length.delta = 50)
 }
 pow <- list(`new version` = 1 - mean(CI_perm[, 1] < 0 & CI_perm[, 2] > 0), `old version` = 1 - 
     mean(ICr[, 1] < 0 & ICr[, 2] > 0))
@@ -213,7 +209,10 @@ n
 
 ```
 
-It is easy to show that, conditionally, the usual F test statistic for the one-way ANOVA is permutationally equivalent to $T^{obs} = \sum_{j=1}^3 n_j \bar{X}_j^2$. We can obtain the distribution of the test statistic by computing, at each permutation, the values of $\bar{X}_j^2, j=1,2,3$. This can be done with the auxiliary dummy variables $I$:
+It is easy to show that, conditionally, the usual F test statistic for the one-way ANOVA is permutationally equivalent to $T^{obs} = \sum_{j=1}^3 n_j \bar{X}_j^2$. We can obtain the distribution of the test statistic by computing, at each permutation, the values of $\bar{X}_j^2, j=1,2,3$. 
+
+### Old method
+This can be done with the auxiliary dummy variables $I$:
 
 ```{r worms2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 I <- array(0, dim = c(sum(n), C))
@@ -246,6 +245,18 @@ t2p_old(T)[1]
 ```
 
 The p-value of the test is again obtained by applying the t2p_old function to the vector $T$, and by considering the first element of the vector of results. In this case we can conclude that there is a strong evidence against the null hypothesis.
+
+### New method
+We use the `k_sample` function, where the groups are given by `Y` and the measurements of interest are `X`. We'd like to test the null hypothesis of equality of distributions: $H_0: X_1 \,{\buildrel d \over =}\, X_2 \,{\buildrel d \over =}\, X_3$.
+```{r worms}
+distr <- k_sample(X, Y)
+xbar <- rep(NA, length(n))
+for(gg in 1:length(n)){
+  xbar[gg] <- mean(X[Y==unique(Y)[gg]])
+}
+observed <- sum(n*xbar^2)
+t2p(observed, distr, alternative = "greater")
+```
 
 ## Anderson-Darling
 The data of Table 1 can be obtained by inserting the absolute frequencies of groups 1 and 2, obtaining their cumulative sum and binding together the four vectors:
