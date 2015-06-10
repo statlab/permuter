@@ -375,13 +375,18 @@ t2p(SSB, distr)
 
 ## Biting flies
 
-In this example we have two samples from two species of flies and seven variables have been measured. We want to test for rescrited alternative:
+In this example we have two samples from two species of flies and seven variables have been measured. We want to test the null
 
-$$H_1: \left\lbrace \left\[ \cup_{1\leq h \leq 6} (\mu_{1h}<\mu_{2h}) \cup (\mu_{17}>\mu_{27}) \right] \right\rbrace$$
+$$H_0: \mu_{1h} = \mu_{2h} \text{ for all } h = 1,\dots,7$$
 
-where $\mu_{ih}$ is the mean of the $h$th variable in group $i$, $i=1,2$, $h=1,\dots,7$. This can be done by performing one partial test for each variable (according to the related alternative), and then by combining the partial tests into a global test. A vector of contrasts will be again useful in obtaining the test statistic $T_h^* = \bar{x}_{2h}^* - \bar{x}_{1h}^*$.  The first column of the dataset contains an indicator variable of the species (0=Leptoconops Carteri, 1=Leptoconops Torrens). Since the t2p_old function is set according to the *large is significant rule*, we will have to change the signs of the permutation distribution of $T_7^*$ before obtaining its p-value.
+against the alternative
+
+$$H_1: \left\lbrace \left[ \cup_{1\leq h \leq 6} (\mu_{1h}<\mu_{2h}) \right] \cup (\mu_{17}>\mu_{27})  \right\rbrace$$
+
+where $\mu_{ih}$ is the mean of the $h$th variable in group $i$, $i=1,2$, $h=1,\dots,7$ (see p. 177 for explanation in detail). This can be done by performing one partial test for each variable (according to the related alternative), and then by combining the partial tests into a global test. A vector of contrasts will be again useful in obtaining the test statistic $T_h^* = \bar{x}_{2h}^* - \bar{x}_{1h}^*$.  The first column of the dataset contains an indicator variable of the species (0=Leptoconops Carteri, 1=Leptoconops Torrens). Since the t2p_old function is set according to the *large is significant rule*, we will have to change the signs of the permutation distribution of $T_7^*$ before obtaining its p-value.
 
 ```{r flies1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+## Old
 data(fly)
 N <- dim(fly)[1]
 p <- dim(fly)[2] - 1
@@ -401,8 +406,25 @@ partial.p <- P[1, ]
 names(partial.p) <- colnames(data)
 round(partial.p, digits = 4)
 
- 
 
+## New
+data(fly)
+group0 <- fly[fly$group == 0,]
+group1 <- fly[fly$group == 1,]
+N <- nrow(fly)
+p <- ncol(fly)
+B <- 1000
+distr <- matrix(NA, nrow = B, ncol = p-1)
+partial_pvalue <- rep(NA, p-1)
+for(h in 1:(p-2)){
+  observed <- mean(group1[ ,h+1]) - mean(group0[ ,h+1])
+  distr[,h] <- two_sample(group1[ ,h+1], group0[ ,h+1], reps = B)
+  partial_pvalue[h] <- t2p(observed, distr[ ,h], alternative = "greater")
+}
+observed_col8 <- mean(group1[ ,8]) - mean(group0[ ,8])
+distr[ ,7]<- two_sample(group1[ ,8], group0[ ,8])
+partial_pvalue[7] <- t2p(observed_col8, distr[,7], alternative = "less")
+partial_pvalue
 
 ```
 
@@ -425,7 +447,9 @@ names(globs) <- c("Fisher", "Liptak", "Tippett")
 globs
 
  
-
-
+combined_p_fisher <- npc(partial_pvalue, distr, combine = "fisher", alternatives = c(rep("greater",6), "less"))
+combined_p_liptak <- npc(partial_pvalue, distr, combine = "liptak", alternatives = c(rep("greater",6), "less"))
+combined_p_tippett <- npc(partial_pvalue, distr, combine = "tippett", alternatives = c(rep("greater",6), "less"))
+print(c(combined_p_fisher, combined_p_liptak, combined_p_tippett))
 ```
 
