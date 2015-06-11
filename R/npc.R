@@ -1,37 +1,42 @@
+#' Combining functions
+#' 
+#' Fisher combining function is \eqn{-2\sum log(p)}.
+#' @param p Vector of p-values
+#' 
+fisher <- function(p){-2*log(prod(p))}
+
+#' @describeIn fisher
+#' \eqn{\sum \Phi^{-1}(1-p)}.
+liptak <- function(p){sum(qnorm(1-p))}
+
+#' @describeIn fisher
+#' \eqn{max(1-p)}.
+tippett <- function(p){max(1-p)}
+
+
 #' Non-parametric combination of tests
 #'
-#' Combines partial p-values from individual hypothesis tests $H_{0i}$ against $H_{1i}$
+#' Combines partial p-values from individual hypothesis tests \eqn{H_{0i}} against \eqn{H_{1i}}
 #' to test the global null hypothesis
-#' 
-#' $$\cap_{i} H_{0i}$$ 
-#' 
+#' \deqn{\cap_{i} H_{0i}}
 #' against the alternative
-#' 
-#' $$ \cup_{i} H_{1i}$$
-#' 
+#' \deqn{\cup_{i} H_{1i}}
 #' using a combining function.
 #'
+#' For details on the combining functions, see \code{\link{fisher}}, \code{\link{liptak}}, and \code{\link{tippett}}.
+#' 
+#' Alternative options are "greater", "less", or "two-sided". If specified, length of alternatives must
+#' either be 1 or match the length of p.
 #' @param pvalues       Vector of partial p-values for tests
 #' @param distr         Matrix or dataframe, columns are approimate null distribution for each partial test
 #' @param combine       Combining function (default is Fisher)
 #' @param alternatives  Optional, vector of alternatives for each test (default is all "greater")
 #' 
-#' Combining function options are:
-#' * Fisher: $\sum_{i}-2\log(p_i)$
-#' * Liptak: $\sum_{i} \Phi^{-1}(1-p_i)$
-#' * Tippett: $\max_i (1-p_i)$
-#' 
-#' Alternative options are "greater", "less", or "two-sided". If specified, length of alternatives must
-#' either be 1 or match the length of p.
 #' 
 #' @return A single p-value for the global test
 #' 
 npc <- function(pvalues, distr, combine = "fisher", alternatives = "greater"){
-  
-  fisher <- function(p){-2*log(prod(p))}
-  liptak <- function(p){sum(qnorm(1-p))}
-  tippett <- function(p){max(1-p)}
-  
+
   funcs <- list(fisher, liptak, tippett)
   names(funcs) <- c("fisher", "liptak", "tippett")
   if(!(combine %in% names(funcs))){ stop(paste(combine, " is not a valid combining function.")) }

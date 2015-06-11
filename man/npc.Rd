@@ -13,30 +13,23 @@ npc(pvalues, distr, combine = "fisher", alternatives = "greater")
 
 \item{combine}{Combining function (default is Fisher)}
 
-\item{alternatives}{Optional, vector of alternatives for each test (default is all "greater")
-
-Combining function options are:
-* Fisher: $\sum_{i}-2\log(p_i)$
-* Liptak: $\sum_{i} \Phi^{-1}(1-p_i)$
-* Tippett: $\max_i (1-p_i)$
-
-Alternative options are "greater", "less", or "two-sided". If specified, length of alternatives must
-either be 1 or match the length of p.}
+\item{alternatives}{Optional, vector of alternatives for each test (default is all "greater")}
 }
 \value{
 A single p-value for the global test
 }
 \description{
-Combines partial p-values from individual hypothesis tests $H_{0i}$ against $H_{1i}$
+Combines partial p-values from individual hypothesis tests \eqn{H_{0i}} against \eqn{H_{1i}}
 to test the global null hypothesis
+\deqn{\cap_{i} H_{0i}}
+against the alternative
+\deqn{\cup_{i} H_{1i}}
+using a combining function.
 }
 \details{
-$$\cap_{i} H_{0i}$$
+For details on the combining functions, see \code{\link{fisher}}, \code{\link{liptak}}, and \code{\link{tippett}}.
 
-against the alternative
-
-$$ \cup_{i} H_{1i}$$
-
-using a combining function.
+Alternative options are "greater", "less", or "two-sided". If specified, length of alternatives must
+either be 1 or match the length of p.
 }
 
