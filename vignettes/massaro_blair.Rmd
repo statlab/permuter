@@ -15,42 +15,39 @@ These examples come from the textbook section 4.6.
 
 ```{r package}
 library(permuter)
-source("../R/t2p.r")
-
- 
+set.seed(100)
 
 
 ```
 
 ## Massaro-Blair
 
-To compare the numbers of breeding yellow-eyed penguin pairs from the two groups, the authors performed a bootstrap test using the raw difference of sample means as a test statistic and obtained a significant result (p = 0.009). However, in this study, there was not only an empirical difference between the two means, but also between the standard deviations, since the variance was found to be much smaller on Stewart Island. Here we wish to analyze the same data using the NPC methodology (instead of the bootstrap test) and applying the MA procedure, in order to jointly evaluate location ($T_\mu^*$) and scatter ($T_{\sigma^2}^*$) aspects, which are supposed to be responsible for the difference betweenthe two groups. The null hypothesis $H_0: Y_1 =d Y_2$ implies the event $\{E[Y_1] = E[Y_2]\} \cap \{E[Y_1^2] = E[Y_2^2]\}$. In particular, we have examined the location-aspect by means of a standard t-test over raw data and the scatter-aspect using transformed data (Y is second moments). Note
-that this solution is exact because the null hypothesis states the irrelevance of feral cats, and so the permutation testing principle applies.
+In this example, we compare the number of breeding yellow-eyed penguin (Megadyptes antipodes) pairs on Stewart Island (New Zealand), where cats are present, and on adjacent cat-free islands. To compare the numbers of breeding yellow-eyed penguin pairs from the two groups, the authors performed a bootstrap test using the raw difference of sample means as a test statistic and obtained a significant result (p = 0.009). However, in this study, there was not only an empirical difference between the two means, but also between the standard deviations, since the variance was found to be much smaller on Stewart Island. Here we wish to analyze the same data using the NPC methodology (instead of the bootstrap test) and applying the multi-aspect procedure, in order to jointly evaluate location ($\mu$) and scatter ($\sigma^2$) aspects, which are supposed to be responsible for the difference between the two groups. The null hypothesis $H_0: Y_1 \,{\buildrel d \over =}\, Y_2$ implies the event $\{E[Y_1] = E[Y_2]\} \cap \{E[Y_1^2] = E[Y_2^2]\}$. In particular, we use a two-sample test for equality of means to compare the empirical first and second moments. Note that this solution is exact because the null hypothesis states the irrelevance of feral cats, and so the permutation testing principle applies.
 
 This exerpt comes from p 238.
 
 ```{r massaro-blair}
 data(massaro_blair)
-B <- 500
-T <- array(0, dim = c((B + 1), 2))
+B <- 1000
+test_stat <- rep(NA, 2)
 ID <- massaro_blair[, "group"]
 Y <- massaro_blair[, "Y"]
 
-T[1, 1] <- mean(Y[ID == 1]) - mean(Y[ID == 2])
-T[1, 2] <- mean(Y[ID == 1]^2) - mean(Y[ID == 2]^2)
+test_stat[1] <- mean(Y[ID == 1]) - mean(Y[ID == 2])
+test_stat[2]<- mean(Y[ID == 1]^2) - mean(Y[ID == 2]^2)
 
-for (bb in 2:(B + 1)) {
-    y.star <- sample(Y)
-    T[bb, 1] <- mean(y.star[ID == 1]) - mean(y.star[ID == 2])
-    T[bb, 2] <- mean(y.star[ID == 1]^2) - mean(y.star[ID == 2]^2)
-}
+distr1 <- two_sample(x = Y[ID == 1], y = Y[ID == 2], reps = B)
+distr2 <- two_sample(x = Y[ID == 1]^2, y = Y[ID == 2]^2, reps = B)
 
-P <- t2p_old(abs(T))
-P[1, ]
+pvalue <- c(t2p(test_stat[1], distr1, "two-sided"), t2p(test_stat[2], distr2, "two-sided"))
+pvalue
 
- 
+```
 
+These are the p-values for the partial tests for equality of the first and second moments. We'll use Fisher's combining function to get a single p-value for the global test of equality of distributions.
+```{r npc}
 
+npc(pvalue, cbind(distr1, distr2))
 ```
 
 ## Flies
