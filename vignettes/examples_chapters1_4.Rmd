@@ -22,9 +22,17 @@ set.seed(101)
 
 ## IPAT Data
 
-We'd like to do a paired test: the column `YA` contains the first measurement and the column `YB` contains the second measurement, and we'd like to look at the change between the two measurements. The test statistic we will use is the mean of the differnces `YA-YB`.
 
-**we should include a paragraph about what this function does/why we do the coin-flip test**
+As an initial example, let us consider a testing problem on the effectiveness of training in the reduction of anxiety in a sample of n = 20 subjects (Pesarin, 2001). At first glance, the subjects of the experiment are presumed to be "homogeneous" with respect to the most important experimental conditions, the so-called covariates, such as sex, age and health.
+
+Suppose that anxiety, the variable $Y$, is measured by means of an Institute for Personality and Ability Testing (IPAT) psychological test, responses to which are quantitative scores corresponding to the sum of sub-responses to a set of different items. Each unit is observed before treatment, occasion 1, also called the baseline observation, and one week after a fixed number of training sessions, occasion 2, which are administered with the aim of stochastically reducing baseline values.
+
+Of course, bivariate responses within each specific unit are dependent because they are measured on the same unit on different occasions, whereas the $n$ pairs are assumed to be independent because related to different units. Moreover, due to the assumed homogeneity of all individuals with respect to most common experimental conditions, the set of data pairs $\{(Y_{1i},Y_{2i}), i = 1,\dots,n\}$ may be viewed as a random sample of $n$ i.i.d. pairs from the bivariate random variable $Y = (Y_1,Y_2)$. Formally, data are represented by a matrix of $n$ pairs $(\mathbf{Y}_1,\mathbf{Y}_2) \in \mathcal{X}$, where $\mathcal{X}$ is the sample space of the experiment.
+
+We'd like to test the strong null hypothesis $H_0: Y_1 \,{\buildrel d \over =}\, Y_2$ against the alternative $H_1: Y_1 \,{\buildrel d \over >}\, Y_2$. Under the null, whether the IPAT measurement was taken at the beginning or end of the treatment is essentially irrelevant, making $Y_{1i}>Y_{2i}$ equally as likely as $Y_{1i}<Y_{2i}$. Conditional on the observed values $\mathbf{Y}_1$ and $\mathbf{Y}_2$ and assuming the null hypothesis, we know the entire null distribution of the differences $(\mathbf{Y}_1, \mathbf{Y}_2)$: it consists of all $2^n$ permutations of pairs $(Y_{1i}, Y_{2i})$.
+
+We begin by loading in the data. The column `YA` contains the first measurement and the column `YB` contains the second measurement, and we'd like to look at the change between the two measurements. The test statistic we will use is the mean of the differences `YA-YB`. Note that testing $H_0$ above is equivalent to testing $H_0: YA-YB \text{ is symmetric about }0$. Using the `one_sample` function, we can approximate the null distribution of the mean difference with `B=1000` random permutations:
+
 
 ```{r ipat, tidy = TRUE, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(ipat)
@@ -34,23 +42,11 @@ B <- 1000
 observed <- mean(d)
 distr <- one_sample(x = d, reps = B)
 
-# this is the old code, for comparison. The test statistic they use is the sum
-# of the differences; we use the mean.
-T <- array(0, dim = c((B + 1), 1))
-T[1] <- sum(d)
-for (bb in 2:(B + 1)) {
-    T[bb] <- t(d) %*% (1 - 2 * rbinom(n, 1, 0.5))
-}
-
- 
-
-
 ```
 
 The vector `distr` has length `B` and contains the null distribution of the test statistic. In order to obtain a p-value we need to use the function `t2p` that returns the p-value from a distribution of permutation values of the test statistic (i.e. it compares the observed test statistic with the whole distribution). You may specify an alternative ('greater', 'less', or 'two-sided') or leave the argument `alternative` blank to get all three p-values.
 
-```{r show_t2p_old, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-t2p_old(T)[1]
+```{r show_t2p, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 t2p(observed, distr)
 
  
@@ -66,24 +62,13 @@ p.val <- array(0, dim = c(R, 1))
 pval <- rep(0, R)
 Z <- ipat[, 1] - ipat[, 2] - sum(d)
 for (cc in 1:R) {
-    # new
     d.star <- sample(d)
     distr <- one_sample(x = d.star, reps = B)
     pval[cc] <- t2p(mean(d.star), distr, alternative = "greater")
-    
-    # old
-    Z.star <- sample(Z)
-    Z.star <- Z.star + sum(d)
-    T <- array(0, dim <- c((B + 1), 1))
-    T[1] <- sum(d)
-    for (bb in 2:(B + 1)) {
-        T[bb] <- t(d) %*% (1 - 2 * rbinom(n, 1, 0.5))
-    }
-    p.val[cc] <- t2p_old(T)[1]
 }
 
 alpha <- 0.05
-pow <- list(`new version` = mean(pval <= alpha), `old version` = mean(p.val <= alpha))
+pow <-  mean(pval <= alpha)
 pow
 
  
@@ -92,47 +77,11 @@ pow
 ```
 
 ## Job Satisfaction
-In the "Job"" dataset there are two variables: $X$ denoting the degree of job satisfaction and $Y$ denoting the extroverted (1) or introverted (2) group. 
+Let us now discuss, as a second example, a problem (Pesarin, 2001) concerning the comparison of locations of two populations. In a psychological experiment to assess the degree of job satisfaction of two groups of workers, 20 units, assumed to be homogeneous in respect of most important covariates, such as sex, age, general health and social status, were examined through the response variable $X$, corresponding to the perceived degree of job satisfaction. $X$ was measured by a proper psychological index consisting of a sum of a finite number of items each related to a specific sub-aspect. Before the experiment was carried out, $12$ units (group 1) were classified as "extroverted", $X=1$, and the remaining $8$ units (group 2) were classified as "introverted", $X=2$. The testing problem was to show whether the data conform better to the null hypothesis of no difference in distribution, or to the alternative of a difference in favour of "extroverted", corresponding to a one-sided (same as restricted or dominance) alternative. It is worth noting that since subjects are assigned to symbolic treatment levels (extroverted and introverted) after they were observed, so that subjects were not randomized to treatments, this is a typical observational study where the treatment is merely a post-hoc classification (see Remark 4, 2.1.1 for some related problems). However, since the null hypothesis assumes that there is no distributional difference between two treatment levels, instead of permuting subjects we are allowed to permute observed data (see Section 1.5).
 
-### Old method
-We can obtain the test statistic $T^∗ = \bar{X}_1^∗ − \bar{X}_2^∗$ by multiplying the vector of permuted data $x^∗$ for a vector of constrasts:
-```{r jobsatis1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-data(job)
-head(job)
-Y <- job[, 1]
-X <- job[, 2]
-
-n <- table(Y)
-C <- length(n)
-contr <- rep(1/n, n)
-contr[-c(1:n[1])] <- -contr[-c(1:n[1])]
-round(contr, digits = 3)
-
+We load in the `job` dataset. The column `X` measures the degree of job satisfaction and the column `Y` denotes the treatment (extroverted (1) or introverted (2)). We'd like to test the null hypothesis $H_0: X_1 \,{\buildrel d \over =}\, X_2$ against the alternative $H_1: X_1 \,{\buildrel d \over >}\, X_2$. Under the null, treatment is essentially an arbitrary label that has no effect on the value of $X$ for each individual. We'll use the difference in means as the test statistic, $\bar{X}_1 − \bar{X}_2$. Conditional on the observed data, we know the entire null distribution of this statistic: it consists of the statistic computed for all $20 \choose 12$ relabellings of the treatment.
  
-
-
-```
-
-```{r jobsatis2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-B <- 100
-T <- array(0, dim = c((B + 1), 1))
-T[1] <- X %*% contr
-for (bb in 2:(B + 1)) {
-    X.star <- sample(X)
-    T[bb] <- X.star %*% contr
-}
-
-P <- t2p_old(T)
-P[1]
-
- 
-
-
-```
-
-### New method
-We'd like to test whether there's a difference in job satisfaction between the two groups. **Need some explanation of the two-sample test**. We'll use the difference in means as the test statistic, $\bar{X}_1 − \bar{X}_2$.
-```{r jobsatis3, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+```{r jobsatis, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(job)
 head(job)
 group1 <- job[job$Y == 1, "X"]
@@ -149,10 +98,12 @@ pvalue
 ```
 
 
-
 ### Confidence interval
+
+We invert the test to obtain a confidence interval for the difference in mean job satisfaction between extroverted and introverted workers. Suppose that instead of the null hypothesis above, we assume that the distributions of $X_1$ and $X_2$ differ by a constant shift $\delta$. We would test $H_0: X_1  \,{\buildrel d \over =}\, X_2 + \delta$ for some $\delta < \infty$ Let $\delta_0 = \mathbb{E}(X_1) - \mathbb{E}(X_2)$. Note that the test above was a special case of this shift model with $\delta=0$. A $(1-\alpha)100\%$ confidence interval for $\delta_0$ contains all those values $\delta$ for which the null hypothesis
+$H_0: X_1  \,{\buildrel d \over =}\, X_2 + \delta$ is accepted at level $\alpha$.
+
 ```{r jobsatis_confint, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-IC(X[Y == 1], X[Y == 2], conf.lev = 0.95, max.delta = 10, length.delta = 50)
 CI_mean(group1, group2, alpha = 0.05)
 
  
@@ -161,30 +112,20 @@ CI_mean(group1, group2, alpha = 0.05)
 ```
 
 ### Conditional Power 
-We compute the conditional power by randomly generating 100 datasets under the null, conditional on the data we observed. **flesh out explanation** For each permuted dataset, we compute a $95\%$ confidence interval for the difference in means between the two groups. The proportion of these confidence intervals that do not cover $0$ is the conditional power.
+We compute the conditional power by randomly generating 100 datasets under the null, conditional on the data we observed. Under the null hypothesis $H_0: X_1 = \,{\buildrel d \over =}\, X_2 + \delta_0$, the data $X_{11}-\delta_0,\dots,X_{1n}-\delta_0, X_{21},\dots,X_{2m}$ are exchangeable. Thus we can generate all possible realizations of the samples, conditional on the observed values, by permuting these exchangeable values, splitting into the two treatment groups, and adding back $\delta_0$ to the $X_{1i}^*$ values. For each permuted dataset, we compute a $95\%$ confidence interval for the difference in means between the two groups. The proportion of these confidence intervals that do not cover $0$ (equivalently, the proportion of tests we would reject at level $5\%$ in favor of a two-sided alternative) is the conditional power.
 
 ```{r jobsatis_power, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-## Old way
 MB <- 100
-ICr <- array(0, dim = c(B, 2))
 CI_perm <- matrix(rep(0, 2 * MB), ncol = 2)
 Z <- c(group1 - observed, group2)
 n <- length(group1)
 
 for(bb in 1:MB){
-  # new way
   Z.perm <- sample(Z)
   Z.perm[1:n] <- Z.perm[1:n] + observed
   CI_perm[bb,] <- CI_mean(Z.perm[1:n], Z.perm[-(1:n)], reps = 100)
-  
-  # old way
-#  Z.perm <- sample(Z)
-#  Z.perm[ Y == 1] <- Z.perm[ Y == 1]+observed
-#  ICr[bb, ] <- IC(Z.perm[Y == 1], Z.perm[Y == 2], conf.lev = 0.95, max.delta = 10, 
-#        length.delta = 50)
 }
-pow <- list(`new version` = 1 - mean(CI_perm[, 1] < 0 & CI_perm[, 2] > 0), `old version` = 1 - 
-    mean(ICr[, 1] < 0 & ICr[, 2] > 0))
+pow <- 1 - mean(CI_perm[, 1] < 0 & CI_perm[, 2] > 0)
 pow
 
  
@@ -194,7 +135,6 @@ pow
 
 
 ## Worms
-This is an example of one way ANOVA analysis, where the factor is given by the group Y and data are the lengths X of the worms belonging to each group.
 
 ```{r worms1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(worms)
@@ -209,52 +149,20 @@ n
 
 ```
 
-It is easy to show that, conditionally, the usual F test statistic for the one-way ANOVA is permutationally equivalent to $T^{obs} = \sum_{j=1}^3 n_j \bar{X}_j^2$. We can obtain the distribution of the test statistic by computing, at each permutation, the values of $\bar{X}_j^2, j=1,2,3$. 
 
-### Old method
-This can be done with the auxiliary dummy variables $I$:
+This is an example of one-way ANOVA analysis, where the $k=3$ groups are given by `Y` and the worm lengths are recorded in `X`. We use the `k_sample` function to  test the null hypothesis of equality of distributions: $H_0: X_1 \,{\buildrel d \over =}\, X_2 \,{\buildrel d \over =}\, X_3$ against the alternative that they are not all the same. Under the null, group assignment is essentially a random labelling of the units and has no influence on the worm's length.
 
-```{r worms2, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
-I <- array(0, dim = c(sum(n), C))
-for (i in 1:C) {
-    I[, i] <- ifelse(Y == names(n)[i], 1/n[i], 0)
-}
+It is easy to show that, conditionally, the usual F test statistic for the one-way ANOVA is permutationally equivalent to $T^{obs} = \sum_{j=1}^3 n_j \bar{X}_j^2$. `k_sample` approximates the distribution of the test statistic by permuting the group assignments and then computing, at each permutation, the values of $\bar{X}_j^2, j=1,2,3$ and taking the sum weighted by the $n_j$'s. 
 
- 
+The p-value of the test is again obtained by applying the `t2p` function to the observed test statistic and permutation distribution. Since the test statistic is strictly positive, we are interested in the "greater than" alternative. In this case we can conclude that there is a strong evidence against the null hypothesis.
 
-
-```
-
-The $i$th element of the $j$th column of matrix $I$ is equal to $1/n_j$ if the $i$th
-observation belongs to group $j$ and zero otherwise, $i = 1,...,N$, $N = \sum_j n_j$,
-$j = 1,2,3$. Thus the vector of means-by-group $\bar{x} = [\bar{x}_1, \bar{x}_2,\bar{x}_3]$ can be easily derived by multiplying $t(X)$ (with dimension $1 \times N$) and $I$ (with dimension $N \times 3$), and the test statistic can be derived by multiplying the square of $\bar{x}$ and
-the vector $n$. The permutation values of $T^* = \sum_{j=1}^3n_j {\bar{X}_j^*}^2$ can be obtained similarly by replacing $X$ with $X.star$, a random permutation of $X$:
-
-```{r worms3, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval=FALSE}
-T <- array(0, dim = c((B + 1), 1))
-T[1] <- (t(X) %*% I)^2 %*% n
-for (bb in 2:(B + 1)) {
-    X.star <- sample(X)
-    T[bb] <- (t(X.star) %*% I)^2 %*% n
-}
-t2p_old(T)[1]
-
- 
-
-
-```
-
-The p-value of the test is again obtained by applying the t2p_old function to the vector $T$, and by considering the first element of the vector of results. In this case we can conclude that there is a strong evidence against the null hypothesis.
-
-### New method
-We use the `k_sample` function, where the groups are given by `Y` and the measurements of interest are `X`. We'd like to test the null hypothesis of equality of distributions: $H_0: X_1 \,{\buildrel d \over =}\, X_2 \,{\buildrel d \over =}\, X_3$.
 ```{r worms}
-distr <- k_sample(X, Y)
 xbar <- rep(NA, length(n))
 for(gg in 1:length(n)){
   xbar[gg] <- mean(X[Y==unique(Y)[gg]])
 }
 observed <- sum(n*xbar^2)
+distr <- k_sample(X, Y)
 t2p(observed, distr, alternative = "greater")
 ```
 
@@ -318,7 +226,7 @@ t2p_old(T)[1]
 
 ## Blood testosterone levels in 11 women
 
-The purpose was to evaluate whether the level of testosterone in the blood is subject to change during the day. The null hypothesis is that there is no change in testosterone across time. This example has the peculiarity that the observations are dependent since testosterone levels were recorded for the same woman over the course of a day. Therefore, under $H_0$ we can permute the data inside the rows of the dataset independently. This problem can be viewed as a two-way ANOVA experiment without interaction, where main factors are "time" (factor B) and "individual" (factor A: blocking factor, not of interest).
+The purpose was to evaluate whether the level of testosterone in the blood is subject to change during the day. The null hypothesis is that there is no change in testosterone across time. This example has the peculiarity that the observations are dependent, since testosterone levels were recorded for the same woman over the course of a day. Therefore, under $H_0$ we can permute the measurements for a woman throughout the day, independently for each woman. This problem can be viewed as a two-way ANOVA experiment without interaction, where main factors are "time" (factor B) and "individual" (factor A: blocking factor, not of interest).
 
 ```{r testosterone1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(testosterone)
@@ -332,33 +240,9 @@ lines(seq(1, 5), apply(testosterone, 2, mean), lty = "dotted")
 
 ```
 
-The commands above assign the dataset to the object `testosterone` and represent it with a box-plot, the dotted line linking the sample means at each time. The deviance decomposition can be written as $SST = SSA + SSB + SSR$, where $SST$ is the total deviance, $SSA$ and $SSB$ are the deviances due to the main effects and $SSR$ is the residual deviance. Note that $SST$ is constant at each permutation, and so is $SSA$ since we permute observations within the rows of data. On the other hand, $SSB$ and $SSR$ vary at each permutation. The test statistic for the time effect is $F_B = (df_{SSR}/df_{SSB}) \times SSB/SSR$. Leaving out the degrees of freedom $df_{SSB}$ and $df_{SSR}$ that are permutationally invariant, the easiest way to obtain the residual deviance at each permutation is to write it as $SSR^* = SST − SSA − SSB^*$. Therefore, the F statistic can be written as $F^* = SSB^*/(SS − SSB^*)$, where $SS$ is constant at each permutation. It is easy to see that $F^*$ is a monotone function of $T^* = SSB^*$. Thus, $SSB^*$ is the test statistic we will use.
+The commands above assign the dataset to the object `testosterone` and represent it with a boxplot, the dotted line linking the sample means at each time. The deviance decomposition can be written as $SST = SSA + SSB + SSR$, where $SST$ is the total deviance, $SSA$ and $SSB$ are the deviances due to the main effects and $SSR$ is the residual deviance. Note that $SST$ is constant at each permutation, and so is $SSA$ since we permute observations within the rows of data. On the other hand, $SSB$ and $SSR$ vary at each permutation. The test statistic for the time effect is $F_B = (df_{SSR}/df_{SSB}) \times SSB/SSR$. Leaving out the degrees of freedom $df_{SSB}$ and $df_{SSR}$ that are permutationally invariant, the easiest way to obtain the residual deviance at each permutation is to write it as $SSR^* = SST − SSA − SSB^*$. Therefore, the F statistic can be written as $F^* = SSB^*/(SS − SSB^*)$, where $SS$ is constant at each permutation. It is easy to see that $F^*$ is a monotone function of $T^* = SSB^*$. Thus, $SSB^*$ is the test statistic we will use.
 
 ```{r testosterone2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-## OLD METHOD
-n <- dim(testosterone)[1]
-p <- dim(testosterone)[2]
-B <- 100
-m.col <- apply(testosterone, 2, mean)
-m <- mean(m.col)
-SSB <- n * sum((m.col - m)^2)
-T <- array(0, dim = c((B + 1), 1))
-T[1] <- SSB
-data.star <- testosterone
-for (bb in 2:(B + 1)) {
-    U <- matrix(runif(n * p), nrow = n)  ## U is n x p
-    R <- apply(U, 1, rank)  ## R is p x n
-    for (i in 1:n) {
-        data.star[i, ] <- testosterone[i, R[, i]]
-    }
-    m.col <- apply(data.star, 2, mean)
-    SSB <- n * sum((m.col - m)^2)
-    T[bb] <- SSB
-}
-t2p_old(T)[1]
-
- 
-## NEW METHOD
 library(reshape2)
 
 m.col <- apply(testosterone, 2, mean)
@@ -366,12 +250,14 @@ m <- mean(m.col)
 SSB <- sum((m.col - m)^2)
 testosterone$woman <- rownames(testosterone)
 testosterone <- melt(testosterone)
+head(testosterone)
 distr <- k_sample(x = testosterone$value, group = testosterone$variable, group2 = testosterone$woman,
          stat = "twoway_anova")
-t2p(SSB, distr)
+t2p(SSB, distr, alternative = "greater")
 
 ```
 
+There is strong evidence to reject the null hypothesis that blood testosterone levels stay constant over time, which confirms the pattern observed in the boxplot above.
 
 ## Biting flies
 
@@ -383,31 +269,11 @@ against the alternative
 
 $$H_1: \left\lbrace \left[ \cup_{1\leq h \leq 6} (\mu_{1h}<\mu_{2h}) \right] \cup (\mu_{17}>\mu_{27})  \right\rbrace$$
 
-where $\mu_{ih}$ is the mean of the $h$th variable in group $i$, $i=1,2$, $h=1,\dots,7$ (see p. 177 for explanation in detail). This can be done by performing one partial test for each variable (according to the related alternative), and then by combining the partial tests into a global test. A vector of contrasts will be again useful in obtaining the test statistic $T_h^* = \bar{x}_{2h}^* - \bar{x}_{1h}^*$.  The first column of the dataset contains an indicator variable of the species (0=Leptoconops Carteri, 1=Leptoconops Torrens). Since the t2p_old function is set according to the *large is significant rule*, we will have to change the signs of the permutation distribution of $T_7^*$ before obtaining its p-value.
+where $\mu_{ih}$ is the mean of the $h$th variable in group $i$, $i=1,2$, $h=1,\dots,7$ (see p. 177 for explanation in detail). This can be done by performing one partial test for each variable (according to the related alternative), and then by combining the partial tests into a global test. We will conduct a two-sample test for the location parameter for variable $h$. 
+
+The first column of the dataset contains an indicator variable of the species ($0$ for Leptoconops Carteri, $1$ for Leptoconops Torrens).
 
 ```{r flies1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-## Old
-data(fly)
-N <- dim(fly)[1]
-p <- dim(fly)[2] - 1
-n <- table(fly[, 1])
-B <- 100
-contr <- as.vector(c(rep(-1/n[1], n[1]), rep(1/n[2], n[2])))
-data <- as.matrix(fly[, -1])
-T <- array(0, dim = c((B + 1), p))
-T[1, ] <- t(contr) %*% data
-for (bb in 2:(B + 1)) {
-    fly.star <- data[sample(1:N), ]
-    T[bb, ] <- t(contr) %*% fly.star
-}
-T[, 7] <- -T[, 7]
-P <- t2p_old(T)
-partial.p <- P[1, ]
-names(partial.p) <- colnames(data)
-round(partial.p, digits = 4)
-
-
-## New
 data(fly)
 group0 <- fly[fly$group == 0,]
 group1 <- fly[fly$group == 1,]
@@ -428,28 +294,15 @@ partial_pvalue
 
 ```
 
-The vector $partial.p$ contains the partial p-values of each variable. The matrix $P$ contains the null distribution of partial p-values. It results that X1, X3 and X5 are strongly significant and X7 is moderately significant. We combine the partial tests with Fisher’s, Liptak’s, and Tippett’s combining functions. Note that if Tippett’s combining function is applied, the rule is small is significant, therefore we run the t2p_old function to the inverse of the vector containing Tippett’s combination of the rows of $P$.
+The vector `partial_pvalue` contains the partial p-values of each of the $7$ variables. It appears that the first, third, and fifth variables are strongly significant while the seventh is moderately significant. The matrix `distr` has dimension $B \times 7$ and contains the null distribution of the test statistic for each variable $h$ in its columns. Using the `npc` function, we combine the partial tests with Fisher’s, Liptak’s, and Tippett’s combining functions.
 
-** NB the naming convention here is very bad -- in R, F means false and T means true!**
+
 ```{r fly2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
-F <- apply(P, 1, function(x) {
-    -2 * log(prod(x))
-})
-L <- apply(P, 1, function(x) {
-    sum(qnorm(1 - x))
-})
-T <- apply(P, 1, min)
-P.F <- t2p_old(F)
-P.L <- t2p_old(L)
-P.T <- t2p_old(1/T)
-globs <- c(P.F[1], P.L[1], P.T[1])
-names(globs) <- c("Fisher", "Liptak", "Tippett")
-globs
 
- 
 combined_p_fisher <- npc(partial_pvalue, distr, combine = "fisher", alternatives = c(rep("greater",6), "less"))
 combined_p_liptak <- npc(partial_pvalue, distr, combine = "liptak", alternatives = c(rep("greater",6), "less"))
 combined_p_tippett <- npc(partial_pvalue, distr, combine = "tippett", alternatives = c(rep("greater",6), "less"))
 print(c(combined_p_fisher, combined_p_liptak, combined_p_tippett))
 ```
 
+The global test is highly significant.
