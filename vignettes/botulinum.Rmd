@@ -110,7 +110,7 @@ colnames(res) <- c("Variable", "Raw p-values")
 res
 
 
-p.adj <- FWE.minP(P)
+p.adj <- FWE.minP_old(P)
 p.adj <- data.frame(res[, 1], p.adj)
 colnames(p.adj) <- colnames(res)
 p.adj

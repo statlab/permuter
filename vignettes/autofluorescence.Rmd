@@ -81,7 +81,7 @@ P.glob
 
 P.Oct <- t2p_old(T.glob)[, , 1]
 P.Mic <- t2p_old(T.glob)[, , 2]
-FWE.res <- cbind(FWE.minP(P.Oct), FWE.minP(P.Mic))
+FWE.res <- cbind(FWE.minP_old(P.Oct), FWE.minP_old(P.Mic))
 rownames(FWE.res) <- c("Auto", "PIG", "DRU")
 colnames(FWE.res) <- c("Oct", "Micro")
 FWE.res
@@ -133,7 +133,7 @@ P.glob
 
 
 T.FWE <- t2p_old(T.glob)
-P.FWE <- cbind(FWE.minP(T.FWE[, , 1]), FWE.minP(T.FWE[, , 2]))
+P.FWE <- cbind(FWE.minP_old(T.FWE[, , 1]), FWE.minP_old(T.FWE[, , 2]))
 names(P.FWE) <- names(P.glob)
 P.FWE
 

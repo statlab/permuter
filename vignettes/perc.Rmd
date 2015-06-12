@@ -110,7 +110,7 @@ for (d in 1:6) {
 }
 
 P.time <- t2p_old(T.time)
-res.glob.adj <- FWE.minP(P.time)
+res.glob.adj <- FWE.minP_old(P.time)
 res.glob <- cbind(P.time[1, ], res.glob.adj)
 rownames(res.glob) <- rownames(res.dom)
 colnames(res.glob) <- c("p", "p.adj")

@@ -60,7 +60,7 @@ P <- t2p_old(T)
 colnames(P) <- unique(Stain)
 P[1, ]
 
-p.FWE <- FWE.minP(P)
+p.FWE <- FWE.minP_old(P)
 dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
 res <- data.frame(Category = unique(Category)[dom], p = P[1, ], p.fWE = p.FWE)
 res
@@ -94,7 +94,7 @@ for (dd in 1:3) {
 
 P.dom <- t2p_old(T.dom)
 P.dom[1, ]
-FWE.minP(P.dom)
+FWE.minP_old(P.dom)
 
  
 

@@ -159,7 +159,7 @@ TNT.res <- cbind(PT[1, ], PNT[1, ])
 colnames(TNT.res) <- c("T", "NT")
 TNT.res
 
-FWE.res <- cbind(FWE.minP(PT), FWE.minP(PNT))
+FWE.res <- cbind(FWE.minP_old(PT), FWE.minP_old(PNT))
 colnames(FWE.res) <- c("T", "NT")
 rownames(FWE.res) <- colnames(dT)
 FWE.res
