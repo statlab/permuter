@@ -16,7 +16,7 @@ tippett(p)
 \item{p}{Vector of p-values}
 }
 \description{
-Fisher combining function is \eqn{-2\sum \log(p)}.
+Fisher combining function is \eqn{-2\sum log(p)}.
 }
 \section{Functions}{
 \itemize{
