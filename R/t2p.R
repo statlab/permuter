@@ -52,3 +52,10 @@ t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
     keep <- alt %in% alternative
     return(P[keep])
 } 
+
+#' Computes the p-value for every observation in an empirical distribution
+#' 
+#' @inheritParams t2p
+pvalue_distr <- function(distr, alternative = "greater"){
+  sapply(1:length(distr), function(x) t2p(distr[x], distr[-x], alternative))
+}
