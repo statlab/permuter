@@ -4,15 +4,19 @@
 \alias{fwe_minp}
 \title{Permutation version of the Bonferroni-Holm minP step-up procedure}
 \usage{
-fwe_minp(pvalues)
+fwe_minp(pvalues, distr, combine = "fisher")
 }
 \arguments{
-\item{pvalues}{vector of p-values}
+\item{pvalues}{Vector of partial p-values for tests}
+
+\item{distr}{Matrix or dataframe, columns are approimate null distribution for each partial test}
+
+\item{combine}{Combining function (default is Fisher)}
 }
 \value{
-something
+Vector of adjusted p-values
 }
 \description{
-Permutation version of the Bonferroni-Holm minP step-up procedure
+When considering a closed testing procedure, the adjusted p-value $p_i$ for a given hypothesis $H_i$ is the maximum of all p-values for tests including $H_i$ as a special case (including the p-value for the $H_i$ test itself).
 }
 

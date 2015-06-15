@@ -104,3 +104,13 @@ p_ris_liptak <- p_ris
 library(knitr)
 kable(cbind(p_ris_fisher, p_ris_liptak, p_ris_tippett), col.names = c("Fisher", "Liptak", "Tippett"))
 ```
+
+This procedure has been implemented in the `fwe_minp` function. 
+
+```{r fwe_minp}
+p_ris_liptak2 <- fwe_minp(p_raw, distr, combine="liptak")
+p_ris_fisher2 <- fwe_minp(p_raw, distr, combine="fisher")
+p_ris_tippett2 <- fwe_minp(p_raw, distr, combine="tippett")
+kable(cbind(p_ris_fisher2, p_ris_liptak2, p_ris_tippett2), col.names = c("Fisher", "Liptak", "Tippett"))
+
+```
