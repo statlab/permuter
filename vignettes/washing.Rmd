@@ -13,11 +13,11 @@ vignette: >
 ## Vignette Info
 
 This example is in the textbook section 5.6.2 (p 277-281).
-```{r load}
+```{r load, results='hide'}
 library(permuter)
 data(washing_test)
-attach(washing_test)
 library(dplyr)
+library(ggplot2)
 
  
 
@@ -26,55 +26,9 @@ library(dplyr)
 
 Let us now introduce a real case study concerned with the development of a new detergent, where an instrumental performance study modelled by a $C$ independent sample design has been carried out. The R&D division of a chemical company wishes to assess the level of performance of a set of 8 products ($C = 8$) on 25 types of stains, which may be classified into 3 main categories, i.e. general detergency, bleachable and enzymatic. A suitable experiment has been designed. For each of the 8 products, 4 washing machines (therefore 4 replicates/observations in each group) are used to wash a piece of fabric soiled with one of the 25 stains. The experimental response variable is the reflectance, i.e. the percentage of removed stain for the 25 types of stains. Hence it is of interest to compare the 8 products on the basis of their reflectance, using as stratification variable the type of stain. Here we wish to show that it is possible to include a stratification variable while controlling the FWE. Indeed, once the various strata of experimental units have been defined, the observation vector may be resampled independently within strata to simulate the complete null hypothesis of no treatment effect for any stratum. The test statistics are then recomputed by combining over strata, thus obtaining a test statistic for each stratum. Then multiplicity adjustment for multiple tests that have been combined over strata may easily be performed following the standard procedure (see Section 5.4.1). Raw and adjusted p-values are displayed.
 
+
 ```{r analysis}
-attach(washing_test)
-C <- length(unique(Product))
-p <- length(unique(Stain))
-r <- nrow(washing_test)/(C * p)
-
-B <- 1000
-
-contr <- array(0, dim = c(r * C, C))
-for (cc in 1:C) {
-    contr[((cc - 1) * r + 1):(cc * r), cc] <- rep(1/r, r)
-}
-
-T <- array(0, dim = c((B + 1), p))
-M <- array(0, dim = c((B + 1), p, C))
-
-for (j in 1:p) {
-    M[1, j, ] <- Reflectance[((j - 1) * r * C + 1):(j * C * r)] %*% contr
-    T[1, j] <- sum(M[1, j, ]^2)
-}
-
-
-
-for (bb in 2:(B + 1)) {
-    for (j in 1:p) {
-        R <- Reflectance[((j - 1) * r * C + 1):(j * C * r)]
-        n <- length(R)
-        R.star <- R[sample(1:n)]
-        M[bb, j, ] <- R.star %*% contr
-        T[bb, j] <- sum(M[bb, j, ]^2)
-    }
-}
-
-P <- t2p_old(T)
-colnames(P) <- unique(Stain)
-P[1, ]
-
-p.FWE <- FWE.minP_old(P)
-dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
-res <- data.frame(Category = unique(Category)[dom], p = P[1, ], p.fWE = p.FWE)
-res
-
-detach(washing_test)
-
-```
-
-```{r myway}
-k <- unique(washing_test$Product)
-C <- length(k)
+C <- length(unique(washing_test$Product))
 p <- length(unique(washing_test$Stain))
 r <- nrow(washing_test)/(C * p)
 
@@ -97,7 +51,7 @@ for(cc in unique(washing_test$Category)){
 }
 names(p_raw) <- unique(washing_test$Stain)
 colnames(distr) <- unique(washing_test$Stain)
-p_raw
+
 
 p_adjusted <- fwe_minp(pvalues = p_raw, distr = distr, combine = "tippett")
 dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
@@ -108,7 +62,6 @@ res
 ## Plot
 
 ```{r plot}
-library(ggplot2)
 washing_test %>% dplyr::filter(Stain == "Blueberry juice") %>% ggplot(aes(x = factor(Product), y = Reflectance)) + geom_boxplot()
 summary(aov(washing_test[washing_test$Stain == "Blueberry juice", 4] ~ factor(rep(1:8, each = 4))))
 
@@ -119,21 +72,6 @@ summary(aov(washing_test[washing_test$Stain == "Blueberry juice", 4] ~ factor(re
 We'll use NPC with Fisher's combining function to get overall p-values for the three categories and a single global p-value.
 
 ```{r domains}
-T.dom <- array(0, dim = c((B + 1), 3))
-dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
-
-
-
-for (dd in 1:3) {
-    T.dom[, dd] <- apply(P[, dom == dd], 1, function(x) {
-        -2 * log(prod(x))
-    })
-}
-
-P.dom <- t2p_old(T.dom)
-P.dom[1, ]
-FWE.minP_old(P.dom)
-
 p_distr <- apply(distr, 2, pvalue_distr)
 fisher_observed <- c()
 distr_categories <- data.frame(matrix(,nrow = B, ncol = 0))
