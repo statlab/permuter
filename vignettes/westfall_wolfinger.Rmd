@@ -15,40 +15,18 @@ This example comes from the textbook section 5.5 (p 273-276).
 
 We analyze the mult data, previously discussed in Westfall and Wolfinger (2000), to test for equality of the multivariate distribution of three variables $Y_1, Y_2$, and $Y_3$ in the two groups labeled by the binary variable $X$ (two independent samples test). The aim of this example is to show how the closed testing procedure performs when different combining functions are applied.
 
+The procedure is as follows: let $p_{(1)} \leq p_{(2)} \leq p_{(3)}$ be the (increasingly) ordered raw p-values; choose a combining function (whose arguments are raw p-values), and obtain a global test involving all three variables. The adjusted p-value related to $p_{(1)}$ is the p-value of the global test on all the three variables. At second step, obtain a global test involving the variables corresponding to $p_{(2)} \leq p_{(3)}$ only; the adjusted p-value related to $p_{(2)}$ is the p-value of the global test. At third step, obtain a global test involving the variable generating $p_{(3)}$ only; there is no need to perform the procedure on the variable with largest raw p-value. A monotonicity condition must be satisfied, i.e. the adjusted p-value at each step is not smaller than the adjusted p-value at previous step.
+
+First, we perform the testing procedure on the three variables and obtain the raw p-values. We consider the difference of means as the test statistic, and its null distribution can be obtained by calling the `two_sample` function. We consider a two-sided alternative and B = 1000 random permutations.
+
 ```{r load}
 library(permuter)
 set.seed(60)
 data(mult)
-attach(mult)
-
- 
-
 
 ```
 
 ```{r get-pvalues}
-### Old
-n <- table(X)
-p <- dim(mult)[2] - 1
-contr <- rep(c(1/n[1], -1/n[2]), n)
-
-B <- 500
-n <- dim(mult)[1]
-Y <- as.matrix(mult[, -1])
-T <- array(0, dim = c((B + 1), p))
-
-T[1, ] <- t(Y) %*% contr
-
-for (bb in 2:(B + 1)) {
-    Y.star <- Y[sample(1:n), ]
-    T[bb, ] <- t(Y.star) %*% contr
-}
-
-P <- t2p_old(abs(T))
-p.raw <- P[1, ]
-p.raw
-
-### New
 B <- 1000
 X <- mult[,1]
 group0 <- mult[X==0,-1]
@@ -58,76 +36,33 @@ p <- ncol(group0)
 observed <- sapply(1:p, function(x) mean(group1[,x])-mean(group0[,x]))
 distr <- sapply(1:p, function(x) two_sample(group1[,x], group0[,x], reps = B))
 p_raw <- sapply(1:p, function(x) t2p(observed[x], distr[,x], alternative = "two-sided"))
+names(p_raw) <- colnames(group0)
 p_raw
 ```
 
 ## Order the raw p-values increasingly
+The vector `p_raw` contains the raw p-values related to each variable. Now we order the raw p-values increasingly. The matrix `perm_pvalues` contains the null distribution of the raw p-values, and its columns are ordered with respect to the ordering of `p_ord` (i.e. the observed raw p-values).
 
 ```{r incr} 
-### Old
-p.ord <- sort(p.raw, decreasing = FALSE)
-o <- order(p.raw, decreasing = FALSE)
-
-B <- dim(P)[1] - 1
-p <- dim(P)[2]
-
-p.ris <- array(0, dim = c(p, 1))
-P.ord <- P[, o]
-
-### New
 p_ord <- sort(p_raw, decreasing = FALSE)
 
-perm_pvalues <- sapply(1:p, function(col){
-                  sapply(1:B, function(b){
-                          t2p(distr[b, col], distr[-b, col], alternative = "two-sided")
-                  })
-})
+perm_pvalues <- apply(distr, 2, pvalue_distr, alternative = "two-sided")
 perm_pvalues_ord <- perm_pvalues[ , order(p_raw)]
-
 ```
 
 ## Perform the step-up procedure with Liptak's combining function
+Now we obtain the adjusted p-values as the global p-values obtained by combining the last $3-j$ columns of `perm_pvalues_ord`, $j = 0,1,2$. We can do this by choosing one of the three combining function proposed (Tippett's, Fisher's, and Liptak's). The following code computes the adjusted p-values by applying each combining function.
 
 ```{r npc}
-### Old
- T=apply(P.ord,1,min) #Tippett's 
-#T=apply(P.ord,1,function(x){-2*log(prod(x))}) #Fisher's
-#T <- apply(P.ord, 1, function(x) {
-#    sum(qnorm(1 - x))
-#})  #Liptak's\t\t
-
- p.ris[1] = mean(T[-1]<=T[1]) #Tippett's
-#p.ris[1] <- mean(T[-1] >= T[1])  #Fisher's & Liptak's
-
-if (p > 2) {
-    for (j in 2:(p - 1)) {
-         T=apply(P.ord[,j:p],1,min) #Tippett's
-        # T=apply(P.ord[,j:p],1,function(x){-2*log(prod(x))}) #Fisher's
-        #T <- apply(P.ord[, j:p], 1, function(x) {
-        #    sum(qnorm(1 - x))
-        #})  #Liptak's\t\t\t
-        
-         p.ris[j] = max(mean(T[-1]<=T[1]),p.ris[(j-1)]) # Tippett's
-        #p.ris[j] <- max(mean(T[-1] >= T[1]), p.ris[(j - 1)])  #Fisher's & Liptak's
-    }
-}
-p.ris[p] <- max(p.ord[p], p.ris[p - 1])
-p.ris[o] <- p.ris
-
-rownames(p.ris) <- colnames(data)[-1]
-p.ris
-
- 
-### New
 t_tippett <- apply(perm_pvalues_ord, 1, tippett)
-obs_tippett <- tippett(p_raw)
+obs_tippett <- tippett(p_ord)
 p_ris <- rep(NA, p)
 p_ris[1] <- t2p(obs_tippett, t_tippett, alternative = "greater")
 if (p > 2) {
     for (j in 2:(p - 1)) {
-        obs_tippett <- tippett(p_raw[j:p])
+        obs_tippett <- tippett(p_ord[j:p])
         t_tippett <- apply(perm_pvalues_ord[, j:p], 1, tippett)
-        p_ris[j] = max(t2p(obs_tippett, t_tippett, alternative = "greater"), p.ris[(j-1)])
+        p_ris[j] = max(t2p(obs_tippett, t_tippett, alternative = "greater"), p_ris[(j-1)])
     }
 }
 p_ris[p] <- max(p_ord[p], p_ris[p - 1])
@@ -137,13 +72,13 @@ p_ris_tippett <- p_ris
 
 
 t_fisher <- apply(perm_pvalues_ord, 1, fisher)
-obs_fisher <- fisher(p_raw)
+obs_fisher <- fisher(p_ord)
 p_ris[1] <- t2p(obs_fisher, t_fisher, alternative = "greater")
 if (p > 2) {
     for (j in 2:(p - 1)) {
-        obs_fisher <- fisher(p_raw[j:p])
+        obs_fisher <- fisher(p_ord[j:p])
         t_fisher <- apply(perm_pvalues_ord[, j:p], 1, fisher) 
-        p_ris[j] = max(t2p(obs_fisher, t_fisher, alternative = "greater"), p.ris[(j-1)])
+        p_ris[j] = max(t2p(obs_fisher, t_fisher, alternative = "greater"), p_ris[(j-1)])
     }
 }
 p_ris[p] <- max(p_ord[p], p_ris[p - 1])
@@ -152,14 +87,14 @@ p_ris_fisher <- p_ris
 
 
 t_liptak <- apply(perm_pvalues_ord, 1, liptak)
-obs_liptak <- liptak(p_raw)
+obs_liptak <- liptak(p_ord)
 p_ris <- rep(NA, p)
 p_ris[1] <- t2p(obs_liptak, t_liptak, alternative = "greater")
 if (p > 2) {
     for (j in 2:(p - 1)) {
-        obs_liptak <- liptak(p_raw[j:p])
+        obs_liptak <- liptak(p_ord[j:p])
         t_liptak <- apply(perm_pvalues_ord[, j:p], 1, liptak) 
-        p_ris[j] = max(t2p(obs_liptak, t_liptak, alternative = "greater"), p.ris[(j-1)])
+        p_ris[j] = max(t2p(obs_liptak, t_liptak, alternative = "greater"), p_ris[(j-1)])
     }
 }
 p_ris[p] <- max(p_ord[p], p_ris[p - 1])
