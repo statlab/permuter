@@ -19,12 +19,12 @@ permute_within_groups <- function(x, group){
 #'
 #' @inheritParams one_sample
 #' @param group  Vector of group memberships, exchangeable under the null
-#' @param group2 Vector of secondary group memberships (optional)
+#' @param strata Vector of secondary group memberships (optional); if supplied, 
+#' permutations will be done within strata
 #' @param stat  Test statistic: either "oneway_anova" (default) or "twoway_anova"
 #' @return A vector of length `reps` containing the permutation distribution
-k_sample <- function(x, group, group2=NULL, reps=1000, stat = "oneway_anova"){
+k_sample <- function(x, group, strata=NULL, reps=1000, stat = "oneway_anova"){
   n <- table(group)
-  n2 <- table(group2)
   
   ## check that if twoway_anova is specified, then group2 != NULL
   
@@ -51,10 +51,10 @@ k_sample <- function(x, group, group2=NULL, reps=1000, stat = "oneway_anova"){
   names(test_stats) <- c("oneway_anova", "twoway_anova")
   tst <- test_stats[[stat]]
   
-  if(stat %in% c("oneway_anova")){
+  if(is.null(strata)){
     perm_method <- function(g) sample(g)
   }else{
-    perm_method <- function(g) permute_within_groups(g, group2)
+    perm_method <- function(g) permute_within_groups(g, strata)
   }
   
   distr <- replicate(reps, {

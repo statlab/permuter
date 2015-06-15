@@ -4,14 +4,15 @@
 \alias{k_sample}
 \title{k-sample permutation test for equality of distributions}
 \usage{
-k_sample(x, group, group2 = NULL, reps = 1000, stat = "oneway_anova")
+k_sample(x, group, strata = NULL, reps = 1000, stat = "oneway_anova")
 }
 \arguments{
 \item{x}{Vector of observations}
 
 \item{group}{Vector of group memberships, exchangeable under the null}
 
-\item{group2}{Vector of secondary group memberships (optional)}
+\item{strata}{Vector of secondary group memberships (optional); if supplied,
+permutations will be done within strata}
 
 \item{reps}{Number of replications to approximate distribution (default 1000)}
 
