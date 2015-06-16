@@ -14,3 +14,14 @@ test_that("p-values for IPAT data",{
   pval <- t2p(mean(d), distr)
   expect_equal(pval, c("pupper"=0,"plower"=1,"pboth"=0))
 })
+
+context("Correct p-values from pvalue_distr")
+test_that("p-values from toy example", {
+  d <- 1:5
+  res <- pvalue_distr(d); names(res) <- NULL
+  expect_equal(res, seq(1, 0, by = -0.25))
+  res <- pvalue_distr(d, alternative = "two-sided"); names(res) <- NULL
+  expect_equal(res, seq(1, 0, by = -0.25))
+  res <- pvalue_distr(d, alternative = "less"); names(res) <- NULL
+  expect_equal(res, seq(0, 1, by = 0.25))
+})
