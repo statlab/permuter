@@ -39,7 +39,7 @@ for (j in 1:p) {
 
 
 colnames(P) <- colnames(data)
-P.FWE <- FWE.minP(P)
+P.FWE <- FWE.minP_old(P)
 res <- cbind(P[1, ], P.FWE)
 colnames(res) <- c("Raw-p", "Adj-p")
 res

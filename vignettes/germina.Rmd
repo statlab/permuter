@@ -62,7 +62,7 @@ P[1, ]
 
 
 cat("Adjusted Partial p-values:", "\n")
-FWE.minP(P)
+FWE.minP_old(P)
 
 
 T.G <- apply(P, 1, function(x) {

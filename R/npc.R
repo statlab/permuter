@@ -56,7 +56,15 @@ npc <- function(pvalues, distr, combine = "fisher", alternatives = "greater"){
     sapply(1:nrow(distr), function(b) t2p(distr[b,j], distr[-b,j], alternatives[j]))
   })
   
-  combined_pvalues <- apply(null_pvalues, 1, combn_func)
+  if(combine == "liptak"){
+    too_small <- which(null_pvalues == 0)
+    too_large <- which(null_pvalues == 1)
+    null_pvalues[too_small] <- null_pvalues[too_small] + 0.0001
+    null_pvalues[too_large] <- null_pvalues[too_large] - 0.0001
+  }
+  
   obs_combined_pvalue <- combn_func(pvalues)
+  if(is.infinite(obs_combined_pvalue)){return(0)}
+  combined_pvalues <- apply(null_pvalues, 1, combn_func)
   return(mean(combined_pvalues >= obs_combined_pvalue))
 }

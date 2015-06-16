@@ -2,7 +2,7 @@
 #' 
 #' @param P something
 #' @return something
-FWE.minP <- function(P) {
+FWE.minP_old <- function(P) {
     
     
     p.oss <- P[1, ]
@@ -36,3 +36,45 @@ FWE.minP <- function(P) {
     
     return(p.ris)
 } 
+
+#' Permutation version of the Bonferroni-Holm minP step-up procedure
+#' 
+#' When considering a closed testing procedure, the adjusted p-value $p_i$ for a given hypothesis $H_i$ is the maximum of all p-values for tests including $H_i$ as a special case (including the p-value for the $H_i$ test itself).
+#' 
+#' @inheritParams npc
+#' @return Vector of adjusted p-values
+#' 
+fwe_minp <- function(pvalues, distr, combine = "fisher") {
+  
+  # Choose the combining function, check inputs
+  funcs <- list(fisher, liptak, tippett)
+  names(funcs) <- c("fisher", "liptak", "tippett")
+  p <- length(pvalues)
+  if(!(combine %in% names(funcs))){ stop(paste(combine, " is not a valid combining function.")) }
+  if(p < 2){ stop("Nothing to combine!") }
+  if(ncol(distr) != p){ stop("Different number of p-values and null distributions")}
+  combn_func <- funcs[[combine]]
+  
+  # Order the p-values
+  p_ord <- sort(pvalues, decreasing = FALSE)
+  perm_pvalues <- apply(distr, 2, pvalue_distr, alternative = "two-sided")
+  perm_pvalues_ord <- perm_pvalues[ , order(pvalues)]
+  
+  # Step down tree of combined hypotheses, from global test to test of the 
+  # individual hypothesis with largest p-value
+  p_ris <- rep(NA, p)
+  combined_stats <- apply(perm_pvalues_ord, 1, combn_func)
+  obs_stat <- combn_func(p_ord)
+  p_ris[1] <- t2p(obs_stat, combined_stats, alternative = "greater")
+  if (p > 2) {
+    for (j in 2:(p - 1)) {
+      obs_stat <- combn_func(p_ord[j:p])
+      combined_stats <- apply(perm_pvalues_ord[, j:p], 1, combn_func) 
+      p_ris[j] = max(t2p(obs_stat, combined_stats, alternative = "greater"), p_ris[(j-1)])
+    }
+  }
+  p_ris[p] <- max(p_ord[p], p_ris[p - 1])
+  p_ris[order(pvalues)] <- p_ris
+  return(p_ris)
+} 
+

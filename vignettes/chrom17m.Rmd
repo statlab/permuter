@@ -70,7 +70,7 @@ p.part <- t2p_old(T)[1, ]
 names(p.part) <- G
 p.part
 
-FWE.p <- t(FWE.minP(P))
+FWE.p <- t(FWE.minP_old(P))
 colnames(FWE.p) <- G
 FWE.p
 

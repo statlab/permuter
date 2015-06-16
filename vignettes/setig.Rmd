@@ -89,7 +89,7 @@ res
 
 p.fwe <- array(0, dim = c(nstr, p))
 for (s in 1:nstr) {
-    p.fwe[s, ] <- FWE.minP(P[, , s])
+    p.fwe[s, ] <- FWE.minP_old(P[, , s])
 }
 colnames(p.fwe) <- colnames(res)
 rownames(p.fwe) <- rownames(res)
