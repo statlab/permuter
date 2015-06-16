@@ -58,7 +58,7 @@ fwe_minp <- function(pvalues, distr, combine = "fisher") {
   # Order the p-values
   p_ord <- sort(pvalues, decreasing = FALSE)
   perm_pvalues <- apply(distr, 2, pvalue_distr, alternative = "two-sided")
-  perm_pvalues_ord <- perm_pvalues[ , order(p_raw)]
+  perm_pvalues_ord <- perm_pvalues[ , order(pvalues)]
   
   # Step down tree of combined hypotheses, from global test to test of the 
   # individual hypothesis with largest p-value
@@ -74,7 +74,7 @@ fwe_minp <- function(pvalues, distr, combine = "fisher") {
     }
   }
   p_ris[p] <- max(p_ord[p], p_ris[p - 1])
-  p_ris[order(p_raw)] <- p_ris
+  p_ris[order(pvalues)] <- p_ris
   return(p_ris)
 } 
 

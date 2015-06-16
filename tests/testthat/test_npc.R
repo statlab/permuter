@@ -11,9 +11,6 @@ test_that("bad inputs",{
 })
 
 test_that("p-values from toy example", {
-  expect_equal(fisher(pval), 11.11546, tol = 1e-4)
-  expect_equal(liptak(pval), 0.5728894, tol = 1e-6)
-  expect_equal(tippett(pval), 0.95)
   expect_equal(npc(pval, distr, "fisher", "greater"), 0.34)
   expect_equal(npc(pval, distr, "fisher", "less"), 0.35)
   expect_equal(npc(pval, distr, "fisher", "two-sided"), 0.34)
