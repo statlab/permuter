@@ -12,43 +12,86 @@ vignette: >
 
 ## Vignette Info
 
-summary of the book section
+A description of the botulinum study is provided on p 369-370 in the text.
 
+We abstract the testing problem: a $V$-dimensional non-degenerate variable is observed at $k$ different times on $n$ units in two experimental situations, corresponding to two levels of a symbolic treatment. In our study, $V=24, k=4, n_1 = n_2 = 10$, and $n = 20$. It is worth noting that in this longitudinal study there is a main obstacle to applying classic parametric tests: the number of observed variables at different time points is much higher than the number of subjects ($V \cdot k \gg n$). Furthermore, since all variables may be informative for differentiating two groups, the NPC approach properly applies when analyzing these data. Classic parametric tests or even rank tests in such situations may fail to take into account the dependence structure across variables and time points.
 
-```{r loadbotulinum}
-library(permuter)
-data(botulinum)
+The whole data set is denoted by:
+$$
+\begin{aligned}
+\mathbf{X}  &= \{ X_{hji}(t), t=1, \dots, k, i=1,\dots,n_j, j=1,2, h=1,\dots,V\} \\
+            &= \{X_{hji}, i=1,\dots,n_j, j=1,2, h=1,\dots,V\}
+\end{aligned}
+$$
+where $\mathbf{X}_{hji} = \{ X_{hji}(t), t = 1,\dots,k\}$.
 
- 
+In order to account for different baseline observations, assumed to have the role of covariates, the $k - 1$ $V$-dimensional differences $D_{hji}(t) = X_{hji}(1) - X_{hji}(t), t = 2,\dots,k, i = 1,\dots,n_j, j = 1,2, h = 1,\dots,V$ are considered in the analysis. Hence the hypothesis testing problem related to the $h$th variable may be formalized as
 
+$$H_{0h}: \left\lbrace \cap_{t=2}^k \left[ D_{h1}(t) \,{\buildrel d \over =}\, D_{h2}(t)\right] \right\rbrace = \left\lbrace \cap_{t=2}^k H_{0ht}\right\rbrace, h=1,\dots,V$$
+against the alternative:
+$$H_{1h}: \left\lbrace \cup_{t=2}^k H_{1ht}\right\rbrace, h=1,\dots,V,$$
 
-```
+where $H_{1ht}: \left[ D_{h1}(t) \,{\buildrel d \over >}\,D_{h2}(t)\right]$ or $\left[ D_{h1}(t) \,{\buildrel d \over <}\, D_{h2}(t)\right]$ according to
+which kind of stochastic dominance is of interest for the $h$th variable. The alternative hypothesis is that patients treated with the botulinum toxin had lower values than those treated with the placebo (i.e. differences between baseline values and follow-up values tend to increase,
+for which the $\,{\buildrel d \over >}\,$ dominance is appropriate), except for variables: ME,
+Mas, Maf, Mp, Mll, Mlr, E, and T, where the placebo group is expected to have lower values than the toxin group, for which the $\,{\buildrel d \over <}\,$ is then appropriate.
+
+Permutation tests have been used to test the partial null hypotheses, and Tippett's combining function has been chosen to perform global tests. Missing data which are present in the data set are assumed to be missing completely at random (MCAR), but the presence of MNAR data could easily checked.
+
 
 ## First Analysis
 
+This is a multivariate case-control study with missing data and repeated measures. The aim of the study is to assess the effect of botulinum, that is expected to have opposite effects on the set of variables considered (i.e. we consider one-sided alternatives on each variable). We consider the difference $D$ between observations at time $t_k , k = 1, 2, 3 $ and the observations at time $t_0$. We may organize data in a $n\times p \times 3$ matrix, so the third dimension contains the differences $D_{ijk}$ related to the $i$th subject on the $j$th variable at time $k$. This will be useful when a repeated measure analysis will be considered.
+
+To begin with we read the data, collect informations about samples (`paz`) and time (`Time`), then we extract the relevan columns.
+
 ```{r firstanalysis}
+library(permuter)
+data(botulinum)
+
 n <- length(unique(botulinum[, 1]))
-p <- dim(botulinum)[2] - 4
-paz <- ifelse(botulinum[, 4] == "botox", 1, 2)[1:20]
+p <- ncol(botulinum) - 4
+## Old
+paz <- ifelse(botulinum[,4]=="botox", 1, 2)[1:20]
 Time <- botulinum$Time + 1
+
+treatment <- ifelse(botulinum$farmaco == "botox", 1, 2)[1:20]
+time <- botulinum$Time + 1
 
 
 botulinum <- botulinum[, -c(1:4)]
+```
 
+Now we put the record of each subject in an $n\times p$ matrix and put these matrices in a list. Each element of the list corresponds to a different time point. Afterwards we obtain the differences $D_{ijk}$ with respect to time zero observations and remove the vector of observations at $t_0 (`D[[1]]`).
+
+```{r diffs}
+## OLD
 D <- array(0, dim = c(n, p, 4))
 
 for (t in 1:4) {
-    D[, , t] <- as.matrix(botulinum[Time == t, ])
+  D[, , t] <- as.matrix(botulinum[Time == t, ])
 }
 
 ### differences Tj-T0
-
 for (t in 2:4) {
-    D[, , t] <- D[, , t] - D[, , 1]
+  D[, , t] <- D[, , t] - D[, , 1]
 }
 
 D <- D[, , -1]
 
+
+
+## NEW
+D_new <- list()
+for(t in 1:4){
+  D_new[[t]] <- botulinum[time == t,]
+}
+
+# Take differences, Tj - T0
+for(t in 2:4){
+  D_new[[t]] <- D_new[[t]]-D_new[[1]]
+}
+D_new <- D_new[-1]
 
 #### Analysis is done variable-by-variable since they have different sizes of
 #### missing botulinum
@@ -59,23 +102,55 @@ T <- array(0, dim = c((B + 1), p))
 alternative <- c(rep(-1, 19), rep(1, 5))
 
 for (j in 1:p) {
-    for (t in 1:3) {
-        
+  for (t in 1:3) {
         O <- ifelse(is.na(D[, j, t]) == TRUE, 0, 1)
+        cat(t, j, O, "\n")
         y <- ifelse(is.na(D[, j, t]) == TRUE, 0, D[, j, t])
         nu <- table(O, paz)
         if (dim(nu)[1] > 1) {
             nu <- nu[2, ]
         }
-        
         T[1, j] <- T[1, j] + sum(y[paz == 1]) * sqrt(nu[2]/nu[1])/nu[1] - sum(y[paz == 
-            2]) * sqrt(nu[2]/nu[1])/nu[2]
-        
+            2]) * sqrt(nu[2]/nu[1])/nu[2] 
     }
 }
 
 
+## New
+B <- 100
+alternative <- c(rep("less", 19), rep("greater", 5))
+for (j in 1:p) {
+  for(t in 1:3){
+    group1 <- D_new[[t]][treatment==1,]
+    group2 <- D_new[[t]][treatment==2,]
+    o <- ifelse(is.na(D_new[[t]][,j]), 0, 1) # indicator for missing data
+    cat(t,j,o,"\n")
+    nu <- table(o, treatment)
+    if (nrow(nu) > 1) {
+      nu <- nu[2, ]
+    }
+    omega <- sqrt(nu[2]/nu[1])
+    tst[j] <- tst[j] + omega*(mean(group1[,j], na.rm=TRUE) - mean(group2[,j], na.rm=TRUE))  
+  }
+}
 
+distr <- matrix(0, ncol = p, nrow = B)
+for(j in 1:p){
+  for(t in 1:3){
+    group1 <- D_new[[t]][treatment==1,]
+    group2 <- D_new[[t]][treatment==2,]
+    o <- ifelse(is.na(D_new[[t]][,j]), 0, 1) # indicator for missing data
+    nu <- table(o, treatment)
+    if (nrow(nu) > 1) {
+      nu <- nu[2, ]
+    }
+    omega <- sqrt(nu[2]/nu[1])
+    distr[,j] <- distr[,j] + omega*(two_sample(group1[,j], group2[,j], reps = B))  ## This is wrong: breaks the correlation within an individual
+    }
+}
+## end New
+
+## Old
 for (bb in 2:(B + 1)) {
     
     
