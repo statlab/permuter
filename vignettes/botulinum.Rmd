@@ -19,6 +19,7 @@ To begin with we read the data, collect informations about samples (`paz`) and t
 ```{r setup}
 library(permuter)
 data(botulinum)
+set.seed(100)
 
 n <- length(unique(botulinum[, 1]))
 p <- ncol(botulinum) - 4
@@ -133,10 +134,10 @@ library(knitr); kable(res)
 
 ## Second Analysis
 
-```{r secondanalysis}
-B <- 10
-T <- array(0, dim = c((B + 1), p))
+In contrast to the first analysis, we focus on only on the individuals who received botox and look at the differences between measurements at each time point. 
 
+**NB: there is no description of this analysis anywhere. Not sure what is being tested.**
+```{r seconddiffs}
 
 D <- array(0, dim = c(n, p, 4))
 
@@ -144,7 +145,7 @@ for (t in 1:4) {
     D[, , t] <- as.matrix(botulinum[Time == t, ])
 }
 
-### differences Tj-T0
+### differences T_j-T_{j-1}
 
 for (t in 2:4) {
     D[, , t] <- D[, , t] - D[, , (t - 1)]
@@ -157,6 +158,30 @@ D <- D[, , -1]
 DB <- D[paz == 1, , ]
 n <- dim(DB)[1]
 
+############################################################################## NEW
+# Take differences over time for individuals who received botox
+D_new <- list()
+for(t in 1:4){
+  D_new[[t]] <- botulinum[time == t & treatment==1,]
+}
+
+# Take differences, T_j-T_{j-1}
+for(t in 2:4){
+  D_new[[t]] <- D_new[[t]]-D_new[[t-1]]
+}
+D_botox <- D_new[-1]
+n <- nrow(D_botox[[1]])
+############################################################################# END NEW
+```
+
+
+The test statistic we use is $T_j = \sum_{k=1}^3 \left( S_{jk} \sqrt{ \frac{ \sum_{i\neq k} \nu_i}{\nu_k}} - (\sum_{i=1}^3 S_{ji}-S_{jk})\sqrt{ \frac{ \sum_{i\neq k} \nu_i}{\nu_k}}\right)^2$ where $S_{jk}$ is the sum of non-missing differences for the $j$th variable at the $k$th difference in times and $\nu_k$ is the number of missing values for the $j$th variable at the $k$th difference in times.
+
+```{r secondanalysis}
+# Old method
+B <- 1000
+T <- array(0, dim = c((B + 1), p))
+n <- 10
 
 for (j in 1:p) {
     
@@ -171,22 +196,17 @@ for (j in 1:p) {
     
     for (t in 1:3) {
         
-        T[1, j] <- T[1, j] + (S[t] * sqrt(sum(nu[-t])/nu[t]) - (sum(S) - S[t]) * 
-            sqrt(sum(nu[-t])/nu[t]))^2
+        T[1, j] <- T[1, j] + (S[t]*sqrt(sum(nu[-t])/nu[t]) - (sum(S) - S[t])*sqrt(sum(nu[-t])/nu[t]))^2
         
     }
 }  #end p
 
 
+
 for (bb in 2:(B + 1)) {
-    
-    
+
     D.star <- apply(DB, c(1, 2), sample)
     D.star <- aperm(D.star, c(2, 3, 1))
-    
-    
-    
-    
     for (j in 1:p) {
         
         Y <- D.star[, j, ]
@@ -197,11 +217,9 @@ for (bb in 2:(B + 1)) {
         
         nu <- apply(O, 2, sum)
         S <- apply(Y, 2, sum)
-        
         for (t in 1:3) {
             
-            T[bb, j] <- T[bb, j] + (S[t] * sqrt(sum(nu[-t])/nu[t]) - (sum(S) - S[t]) * 
-                sqrt(sum(nu[-t])/nu[t]))^2
+            T[bb, j] <- T[bb, j] +(S[t]*sqrt(sum(nu[-t])/nu[t]) - (sum(S) - S[t])*sqrt(sum(nu[-t])/nu[t]))^2
             
         }
     }  #end p
@@ -212,9 +230,44 @@ for (bb in 2:(B + 1)) {
 P <- t2p_old(T)
 
 P[1, ]
+```
+**Not sure if this is right -- the p-values don't match at the end, but I can't find an issue with the math**
 
+```{r secondanalysis-new}
+############################################################################# NEW
+tst <- rep(0, p)
+for (j in 1:p) {
+    Y <- sapply(D_botox, function(x) x[,j])
+    nu <- apply(Y, 2, function(x) sum(!is.na(x)))
+    S <- apply(Y, 2, sum, na.rm=TRUE)
 
- 
+    for (t in 1:3) {
+        tst[j] <- tst[j] + (S[t]*sqrt(sum(nu[-t])/nu[t]) - (sum(S) - S[t])*sqrt(sum(nu[-t])/nu[t]))^2 
+        #tst[j] <- tst[j] + (sum(nu[-t])/nu[t])*(2*S[t]-sum(S))^2 # Equivalent, fewer calculations
+    }
+} 
 
+time_ints <- rep(1:3, each = n)
+D_temp <- do.call(rbind, D_botox) # combine the 3 matrices into one
+distr <- matrix(0, nrow = B, ncol = p)
+for (bb in 1:B) {
+#    time_ints <- sample(time_ints)  # permute the times: under the null, the distributions for each are equal
+    D_star <- apply(D_temp, 2, sample)  # permute within columns, break the correlation within columns
+    D_star <- split(data.frame(D_star), time_ints)  # break up the combined data into 3 random matrices of equal size, preserving rows
+    for (j in 1:p) {
+      Y <- sapply(D_star, function(x) x[,j])
+      nu <- apply(Y, 2, function(x) sum(!is.na(x)))
+      S <- apply(Y, 2, sum, na.rm=TRUE)
+      for (t in 1:3) {
+        distr[bb, j] <- distr[bb, j] + (S[t]*sqrt(sum(nu[-t])/nu[t]) - (sum(S) - S[t])*sqrt(sum(nu[-t])/nu[t]))^2 #+ (sum(nu[-t])/nu[t])*(2*S[t]-sum(S))^2 # Equivalent, fewer calculations       
+        }
+    }
+}
+
+raw_pvalues <- sapply(1:p, function(j) t2p(tst[j], distr[,j], alternative = "greater"))
+
+############################################################################# END NEW
+
+kable(cbind(raw_pvalues, "old method p-values"=P[1,]), row.names = FALSE)
 
 ```
