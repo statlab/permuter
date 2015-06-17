@@ -38,9 +38,9 @@ t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
     B <- sum(!is.na(distr))
     # check that t is just a single number
     
-    pupper <- mean(distr >= t, na.rm = T)
-    plower <- mean(distr <= t, na.rm = T)
-    pboth <- mean(abs(distr) >= abs(t), na.rm = T)
+    pupper <- mean(distr >= t, na.rm = TRUE)
+    plower <- mean(distr <= t, na.rm = TRUE)
+    pboth <- mean(abs(distr) >= abs(t), na.rm = TRUE)
     
     # adjust so there are no 0 p-values? This is what their original code does.
     # pupper <- mean(distr >= t, na.rm=T) + 1/B 
