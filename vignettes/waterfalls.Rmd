@@ -32,8 +32,7 @@ set.seed(23)
 panelist <- waterfalls$Panelist
 fragr    <- waterfalls$Fragr
 waterfalls <- waterfalls[, -c(1, 2)]
-L <- unique(panelist)
-l <- length(L)
+l <- length(unique(panelist))
 n <- nrow(waterfalls)
 p <- ncol(waterfalls)
 C <- n/l
@@ -43,28 +42,14 @@ ratings <- split(waterfalls, panelist)
 Since the main interest is to compare the new fragrances with a reference one (the first, named `r`), we begin by considering the differences of scores of the $m$th fragrance and the first fragrance within the same panelist's judgments, $m = 2,\dots,6$. We end up with the list `rel_ratings`, whose length is $l$ and dimension of each element is $(C-1) \times p$, where the element `rel_ratings[[k]][i,j]` refers to the $i$th comparison on the $j$th variable made by the $k$th panelist. In our mathematical notation, let $D_{ijk}$ denote this quantity.
 
 ```{r diffs}
-#rel_ratings <- lapply(1:l, function(j) {t(as.matrix(sapply(2:C, function(i) (ratings[[j]][i,] - ratings[[j]][1,]))))}) # the first row is the fragrance `r`
 rel_ratings <- lapply(1:l, function(j){
-  tmp <- ratings[[j]][-1,]
+  tmp <- ratings[[j]][-1,] # get rid of the reference fragrance ratings
   for(i in 1:nrow(tmp)){
-    tmp[i,] <- tmp[i,] - ratings[[j]][1,]
+    tmp[i,] <- tmp[i,] - ratings[[j]][1,] # subtract reference ratings from each row
   }
   tmp
 })
 
-
-### Old
-D <- array(0, dim = c(C, p, l))
-for (j in 1:l) {
-    D[, , j] <- as.matrix(waterfalls[panelist == j, ])
-}
-DD <- D  # auxiliary
-for (i in 1:l) {
-    for (j in 1:C) {
-        DD[j, , i] <- D[j, , i] - D[1, , i]
-    }
-}
-D <- DD[-1, , ]
 ```
 
 The observed value of the test statistic of the $i$th comparison on the $j$th variable is $T_{ij} = \sum_{k=1}^{l} D_{ijk}$. Large (positive) values of $D_{ijk}$ indicate that the $k$th panelist gave a judgment on the $(i+1)$th fragrance that is better that the judgment on the reference one. Large values of $T_{ij}$, are significant in favor of the alternative hypothesis $X_{mj} \,{\buildrel d \over >}\, X_{1j}$, where $X_{mj}$ is the score of the $m$th fragrance on the $j$th variable.
