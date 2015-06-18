@@ -13,90 +13,107 @@ vignette: >
 ## Vignette Info
 This example comes from the textbook section 7.15.2 (p 382-384).
 
+The R&D division of a home-care company is studying 5 possible new fragrances (labelled s, t, v, w, x) of a given detergent to compare with their own presently marketed product (labelled r). The experiment is designed as follows: after testing one given product (using sense of smell), the panelist assigned three different scores to it, describing the three most important aspects of the product: Strength, Pleasantness (assuming a value comprised between 1 and 7), and Appropriateness (No, Yes, coded with `2` and `1` in the dataset). In the dataset, Strength has been shortened with `Stren`, Pleasantness with `Pleas`, and Appropriateness with `Appro`. 7 panelists in total are involved in the experiment. The same experiment is replicated under different assessment conditions (Bloom, Dry, Long, Neat and Wet), which should represent the situations in which the final customers will make use of the product. In the dataset, Bloom is denoted with `Blo`, Long is denoted with `Lon`, Neat with `Nea`, while no abbreviation has been adopted to indicate the conditions Dry and Wet (that are therefore indicated with `Dry` and `Wet`). The other two columns in the data are `Panelist`, a quantitative variable (assuming a integer value between 1 and 7) indicating the panelist who did the experiment, and `Fragr`, a categorical variable indicating the possible fragrances, coded with the labels `r`, `s`, `t`, `v`, `w`, `x`.
+
+
+This is a all-to-one comparison problem: there are six fragrances tested on 5 experimental conditions, that are judged by $l = 7$ panelists. The aim of the study is to compare some new fragrances with a baseline one. The judgement is based on three aspects (Strength, Pleasantness, and Appropriateness), and therefore we have $p = 15$ response variables. Since the same panelist was asked to judge each fragrance under each condition and aspect, dependencies among each panelist's ratings are assumed, whereas panelist's judgments are assumed to be independent to each other.
+
+
+We first read and organize the data in a list `ratings` of dataframes, where the rows of each matrix refer to the $C$ fragrances, the columns to the $p$ variables, and each dataframe corresponds to the judgments of the $l$th panelist.
+
 ```{r load}
 library(permuter)
-source("../R/t2p.r")
 data(waterfalls)
-
+library(knitr)
+set.seed(23)
  
 
 
-```
-
-```{r analysis}
-B <- 500
-attach(waterfalls)
-
-data <- waterfalls[, -c(1, 2)]
-L <- unique(Panelist)
+panelist <- waterfalls$Panelist
+fragr    <- waterfalls$Fragr
+waterfalls <- waterfalls[, -c(1, 2)]
+L <- unique(panelist)
 l <- length(L)
-n <- dim(data)[1]
-p <- dim(data)[2]
+n <- nrow(waterfalls)
+p <- ncol(waterfalls)
 C <- n/l
+ratings <- split(waterfalls, panelist)
 
+```
+Since the main interest is to compare the new fragrances with a reference one (the first, named `r`), we begin by considering the differences of scores of the $m$th fragrance and the first fragrance within the same panelist's judgments, $m = 2,\dots,6$. We end up with the list `rel_ratings`, whose length is $l$ and dimension of each element is $(C-1) \times p$, where the element `rel_ratings[[k]][i,j]` refers to the $i$th comparison on the $j$th variable made by the $k$th panelist. In our mathematical notation, let $D_{ijk}$ denote this quantity.
+
+```{r diffs}
+#rel_ratings <- lapply(1:l, function(j) {t(as.matrix(sapply(2:C, function(i) (ratings[[j]][i,] - ratings[[j]][1,]))))}) # the first row is the fragrance `r`
+rel_ratings <- lapply(1:l, function(j){
+  tmp <- ratings[[j]][-1,]
+  for(i in 1:nrow(tmp)){
+    tmp[i,] <- tmp[i,] - ratings[[j]][1,]
+  }
+  tmp
+})
+
+
+### Old
 D <- array(0, dim = c(C, p, l))
-
 for (j in 1:l) {
-    D[, , j] <- as.matrix(data[Panelist == j, ])
+    D[, , j] <- as.matrix(waterfalls[panelist == j, ])
 }
-
 DD <- D  # auxiliary
-
 for (i in 1:l) {
     for (j in 1:C) {
         DD[j, , i] <- D[j, , i] - D[1, , i]
     }
 }
-
 D <- DD[-1, , ]
-
-T <- array(0, dim = c((B + 1), p, (C - 1)))
-
-for (j in 1:(C - 1)) {
-    T[1, , ] <- t(apply(D, c(1, 2), sum))
-}
-
-for (bb in 2:(B + 1)) {
-    D.star <- D
-    for (j in 1:l) {
-        S.star <- 1 - 2 * rbinom((C - 1), 1, 0.5)
-        D.star[, , j] <- D[, , j] * S.star
-    }
-    for (j in 1:(C - 1)) {
-        T[bb, , ] <- t(apply(D.star, c(1, 2), sum))
-    }
-}
-
-P <- t2p_old(T)
-partial.p <- P[1, , ]
-rownames(partial.p) <- colnames(data)
-colnames(partial.p) <- c("s-r", "t-r", "v-r", "w-r", "x-r")
-
-partial.p
-
- 
-
-
 ```
 
-## Domains
-```{r domains}
-dom <- rep(c(1:5), each = 3)
-T.dom <- array(0, dim = c((B + 1), 5, 5))
+The observed value of the test statistic of the $i$th comparison on the $j$th variable is $T_{ij} = \sum_{k=1}^{l} D_{ijk}$. Large (positive) values of $D_{ijk}$ indicate that the $k$th panelist gave a judgment on the $(i+1)$th fragrance that is better that the judgment on the reference one. Large values of $T_{ij}$, are significant in favor of the alternative hypothesis $X_{mj} \,{\buildrel d \over >}\, X_{1j}$, where $X_{mj}$ is the score of the $m$th fragrance on the $j$th variable.
 
-for (d in 1:5) {
-    T.dom[, d, ] <- apply(P[, dom == d, ], c(1, 3), function(x) {
-        -2 * log(prod(x))
-    })
+Since each panelist makes a judgment on all $C$ fragrances, we have to consider a restricted kind of permutations to account for the dependence among the judgments of each panelist. Thus, we consider $C-1$ comparisons and treat them as $C-1$ paired observation problems. We consider $C-1$ independent permutations of paired observations. Thus, for the $k$th panelist we independently generate a vector of $C-1$ random signs $S_{ijk}^*$ where $\mathbb{P}(S_{ijk}^* = 1) = \mathbb{P}(S_{ijk}^* = -1) = \frac{1}{2}$ and obtain the permutation value $T_{ij}^* = \sum_{k=1}^l D_{ijk}S_{ijk}^*$.
+```{r analysis}
+B <- 1000
+tst <- Reduce("+", rel_ratings) # Sum entries of each matrix, sum taken over the list
+
+distr <- array(0, c(C-1, p, B))
+rel_ratings_star <- rel_ratings
+for(bb in 1:B){
+  for(k in 1:l){
+    S_star =  1-2*rbinom((C-1),1,.5)
+    rel_ratings_star[[k]] <- apply(rel_ratings[[k]], 2, function(x) x*S_star)
+  }
+  distr[,,bb] <- Reduce("+", rel_ratings_star)
 }
 
-P.dom <- t2p_old(T.dom)
-res <- P.dom[1, , ]
-rownames(res) <- c("Bloom", "Dry", "Long", "Neat", "Wet")
-colnames(res) <- c("r-s", "r-t", "r-v", "r-w", "r-x")
-res
+partial_pvalue <- sapply(1:(C-1), function(i) sapply(1:p, function(j) t2p(tst[i,j], distr[i,j,], alternative = "greater")))
+rownames(partial_pvalue) <- colnames(waterfalls)
+colnames(partial_pvalue) <- c("s-r", "t-r", "v-r", "w-r", "x-r")
 
- 
+kable(partial_pvalue, row.names = TRUE)
+```
+
+The matrix `partial_pvalue` contains the raw p-value of each comparison and variable. We'd like to combine the partial tests within the same experimental conditions ('Bloom','Dry','Long','Neat','Wet').
+```{r domains}
+dom <- rep(c(1:5), each = 3)
+tst_dom <- matrix(0,5,5)
+distr_dom <- array(0, dim = c(5, 5, B))
+null_pvalues <- apply(distr, c(1,2), pvalue_distr) # get a p-value corresponding to each null test statistic
+null_pvalues <- aperm(null_pvalues, perm = c(2, 3,1)) # reorder the dimensions; apply switches them.
+
+for(d in 1:5){
+  tst_dom[d,] <- apply(partial_pvalue[dom == d,], 2, fisher) # Use Fisher to combine p-values for each experimental condition
+  distr_dom[,d,] <- apply(null_pvalues[, dom == d,], c(1,3), fisher) # Do the same with the null distribution p-values
+}
+
+pvalue_dom <- matrix(0, 5, 5)
+for(i in 1:5){
+  for(j in 1:5){
+    pvalue_dom[i,j] <- t2p(tst_dom[i,j], distr_dom[i,j,], alternative = "greater") # Use t2p to get a p-value for the combined stats
+  }
+}
+
+rownames(pvalue_dom) <- c("Bloom", "Dry", "Long", "Neat", "Wet")
+colnames(pvalue_dom) <- c("r-s", "r-t", "r-v", "r-w", "r-x")
+kable(pvalue_dom, row.names=TRUE) 
 
 
 ```
