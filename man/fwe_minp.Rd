@@ -4,14 +4,14 @@
 \alias{fwe_minp}
 \title{Permutation version of the Bonferroni-Holm minP step-up procedure}
 \usage{
-fwe_minp(pvalues, distr, combine = "fisher")
+fwe_minp(pvalues, distr, combine = "tippett")
 }
 \arguments{
 \item{pvalues}{Vector of partial p-values for tests}
 
 \item{distr}{Matrix or dataframe, columns are approimate null distribution for each partial test}
 
-\item{combine}{Combining function (default is Fisher)}
+\item{combine}{Combining function (default is Tippett)}
 }
 \value{
 Vector of adjusted p-values
