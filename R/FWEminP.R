@@ -44,7 +44,7 @@ FWE.minP_old <- function(P) {
 #' @inheritParams npc
 #' @return Vector of adjusted p-values
 #' 
-fwe_minp <- function(pvalues, distr, combine = "fisher") {
+fwe_minp <- function(pvalues, distr, combine = "tippett") {
   
   # Choose the combining function, check inputs
   funcs <- list(fisher, liptak, tippett)
@@ -57,8 +57,8 @@ fwe_minp <- function(pvalues, distr, combine = "fisher") {
   
   # Order the p-values
   p_ord <- sort(pvalues, decreasing = FALSE)
-  perm_pvalues <- apply(distr, 2, pvalue_distr, alternative = "two-sided")
-  perm_pvalues_ord <- perm_pvalues[ , order(pvalues)]
+  perm_pvalues <- apply(distr, 2, pvalue_distr, alternative = "greater")
+  perm_pvalues_ord <- perm_pvalues[ , order(pvalues, decreasing = FALSE)]
   
   # Step down tree of combined hypotheses, from global test to test of the 
   # individual hypothesis with largest p-value

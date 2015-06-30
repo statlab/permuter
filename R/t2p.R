@@ -57,5 +57,5 @@ t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
 #' 
 #' @inheritParams t2p
 pvalue_distr <- function(distr, alternative = "greater"){
-  sapply(1:length(distr), function(x) t2p(distr[x], distr[-x], alternative))
+  sapply(1:length(distr), function(x) t2p(distr[x], distr, alternative))
 }

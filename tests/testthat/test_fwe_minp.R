@@ -10,7 +10,7 @@ test_that("bad inputs",{
 })
 
 test_that("p-values from toy example", {
-  expect_equal(fwe_minp(pval, distr, "fisher"), c(0.35, 0.73, 0.84, 0.9, 0.9))
-  expect_equal(fwe_minp(pval, distr, "liptak"), c(0.42, 0.67, 0.78, 0.9, 0.9))
-  expect_equal(fwe_minp(pval, distr, "tippett"), c(0.25, 0.68, 0.84, 0.9, 0.9))
+  expect_equal(fwe_minp(pval, distr, "fisher"), c(0.31, 0.73, 0.84, 0.9, 0.9))
+  expect_equal(fwe_minp(pval, distr, "liptak"), c(0.39, 0.67, 0.77, 0.9, 0.9))
+  expect_equal(fwe_minp(pval, distr, "tippett"), c(0.25, 0.68, 0.84, 0.89, 0.9))
 })
