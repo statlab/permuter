@@ -162,13 +162,14 @@ FWE.minP_old(P)
 y_tst <- fisher(partial_pvalues[3:4])
 obs_pvalue_distr <- sapply(1:4, function(i) pvalue_distr(distr[i, ], alternative = "greater"))
 y_tst_distr <- apply(obs_pvalue_distr[ ,3:4], 1, fisher)
+y_pvalue_distr <- pvalue_distr(y_tst_distr, alternative = "greater")
 
 new_partial_pvalues <- c(partial_pvalues[1:2], t2p(y_tst, y_tst_distr, alternative = "greater"))
 names(new_partial_pvalues) <- c("O", "X", "Y")
 cat("Partial p-values:", "\n")
 new_partial_pvalues
 
-adjusted_pvalues <- fwe_minp(new_partial_pvalues, cbind(t(distr[1:2, ]), y_tst_distr), combine = "fisher")
+adjusted_pvalues <- fwe_minp(new_partial_pvalues, cbind(t(distr[1:2, ]), y_tst_distr), combine = "tippett")
 names(adjusted_pvalues) <- c("O", "X", "Y")
 cat("Adjusted Partial p-values:", "\n")
 adjusted_pvalues
@@ -184,7 +185,7 @@ p.G
 
 ## NEW
 global_tst <- fisher(new_partial_pvalues)
-global_distr <- apply(cbind(obs_pvalue_distr[ ,1:2], y_tst_distr), 1, fisher)
+global_distr <- apply(cbind(obs_pvalue_distr[ ,1:2], y_pvalue_distr), 1, fisher) # wrong
 global_pvalue <- t2p(global_tst, global_distr, alternative = "greater")
 cat("Global p-value:\n")
 global_pvalue
