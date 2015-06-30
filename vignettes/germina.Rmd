@@ -43,23 +43,16 @@ H_{14}^{(\mathbf{X},\mathbf{Y})\mid\mathbf{O}} &: \left\lbrace  \mathbf{E}(Y_1^2
 \end{aligned}
 $$
 ```{r setup}
+library(knitr)
 library(permuter)
 data(germina)
 set.seed(50)
 
-
-## NEW
 B <- 1000
 n <- nrow(germina)
 p <- ncol(germina) - 1
 tst <- rep(0, 4)
 distr <- matrix(0, nrow = B, ncol = 4)
-## OLD
-B <- 1000
-n <- dim(germina)[1]
-p <- dim(germina)[2] - 1
-T <- array(0, dim = c((B + 1), p))
-colnames(T) <- c("O", "X", "Y", "Y2")
 
 ```
 
@@ -87,29 +80,9 @@ T_4 &= \sqrt{\nu_1\nu_2}\left(\bar{Y}^2_2 - \bar{Y}^2_1\right) \\
 $$
 
 Note that in this form, the second, third, and fourth test statistics can be obtained by a rescaling of the test statistic returned by `two_sample`. However, we cannot use `two_sample` to obtain the null distributions of these test statistics, as they depend on the prefactor $\sqrt{\nu_1\nu_2}$ which changes with each permutation.
+
 ```{r teststat}
-## OLD
-O <- table(germina[, 1], germina[, 2])
-Z <- germina[, -c(1, 2)]
 
-T[1, 1] <- prod(diag(O))
-nu <- O[, 2]
-
-contr <- rep(c(-sqrt(nu[2]/nu[1]), sqrt(nu[1]/nu[2])), nu)
-T[1, -1] <- t(Z[germina[, 2] > 0, ]) %*% contr
-
-
-for (bb in 2:(B + 1)) {
-    germina.star <- cbind(germina[, 1], germina[sample(1:n), -1])
-    O.star <- table(germina.star[, 1], germina.star[, 2])
-    Z.star <- germina.star[, -c(1, 2)]
-    T[bb, 1] <- prod(diag(O.star))
-    nu <- O.star[, 2]
-    contr.star <- rep(c(-sqrt(nu[2]/nu[1]), sqrt(nu[1]/nu[2])), nu)
-    T[bb, -1] <- t(Z.star[germina.star[, 2] > 0, ]) %*% contr
-}
-
-## NEW
 mnar_two_sample <- function(dat){
   tst_stat <- rep(0, 4)
   o <- table(dat$Fertilizer, dat$Germinated)
@@ -131,34 +104,21 @@ distr <- replicate(B, {perm <- germina$Fertilizer[sample(1:n)]
 
 ```
 
-```{r getpvalue}
-## OLD
-P <- t2p_old(T)
-cat("Partial p-values:", "\n")
-P[1, ]
+Using the test statistics and null distributions, we call `t2p` to obtain the p-values for the four partial tests. Each test has a one-sided alternative.
 
-## NEW
+
+```{r getpvalue}
+
 partial_pvalues <- sapply(1:4, function(i) t2p(tst[i], distr[i, ], alternative = "greater"))
 names(partial_pvalues) <- c("O", "X", "Y", "Y2")
 partial_pvalues
 ```
+As seen before, we may perform a NPC of four partial tests, as in $T'' = \psi_1(T_1, T_2, T_3, T_4)$, giving each partial test the same weight, implicitly weighing the Y-component twice and the others once. Of course, if this is compatible with the inferential objective of the experimenter, then this is the solution he or she is looking for. If the inferential objective considers three variables $(O, X, Y)$ as having the same importance, as seems reasonable in the present problem, then the overall solution becomes $T''' = \psi_3\left[T_1, T_2, T_Y^{''}\right]$, where $T_Y^{''} = \psi_2(T_3, T_4)$. 
+
+We proceed by combining the tests for the first and second moments of $Y$ using Fisher's combining function, then applying the min-P procedure (Bonferroni-Holms step-down method, using Tippett's combining function at each step) to adjust the partial p-values for multiple tests.
 
 ```{r combinedtest}
-## OLD
-T.Y <- apply(P[, 3:4], 1, function(x) {
-    -2 * log(prod(x))
-})
-P.Y <- t2p_old(T.Y)
-P <- cbind(P[, 1:2], P.Y)
-colnames(P)[3] <- "Y"
-cat("Partial p-values:", "\n")
-P[1, ]
 
-
-cat("Adjusted Partial p-values:", "\n")
-FWE.minP_old(P)
-
-## NEW
 y_tst <- fisher(partial_pvalues[3:4])
 obs_pvalue_distr <- sapply(1:4, function(i) pvalue_distr(distr[i, ], alternative = "greater"))
 y_tst_distr <- apply(obs_pvalue_distr[ ,3:4], 1, fisher)
@@ -166,7 +126,7 @@ y_pvalue_distr <- pvalue_distr(y_tst_distr, alternative = "greater")
 
 new_partial_pvalues <- c(partial_pvalues[1:2], t2p(y_tst, y_tst_distr, alternative = "greater"))
 names(new_partial_pvalues) <- c("O", "X", "Y")
-cat("Partial p-values:", "\n")
+cat("Partial p-values", "\n")
 new_partial_pvalues
 
 adjusted_pvalues <- fwe_minp(new_partial_pvalues, cbind(t(distr[1:2, ]), y_tst_distr), combine = "tippett")
@@ -175,22 +135,20 @@ cat("Adjusted Partial p-values:", "\n")
 adjusted_pvalues
 ```
 
+Finally, to obtain a global p-value, we use Fisher's combining function to carry out NPC.
 ```{r global}
-## OLD
-T.G <- apply(P, 1, function(x) {
-    -2 * log(prod(x))
-})
-p.G <- t2p_old(T.G)[1]
-p.G
 
-## NEW
 global_tst <- fisher(new_partial_pvalues)
-global_distr <- apply(cbind(obs_pvalue_distr[ ,1:2], y_pvalue_distr), 1, fisher) # wrong
+global_distr <- apply(cbind(obs_pvalue_distr[ ,1:2], y_pvalue_distr), 1, fisher)
 global_pvalue <- t2p(global_tst, global_distr, alternative = "greater")
 cat("Global p-value:\n")
 global_pvalue
 ```
  
-
-
+```{r table}
+res <- cbind(c("Germinate", "Weight", "Surface+Surface^2", "Global"), c(new_partial_pvalues, global_pvalue))
+colnames(res) <- c("Variable", "P-value")
+kable(res, row.names=F)
 ```
+
+From these results we can conclude that there is a significant effect of the fertilizer on the tree growth. The greater effect seems to be related to the area of the leaves, rather than their weight. The fertilizer does not seem to be significantly associated with the germination of the seeds.
