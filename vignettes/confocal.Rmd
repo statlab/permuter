@@ -3,7 +3,7 @@ title: "confocal"
 author: "Kellie Ottoboni"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-vignette: >
+vignette:
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
@@ -22,6 +22,8 @@ data(confocal)
 source("../R/t2p.r")
 data <- confocal
 
+
+
  
 
 
@@ -37,6 +39,8 @@ d5 <- data[data$FU_BA == "FU", ]
 
 nT0 <- dim(d0)[1]/2
 nT5 <- dim(d5)[1]/2
+
+
 
  
 
@@ -78,6 +82,7 @@ colnames(par.res) <- c("T0", "T5")
 par.res
 
 
+
  
 
 
@@ -108,6 +113,8 @@ colnames(PD0) <- colnames(PD5) <- paste("dom", seq(1, 4), sep = "")
 dom.res <- cbind(PD0[1, ], PD5[1, ])
 colnames(dom.res) <- c("T0", "T5")
 dom.res
+
+
 
  
 
@@ -164,6 +171,8 @@ colnames(FWE.res) <- c("T", "NT")
 rownames(FWE.res) <- colnames(dT)
 FWE.res
 
+
+
  
 
 
@@ -196,6 +205,8 @@ colnames(P) <- c("FU/BASELINE", "T/NT", "Interaction")
 y <- data[, 4]
 t <- CSP(y, x)
 # synchro.summary(t)
+
+
 
  
 

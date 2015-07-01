@@ -14,6 +14,9 @@ vignette: >
 ```{r}
 library(permuter)
 set.seed(101)
+
+
+
  
 
 
@@ -42,12 +45,18 @@ B <- 1000
 observed <- mean(d)
 distr <- one_sample(x = d, reps = B)
 
+
+ 
+
+
 ```
 
 The vector `distr` has length `B` and contains the null distribution of the test statistic. In order to obtain a p-value we need to use the function `t2p` that returns the p-value from a distribution of permutation values of the test statistic (i.e. it compares the observed test statistic with the whole distribution). You may specify an alternative ('greater', 'less', or 'two-sided') or leave the argument `alternative` blank to get all three p-values.
 
 ```{r show_t2p, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 t2p(observed, distr)
+
+
 
  
 
@@ -68,8 +77,10 @@ for (cc in 1:R) {
 }
 
 alpha <- 0.05
-pow <-  mean(pval <= alpha)
+pow <- mean(pval <= alpha)
 pow
+
+
 
  
 
@@ -92,6 +103,8 @@ distr <- two_sample(group1, group2)
 pvalue <- t2p(observed, distr)
 pvalue
 
+
+
  
 
 
@@ -105,6 +118,8 @@ $H_0: X_1  \,{\buildrel d \over =}\, X_2 + \delta$ is accepted at level $\alpha$
 
 ```{r jobsatis_confint, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 CI_mean(group1, group2, alpha = 0.05)
+
+
 
  
 
@@ -120,13 +135,15 @@ CI_perm <- matrix(rep(0, 2 * MB), ncol = 2)
 Z <- c(group1 - observed, group2)
 n <- length(group1)
 
-for(bb in 1:MB){
-  Z.perm <- sample(Z)
-  Z.perm[1:n] <- Z.perm[1:n] + observed
-  CI_perm[bb,] <- CI_mean(Z.perm[1:n], Z.perm[-(1:n)], reps = 100)
+for (bb in 1:MB) {
+    Z.perm <- sample(Z)
+    Z.perm[1:n] <- Z.perm[1:n] + observed
+    CI_perm[bb, ] <- CI_mean(Z.perm[1:n], Z.perm[-(1:n)], reps = 100)
 }
 pow <- 1 - mean(CI_perm[, 1] < 0 & CI_perm[, 2] > 0)
 pow
+
+
 
  
 
@@ -144,6 +161,8 @@ n <- table(Y)
 C <- length(n)
 n
 
+
+
  
 
 
@@ -158,12 +177,16 @@ The p-value of the test is again obtained by applying the `t2p` function to the 
 
 ```{r worms}
 xbar <- rep(NA, length(n))
-for(gg in 1:length(n)){
-  xbar[gg] <- mean(X[Y==unique(Y)[gg]])
+for (gg in 1:length(n)) {
+    xbar[gg] <- mean(X[Y == unique(Y)[gg]])
 }
-observed <- sum(n*xbar^2)
+observed <- sum(n * xbar^2)
 distr <- k_sample(X, Y)
 t2p(observed, distr, alternative = "greater")
+
+ 
+
+
 ```
 
 ## Anderson-Darling
@@ -179,10 +202,14 @@ N2 <- cumsum(f2)
 N <- cumsum(f1 + f2)
 n <- sum(N)
 
-temp <- cbind(f1, f2, N1/sum(f1), N2/sum(f2), N/sum(f1+f2))
+temp <- cbind(f1, f2, N1/sum(f1), N2/sum(f2), N/sum(f1 + f2))
 rownames(temp) <- x
 library(knitr)
 kable(temp, row.names = TRUE, col.names = c("f1", "f2", "F_1", "F_2", "F"))
+
+
+
+ 
 
 
 ```
@@ -194,6 +221,8 @@ B <- 100
 T <- array(0, dim = c((B + 1), 1))
 D <- N2/sqrt(N * (n - N))
 T[1] <- sum(D[1:4])
+
+
 
  
 
@@ -219,6 +248,8 @@ for (bb in 2:(B + 1)) {
 }
 t2p_old(T)[1]
 
+
+
  
 
 
@@ -234,6 +265,8 @@ Y <- rep(seq(1, 5), each = 11)
 Time <- colnames(testosterone)
 boxplot(unlist(testosterone) ~ Y, xlab = "Time", ylab = "Testosterone", names = Time)
 lines(seq(1, 5), apply(testosterone, 2, mean), lty = "dotted")
+
+
 
  
 
@@ -251,9 +284,13 @@ SSB <- sum((m.col - m)^2)
 testosterone$woman <- rownames(testosterone)
 testosterone <- melt(testosterone)
 head(testosterone)
-distr <- k_sample(x = testosterone$value, group = testosterone$variable, group2 = testosterone$woman,
-         stat = "twoway_anova")
+distr <- k_sample(x = testosterone$value, group = testosterone$variable, group2 = testosterone$woman, 
+    stat = "twoway_anova")
 t2p(SSB, distr, alternative = "greater")
+
+
+ 
+
 
 ```
 
@@ -275,22 +312,26 @@ The first column of the dataset contains an indicator variable of the species ($
 
 ```{r flies1, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 data(fly)
-group0 <- fly[fly$group == 0,]
-group1 <- fly[fly$group == 1,]
+group0 <- fly[fly$group == 0, ]
+group1 <- fly[fly$group == 1, ]
 N <- nrow(fly)
 p <- ncol(fly)
 B <- 1000
-distr <- matrix(NA, nrow = B, ncol = p-1)
-partial_pvalue <- rep(NA, p-1)
-for(h in 1:(p-2)){
-  observed <- mean(group1[ ,h+1]) - mean(group0[ ,h+1])
-  distr[,h] <- two_sample(group1[ ,h+1], group0[ ,h+1], reps = B)
-  partial_pvalue[h] <- t2p(observed, distr[ ,h], alternative = "greater")
+distr <- matrix(NA, nrow = B, ncol = p - 1)
+partial_pvalue <- rep(NA, p - 1)
+for (h in 1:(p - 2)) {
+    observed <- mean(group1[, h + 1]) - mean(group0[, h + 1])
+    distr[, h] <- two_sample(group1[, h + 1], group0[, h + 1], reps = B)
+    partial_pvalue[h] <- t2p(observed, distr[, h], alternative = "greater")
 }
-observed_col8 <- mean(group1[ ,8]) - mean(group0[ ,8])
-distr[ ,7]<- two_sample(group1[ ,8], group0[ ,8])
-partial_pvalue[7] <- t2p(observed_col8, distr[,7], alternative = "less")
+observed_col8 <- mean(group1[, 8]) - mean(group0[, 8])
+distr[, 7] <- two_sample(group1[, 8], group0[, 8])
+partial_pvalue[7] <- t2p(observed_col8, distr[, 7], alternative = "less")
 partial_pvalue
+
+
+ 
+
 
 ```
 
@@ -299,10 +340,17 @@ The vector `partial_pvalue` contains the partial p-values of each of the $7$ var
 
 ```{r fly2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
 
-combined_p_fisher <- npc(partial_pvalue, distr, combine = "fisher", alternatives = c(rep("greater",6), "less"))
-combined_p_liptak <- npc(partial_pvalue, distr, combine = "liptak", alternatives = c(rep("greater",6), "less"))
-combined_p_tippett <- npc(partial_pvalue, distr, combine = "tippett", alternatives = c(rep("greater",6), "less"))
+combined_p_fisher <- npc(partial_pvalue, distr, combine = "fisher", alternatives = c(rep("greater", 
+    6), "less"))
+combined_p_liptak <- npc(partial_pvalue, distr, combine = "liptak", alternatives = c(rep("greater", 
+    6), "less"))
+combined_p_tippett <- npc(partial_pvalue, distr, combine = "tippett", alternatives = c(rep("greater", 
+    6), "less"))
 print(c(combined_p_fisher, combined_p_liptak, combined_p_tippett))
+
+ 
+
+
 ```
 
 The global test is highly significant.

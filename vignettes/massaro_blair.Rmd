@@ -18,6 +18,10 @@ library(permuter)
 set.seed(100)
 
 
+
+ 
+
+
 ```
 
 ## Massaro-Blair
@@ -34,7 +38,7 @@ ID <- massaro_blair[, "group"]
 Y <- massaro_blair[, "Y"]
 
 test_stat[1] <- mean(Y[ID == 1]) - mean(Y[ID == 2])
-test_stat[2]<- mean(Y[ID == 1]^2) - mean(Y[ID == 2]^2)
+test_stat[2] <- mean(Y[ID == 1]^2) - mean(Y[ID == 2]^2)
 
 distr1 <- two_sample(x = Y[ID == 1], y = Y[ID == 2], reps = B)
 distr2 <- two_sample(x = Y[ID == 1]^2, y = Y[ID == 2]^2, reps = B)
@@ -42,12 +46,20 @@ distr2 <- two_sample(x = Y[ID == 1]^2, y = Y[ID == 2]^2, reps = B)
 pvalue <- c(t2p(test_stat[1], distr1, "two-sided"), t2p(test_stat[2], distr2, "two-sided"))
 pvalue
 
+
+ 
+
+
 ```
 
 These are the p-values for the partial tests for equality of the first and second moments. We'll use Fisher's combining function to get a single p-value for the global test of equality of distributions.
 ```{r npc}
 
 npc(pvalue, cbind(distr1, distr2))
+
+ 
+
+
 ```
 
 ## Flies

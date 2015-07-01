@@ -19,6 +19,8 @@ data(washing_test)
 library(dplyr)
 library(ggplot2)
 
+
+
  
 
 
@@ -35,19 +37,20 @@ r <- nrow(washing_test)/(C * p)
 B <- 1000
 p_raw <- c()
 distr <- matrix(, nrow = B, ncol = 0)
-for(cc in unique(washing_test$Category)){
-  cat_data <- washing_test %>% dplyr::filter(Category == cc)
-  for(ss in unique(cat_data$Stain)){
-    cat_data2 <- cat_data %>% dplyr::filter(Stain == ss)
-    n <- table(cat_data2$Product)
-    xbar <- rep(NA, C)
-    for(gg in 1:C){
-      xbar[gg] <- mean(cat_data2$Reflectance[cat_data2$Product == gg])
+for (cc in unique(washing_test$Category)) {
+    cat_data <- washing_test %>% dplyr::filter(Category == cc)
+    for (ss in unique(cat_data$Stain)) {
+        cat_data2 <- cat_data %>% dplyr::filter(Stain == ss)
+        n <- table(cat_data2$Product)
+        xbar <- rep(NA, C)
+        for (gg in 1:C) {
+            xbar[gg] <- mean(cat_data2$Reflectance[cat_data2$Product == gg])
+        }
+        tst <- sum(xbar^2 * n)  # The permutation ANOVA statistic: sum_{j in groups} n_j*(mean(X_j))^2
+        distr <- cbind(distr, k_sample(x = cat_data2$Reflectance, group = cat_data2$Product, 
+            reps = B, stat = "oneway_anova"))
+        p_raw <- c(p_raw, t2p(tst, distr[, ncol(distr)], alternative = "greater"))
     }
-    tst <- sum(xbar^2*n) # The permutation ANOVA statistic: sum_{j in groups} n_j*(mean(X_j))^2
-    distr <- cbind(distr, k_sample(x = cat_data2$Reflectance, group = cat_data2$Product, reps = B, stat = "oneway_anova"))
-    p_raw <- c(p_raw, t2p(tst, distr[,ncol(distr)], alternative = "greater"))
-  }
 }
 names(p_raw) <- unique(washing_test$Stain)
 colnames(distr) <- unique(washing_test$Stain)
@@ -57,13 +60,23 @@ p_adjusted <- fwe_minp(pvalues = p_raw, distr = distr, combine = "tippett")
 dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
 res <- data.frame(Category = unique(washing_test$Category)[dom], p = p_raw, adjusted_p = p_adjusted)
 res
+
+ 
+
+
 ```
 
 ## Plot
 
 ```{r plot}
-washing_test %>% dplyr::filter(Stain == "Blueberry juice") %>% ggplot(aes(x = factor(Product), y = Reflectance)) + geom_boxplot()
-summary(aov(washing_test[washing_test$Stain == "Blueberry juice", 4] ~ factor(rep(1:8, each = 4))))
+washing_test %>% dplyr::filter(Stain == "Blueberry juice") %>% ggplot(aes(x = factor(Product), 
+    y = Reflectance)) + geom_boxplot()
+summary(aov(washing_test[washing_test$Stain == "Blueberry juice", 4] ~ factor(rep(1:8, 
+    each = 4))))
+
+
+ 
+
 
 ```
 
@@ -74,14 +87,19 @@ We'll use NPC with Fisher's combining function to get overall p-values for the t
 ```{r domains}
 p_distr <- apply(distr, 2, pvalue_distr)
 fisher_observed <- c()
-distr_categories <- data.frame(matrix(,nrow = B, ncol = 0))
-for(cc in unique(washing_test$Category)){
-  ind <- which(unique(washing_test$Category)[dom] == cc)
-  fisher_observed <- c(fisher_observed, fisher(p_raw[ind]))
-  distr_categories[,cc] <- apply(p_distr[ , ind], 1, fisher)
+distr_categories <- data.frame(matrix(, nrow = B, ncol = 0))
+for (cc in unique(washing_test$Category)) {
+    ind <- which(unique(washing_test$Category)[dom] == cc)
+    fisher_observed <- c(fisher_observed, fisher(p_raw[ind]))
+    distr_categories[, cc] <- apply(p_distr[, ind], 1, fisher)
 }
 
-p_categories <- sapply(1:length(fisher_observed), function(i) t2p(fisher_observed[i], p_distr[,i], alternative = "greater"))
+p_categories <- sapply(1:length(fisher_observed), function(i) t2p(fisher_observed[i], 
+    p_distr[, i], alternative = "greater"))
 names(p_categories) <- unique(washing_test$Category)
 p_categories
+
+ 
+
+
 ```

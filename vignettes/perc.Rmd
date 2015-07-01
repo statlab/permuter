@@ -3,7 +3,7 @@ title: "Analysis of PERC Data"
 author: "Kellie Ottoboni"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-vignette: >
+vignette:
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
@@ -20,6 +20,8 @@ This example comes from the textbook section 8.4.4 (p 410-413).
 library(permuter)
 data(perch)
 source("../R/t2p.r")
+
+
 
  
 
@@ -64,6 +66,8 @@ rownames(res) <- colnames(data)
 colnames(res) <- c("T0", "T4", "T24")
 res
 
+
+
  
 
 
@@ -78,6 +82,8 @@ boxplot(data[time == 4, j] ~ as.factor(dose[time == 4]), xlab = "Dose", ylab = "
     main = "T4")
 boxplot(data[time == 24, j] ~ as.factor(dose[time == 24]), xlab = "Dose", ylab = "Temperature", 
     main = "T24")
+
+
 
  
 
@@ -115,6 +121,8 @@ res.glob <- cbind(P.time[1, ], res.glob.adj)
 rownames(res.glob) <- rownames(res.dom)
 colnames(res.glob) <- c("p", "p.adj")
 res.glob
+
+
 
  
 
