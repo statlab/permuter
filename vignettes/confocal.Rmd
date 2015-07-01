@@ -3,7 +3,7 @@ title: "confocal"
 author: "Kellie Ottoboni"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-vignette:
+vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
