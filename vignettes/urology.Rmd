@@ -24,6 +24,8 @@ mod2 <- glm(group ~ ., family = binomial(link = "logit"), data = urology[, -ncol
 summary(mod2)
 step(mod2)
 
+
+
  
 
 

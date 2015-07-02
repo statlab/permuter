@@ -95,6 +95,7 @@ colnames(P.APD) <- c("Auto", "PIG", "DRU")
 P.APD[1, ]
 
 
+
  
 
 
@@ -136,6 +137,7 @@ T.FWE <- t2p_old(T.glob)
 P.FWE <- cbind(FWE.minP_old(T.FWE[, , 1]), FWE.minP_old(T.FWE[, , 2]))
 names(P.FWE) <- names(P.glob)
 P.FWE
+
 
 
  

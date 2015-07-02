@@ -18,6 +18,8 @@ notes from textbook - where is this example?
 library(permuter)
 data(chrom17m)
 
+
+
  
 
 
@@ -74,6 +76,8 @@ FWE.p <- t(FWE.minP_old(P))
 colnames(FWE.p) <- G
 FWE.p
 
+
+
  
 
 
@@ -92,6 +96,8 @@ T.Lipt <- apply(P, 1, function(x) {
 p.glob.Tipp <- mean(T.Tipp[-1] <= T.Tipp[1])
 p.glob.Fish <- mean(T.Fish[-1] >= T.Fish[1])
 p.glob.Lipt <- mean(T.Lipt[-1] >= T.Lipt[1])
+
+
 
  
 

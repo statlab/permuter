@@ -19,6 +19,8 @@ library(permuter)
 data(rats)
 source("t2p_old.r")
 
+
+
  
 
 
@@ -43,6 +45,8 @@ P.FWE <- FWE.minP_old(P)
 res <- cbind(P[1, ], P.FWE)
 colnames(res) <- c("Raw-p", "Adj-p")
 res
+
+
 
  
 

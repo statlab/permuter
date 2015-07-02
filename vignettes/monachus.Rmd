@@ -46,6 +46,8 @@ colnames(P) <- colnames(data)
 cat("Rough p-values \n")
 t(t(P[1, ]))
 
+
+
  
 
 

@@ -26,11 +26,11 @@ library(permuter)
 data(waterfalls)
 library(knitr)
 set.seed(23)
- 
+
 
 
 panelist <- waterfalls$Panelist
-fragr    <- waterfalls$Fragr
+fragr <- waterfalls$Fragr
 waterfalls <- waterfalls[, -c(1, 2)]
 l <- length(unique(panelist))
 n <- nrow(waterfalls)
@@ -38,17 +38,25 @@ p <- ncol(waterfalls)
 C <- n/l
 ratings <- split(waterfalls, panelist)
 
+
+ 
+
+
 ```
 Since the main interest is to compare the new fragrances with a reference one (the first, named `r`), we begin by considering the differences of scores of the $m$th fragrance and the first fragrance within the same panelist's judgments, $m = 2,\dots,6$. We end up with the list `rel_ratings`, whose length is $l$ and dimension of each element is $(C-1) \times p$, where the element `rel_ratings[[k]][i,j]` refers to the $i$th comparison on the $j$th variable made by the $k$th panelist. In our mathematical notation, let $D_{ijk}$ denote this quantity.
 
 ```{r diffs}
-rel_ratings <- lapply(1:l, function(j){
-  tmp <- ratings[[j]][-1,] # get rid of the reference fragrance ratings
-  for(i in 1:nrow(tmp)){
-    tmp[i,] <- tmp[i,] - ratings[[j]][1,] # subtract reference ratings from each row
-  }
-  tmp
+rel_ratings <- lapply(1:l, function(j) {
+    tmp <- ratings[[j]][-1, ]  # get rid of the reference fragrance ratings
+    for (i in 1:nrow(tmp)) {
+        tmp[i, ] <- tmp[i, ] - ratings[[j]][1, ]  # subtract reference ratings from each row
+    }
+    tmp
 })
+
+
+ 
+
 
 ```
 
@@ -57,48 +65,57 @@ The observed value of the test statistic of the $i$th comparison on the $j$th va
 Since each panelist makes a judgment on all $C$ fragrances, we have to consider a restricted kind of permutations to account for the dependence among the judgments of each panelist. Thus, we consider $C-1$ comparisons and treat them as $C-1$ paired observation problems. We consider $C-1$ independent permutations of paired observations. Thus, for the $k$th panelist we independently generate a vector of $C-1$ random signs $S_{ijk}^*$ where $\mathbb{P}(S_{ijk}^* = 1) = \mathbb{P}(S_{ijk}^* = -1) = \frac{1}{2}$ and obtain the permutation value $T_{ij}^* = \sum_{k=1}^l D_{ijk}S_{ijk}^*$.
 ```{r analysis}
 B <- 1000
-tst <- Reduce("+", rel_ratings) # Sum entries of each matrix, sum taken over the list
+tst <- Reduce("+", rel_ratings)  # Sum entries of each matrix, sum taken over the list
 
-distr <- array(0, c(C-1, p, B))
+distr <- array(0, c(C - 1, p, B))
 rel_ratings_star <- rel_ratings
-for(bb in 1:B){
-  for(k in 1:l){
-    S_star =  1-2*rbinom((C-1),1,.5)
-    rel_ratings_star[[k]] <- apply(rel_ratings[[k]], 2, function(x) x*S_star)
-  }
-  distr[,,bb] <- Reduce("+", rel_ratings_star)
+for (bb in 1:B) {
+    for (k in 1:l) {
+        S_star <- 1 - 2 * rbinom((C - 1), 1, 0.5)
+        rel_ratings_star[[k]] <- apply(rel_ratings[[k]], 2, function(x) x * S_star)
+    }
+    distr[, , bb] <- Reduce("+", rel_ratings_star)
 }
 
-partial_pvalue <- sapply(1:(C-1), function(i) sapply(1:p, function(j) t2p(tst[i,j], distr[i,j,], alternative = "greater")))
+partial_pvalue <- sapply(1:(C - 1), function(i) sapply(1:p, function(j) t2p(tst[i, 
+    j], distr[i, j, ], alternative = "greater")))
 rownames(partial_pvalue) <- colnames(waterfalls)
 colnames(partial_pvalue) <- c("s-r", "t-r", "v-r", "w-r", "x-r")
 
 kable(partial_pvalue, row.names = TRUE)
+
+ 
+
+
 ```
 
 The matrix `partial_pvalue` contains the raw p-value of each comparison and variable. We'd like to combine the partial tests within the same experimental conditions ('Bloom','Dry','Long','Neat','Wet').
 ```{r domains}
 dom <- rep(c(1:5), each = 3)
-tst_dom <- matrix(0,5,5)
+tst_dom <- matrix(0, 5, 5)
 distr_dom <- array(0, dim = c(5, 5, B))
-null_pvalues <- apply(distr, c(1,2), pvalue_distr) # get a p-value corresponding to each null test statistic
-null_pvalues <- aperm(null_pvalues, perm = c(2, 3,1)) # reorder the dimensions; apply switches them.
+null_pvalues <- apply(distr, c(1, 2), pvalue_distr)  # get a p-value corresponding to each null test statistic
+null_pvalues <- aperm(null_pvalues, perm = c(2, 3, 1))  # reorder the dimensions; apply switches them.
 
-for(d in 1:5){
-  tst_dom[d,] <- apply(partial_pvalue[dom == d,], 2, fisher) # Use Fisher to combine p-values for each experimental condition
-  distr_dom[,d,] <- apply(null_pvalues[, dom == d,], c(1,3), fisher) # Do the same with the null distribution p-values
+for (d in 1:5) {
+    tst_dom[d, ] <- apply(partial_pvalue[dom == d, ], 2, fisher)  # Use Fisher to combine p-values for each experimental condition
+    distr_dom[, d, ] <- apply(null_pvalues[, dom == d, ], c(1, 3), fisher)  # Do the same with the null distribution p-values
 }
 
 pvalue_dom <- matrix(0, 5, 5)
-for(i in 1:5){
-  for(j in 1:5){
-    pvalue_dom[i,j] <- t2p(tst_dom[i,j], distr_dom[i,j,], alternative = "greater") # Use t2p to get a p-value for the combined stats
-  }
+for (i in 1:5) {
+    for (j in 1:5) {
+        pvalue_dom[i, j] <- t2p(tst_dom[i, j], distr_dom[i, j, ], alternative = "greater")  # Use t2p to get a p-value for the combined stats
+    }
 }
 
 rownames(pvalue_dom) <- c("Bloom", "Dry", "Long", "Neat", "Wet")
 colnames(pvalue_dom) <- c("r-s", "r-t", "r-v", "r-w", "r-x")
-kable(pvalue_dom, row.names=TRUE) 
+kable(pvalue_dom, row.names = TRUE)
+
+
+
+ 
 
 
 ```

@@ -16,6 +16,8 @@ library(permuter)
 source("../R/t2p.r")
 data(survival)
 
+
+
  
 
 
@@ -110,6 +112,8 @@ T1 <- apply(P, 1, function(x) {
 })
 t2p_old(T1)[1, ]
 
+
+
  
 
 
@@ -143,6 +147,8 @@ for (s in 1:str) {
         ylab = "S(t)", conf.int = FALSE)
     title(main = paste("Stratum: ", s, sep = ""))
 }
+
+
 
  
 
@@ -234,6 +240,8 @@ T1 <- apply(P, c(1, 3), function(x) {
     -2 * log(prod(x))
 })
 t2p_old(T1)[1, ]
+
+
 
  
 

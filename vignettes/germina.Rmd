@@ -54,6 +54,10 @@ p <- ncol(germina) - 1
 tst <- rep(0, 4)
 distr <- matrix(0, nrow = B, ncol = 4)
 
+
+ 
+
+
 ```
 
 The data from two groups are contained in the dataframe `germina`. The number of samples in each group is $n = 20$. The number of non-missing data (germinated seeds) in the no fertilizer group is $\nu_1 = 12$ and the number of non-missing data in the fertilizer group is $\nu_2 =17$. $\nu_j$ for $j=1,2$ represents the actual sample size of observed responses in each group. Under the null hypothesis, the group assignments are exchangeable; thus, to obtain null distributions for our test statistics, we must permute group assignments.
@@ -83,24 +87,32 @@ Note that in this form, the second, third, and fourth test statistics can be obt
 
 ```{r teststat}
 
-mnar_two_sample <- function(dat){
-  tst_stat <- rep(0, 4)
-  o <- table(dat$Fertilizer, dat$Germinated)
-  tst_stat[1] <- prod(diag(o))
-  nu <- o[,2]
-  prefactor <- sqrt(prod(nu))
-  fert <- dat$Fertilizer==1
-  tst_stat[2] <- prefactor*(mean(dat$Weight[fert], na.rm = TRUE) - mean(dat$Weight[!fert], na.rm = TRUE))
-  tst_stat[3] <- prefactor*(mean(dat$Surface[fert], na.rm = TRUE) - mean(dat$Surface[!fert], na.rm = TRUE))
-  tst_stat[4] <- prefactor*(mean(dat$Surface2[fert], na.rm = TRUE) - mean(dat$Surface2[!fert], na.rm = TRUE))
-  return(tst_stat)
+mnar_two_sample <- function(dat) {
+    tst_stat <- rep(0, 4)
+    o <- table(dat$Fertilizer, dat$Germinated)
+    tst_stat[1] <- prod(diag(o))
+    nu <- o[, 2]
+    prefactor <- sqrt(prod(nu))
+    fert <- dat$Fertilizer == 1
+    tst_stat[2] <- prefactor * (mean(dat$Weight[fert], na.rm = TRUE) - mean(dat$Weight[!fert], 
+        na.rm = TRUE))
+    tst_stat[3] <- prefactor * (mean(dat$Surface[fert], na.rm = TRUE) - mean(dat$Surface[!fert], 
+        na.rm = TRUE))
+    tst_stat[4] <- prefactor * (mean(dat$Surface2[fert], na.rm = TRUE) - mean(dat$Surface2[!fert], 
+        na.rm = TRUE))
+    return(tst_stat)
 }
 
 tst <- mnar_two_sample(germina)
-distr <- replicate(B, {perm <- germina$Fertilizer[sample(1:n)]
-                       germina_star <- cbind("Fertilizer" = perm, germina[,-1])
-                       mnar_two_sample(germina_star)
+distr <- replicate(B, {
+    perm <- germina$Fertilizer[sample(1:n)]
+    germina_star <- cbind(Fertilizer = perm, germina[, -1])
+    mnar_two_sample(germina_star)
 })
+
+
+ 
+
 
 ```
 
@@ -112,6 +124,10 @@ Using the test statistics and null distributions, we call `t2p` to obtain the p-
 partial_pvalues <- sapply(1:4, function(i) t2p(tst[i], distr[i, ], alternative = "greater"))
 names(partial_pvalues) <- c("O", "X", "Y", "Y2")
 partial_pvalues
+
+ 
+
+
 ```
 As seen before, we may perform a NPC of four partial tests, as in $T'' = \psi_1(T_1, T_2, T_3, T_4)$, giving each partial test the same weight, implicitly weighing the Y-component twice and the others once. Of course, if this is compatible with the inferential objective of the experimenter, then this is the solution he or she is looking for. If the inferential objective considers three variables $(O, X, Y)$ as having the same importance, as seems reasonable in the present problem, then the overall solution becomes $T''' = \psi_3\left[T_1, T_2, T_Y^{''}\right]$, where $T_Y^{''} = \psi_2(T_3, T_4)$. 
 
@@ -121,7 +137,7 @@ We proceed by combining the tests for the first and second moments of $Y$ using 
 
 y_tst <- fisher(partial_pvalues[3:4])
 obs_pvalue_distr <- sapply(1:4, function(i) pvalue_distr(distr[i, ], alternative = "greater"))
-y_tst_distr <- apply(obs_pvalue_distr[ ,3:4], 1, fisher)
+y_tst_distr <- apply(obs_pvalue_distr[, 3:4], 1, fisher)
 y_pvalue_distr <- pvalue_distr(y_tst_distr, alternative = "greater")
 
 new_partial_pvalues <- c(partial_pvalues[1:2], t2p(y_tst, y_tst_distr, alternative = "greater"))
@@ -129,26 +145,40 @@ names(new_partial_pvalues) <- c("O", "X", "Y")
 cat("Partial p-values", "\n")
 new_partial_pvalues
 
-adjusted_pvalues <- fwe_minp(new_partial_pvalues, cbind(t(distr[1:2, ]), y_tst_distr), combine = "tippett")
+adjusted_pvalues <- fwe_minp(new_partial_pvalues, cbind(t(distr[1:2, ]), y_tst_distr), 
+    combine = "tippett")
 names(adjusted_pvalues) <- c("O", "X", "Y")
 cat("Adjusted Partial p-values:", "\n")
 adjusted_pvalues
+
+ 
+
+
 ```
 
 Finally, to obtain a global p-value, we use Fisher's combining function to carry out NPC.
 ```{r global}
 
 global_tst <- fisher(new_partial_pvalues)
-global_distr <- apply(cbind(obs_pvalue_distr[ ,1:2], y_pvalue_distr), 1, fisher)
+global_distr <- apply(cbind(obs_pvalue_distr[, 1:2], y_pvalue_distr), 1, fisher)
 global_pvalue <- t2p(global_tst, global_distr, alternative = "greater")
 cat("Global p-value:\n")
 global_pvalue
+
+ 
+
+
 ```
  
 ```{r table}
-res <- cbind(c("Germinate", "Weight", "Surface+Surface^2", "Global"), c(new_partial_pvalues, global_pvalue))
+res <- cbind(c("Germinate", "Weight", "Surface+Surface^2", "Global"), c(new_partial_pvalues, 
+    global_pvalue))
 colnames(res) <- c("Variable", "P-value")
-kable(res, row.names=F)
+kable(res, row.names = F)
+
+ 
+
+
 ```
 
 From these results we can conclude that there is a significant effect of the fertilizer on the tree growth. The greater effect seems to be related to the area of the leaves, rather than their weight. The fertilizer does not seem to be significantly associated with the germination of the seeds.

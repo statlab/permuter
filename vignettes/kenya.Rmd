@@ -61,6 +61,8 @@ for (bb in 2:(B + 1)) {
     T.R[bb] <- log(max(C.star[, 1]/n1)) - log(max(C.star[, 2]/n2))
 }
 
+
+
  
 
 
@@ -75,6 +77,8 @@ p.R <- t2p_old(-T.R)[1]
 
 res <- c(p.G, p.S, p.R)
 res
+
+
 
  
 

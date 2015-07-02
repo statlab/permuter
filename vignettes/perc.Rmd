@@ -21,6 +21,8 @@ library(permuter)
 data(perch)
 source("../R/t2p.r")
 
+
+
  
 
 
@@ -64,6 +66,8 @@ rownames(res) <- colnames(data)
 colnames(res) <- c("T0", "T4", "T24")
 res
 
+
+
  
 
 
@@ -78,6 +82,8 @@ boxplot(data[time == 4, j] ~ as.factor(dose[time == 4]), xlab = "Dose", ylab = "
     main = "T4")
 boxplot(data[time == 24, j] ~ as.factor(dose[time == 24]), xlab = "Dose", ylab = "Temperature", 
     main = "T24")
+
+
 
  
 
@@ -115,6 +121,8 @@ res.glob <- cbind(P.time[1, ], res.glob.adj)
 rownames(res.glob) <- rownames(res.dom)
 colnames(res.glob) <- c("p", "p.adj")
 res.glob
+
+
 
  
 

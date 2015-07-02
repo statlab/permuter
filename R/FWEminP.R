@@ -41,6 +41,7 @@ FWE.minP_old <- function(P) {
 #' 
 #' When considering a closed testing procedure, the adjusted p-value $p_i$ for a given hypothesis $H_i$ is the maximum of all p-values for tests including $H_i$ as a special case (including the p-value for the $H_i$ test itself).
 #' 
+#' @param combine Combining function (default is Tippett)
 #' @inheritParams npc
 #' @return Vector of adjusted p-values
 #' 

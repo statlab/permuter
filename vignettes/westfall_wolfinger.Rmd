@@ -24,20 +24,28 @@ library(permuter)
 set.seed(60)
 data(mult)
 
+
+ 
+
+
 ```
 
 ```{r get-pvalues}
 B <- 1000
-X <- mult[,1]
-group0 <- mult[X==0,-1]
-group1 <- mult[X==1,-1]
+X <- mult[, 1]
+group0 <- mult[X == 0, -1]
+group1 <- mult[X == 1, -1]
 p <- ncol(group0)
 
-observed <- sapply(1:p, function(x) mean(group1[,x])-mean(group0[,x]))
-distr <- sapply(1:p, function(x) two_sample(group1[,x], group0[,x], reps = B))
-p_raw <- sapply(1:p, function(x) t2p(observed[x], distr[,x], alternative = "two-sided"))
+observed <- sapply(1:p, function(x) mean(group1[, x]) - mean(group0[, x]))
+distr <- sapply(1:p, function(x) two_sample(group1[, x], group0[, x], reps = B))
+p_raw <- sapply(1:p, function(x) t2p(observed[x], distr[, x], alternative = "two-sided"))
 names(p_raw) <- colnames(group0)
 p_raw
+
+ 
+
+
 ```
 
 ## Order the raw p-values increasingly
@@ -47,7 +55,11 @@ The vector `p_raw` contains the raw p-values related to each variable. Now we or
 p_ord <- sort(p_raw, decreasing = FALSE)
 
 perm_pvalues <- apply(distr, 2, pvalue_distr, alternative = "two-sided")
-perm_pvalues_ord <- perm_pvalues[ , order(p_raw)]
+perm_pvalues_ord <- perm_pvalues[, order(p_raw)]
+
+ 
+
+
 ```
 
 ## Perform the step-up procedure with Liptak's combining function
@@ -62,7 +74,8 @@ if (p > 2) {
     for (j in 2:(p - 1)) {
         obs_tippett <- tippett(p_ord[j:p])
         t_tippett <- apply(perm_pvalues_ord[, j:p], 1, tippett)
-        p_ris[j] = max(t2p(obs_tippett, t_tippett, alternative = "greater"), p_ris[(j-1)])
+        p_ris[j] <- max(t2p(obs_tippett, t_tippett, alternative = "greater"), p_ris[(j - 
+            1)])
     }
 }
 p_ris[p] <- max(p_ord[p], p_ris[p - 1])
@@ -77,8 +90,9 @@ p_ris[1] <- t2p(obs_fisher, t_fisher, alternative = "greater")
 if (p > 2) {
     for (j in 2:(p - 1)) {
         obs_fisher <- fisher(p_ord[j:p])
-        t_fisher <- apply(perm_pvalues_ord[, j:p], 1, fisher) 
-        p_ris[j] = max(t2p(obs_fisher, t_fisher, alternative = "greater"), p_ris[(j-1)])
+        t_fisher <- apply(perm_pvalues_ord[, j:p], 1, fisher)
+        p_ris[j] <- max(t2p(obs_fisher, t_fisher, alternative = "greater"), p_ris[(j - 
+            1)])
     }
 }
 p_ris[p] <- max(p_ord[p], p_ris[p - 1])
@@ -93,8 +107,9 @@ p_ris[1] <- t2p(obs_liptak, t_liptak, alternative = "greater")
 if (p > 2) {
     for (j in 2:(p - 1)) {
         obs_liptak <- liptak(p_ord[j:p])
-        t_liptak <- apply(perm_pvalues_ord[, j:p], 1, liptak) 
-        p_ris[j] = max(t2p(obs_liptak, t_liptak, alternative = "greater"), p_ris[(j-1)])
+        t_liptak <- apply(perm_pvalues_ord[, j:p], 1, liptak)
+        p_ris[j] <- max(t2p(obs_liptak, t_liptak, alternative = "greater"), p_ris[(j - 
+            1)])
     }
 }
 p_ris[p] <- max(p_ord[p], p_ris[p - 1])
@@ -102,15 +117,25 @@ p_ris[order(p_raw)] <- p_ris
 p_ris_liptak <- p_ris
 
 library(knitr)
-kable(cbind(p_ris_fisher, p_ris_liptak, p_ris_tippett), col.names = c("Fisher", "Liptak", "Tippett"))
+kable(cbind(p_ris_fisher, p_ris_liptak, p_ris_tippett), col.names = c("Fisher", 
+    "Liptak", "Tippett"))
+
+ 
+
+
 ```
 
 This procedure has been implemented in the `fwe_minp` function. 
 
 ```{r fwe_minp}
-p_ris_liptak2 <- fwe_minp(p_raw, distr, combine="liptak")
-p_ris_fisher2 <- fwe_minp(p_raw, distr, combine="fisher")
-p_ris_tippett2 <- fwe_minp(p_raw, distr, combine="tippett")
-kable(cbind(p_ris_fisher2, p_ris_liptak2, p_ris_tippett2), col.names = c("Fisher", "Liptak", "Tippett"))
+p_ris_liptak2 <- fwe_minp(p_raw, distr, combine = "liptak")
+p_ris_fisher2 <- fwe_minp(p_raw, distr, combine = "fisher")
+p_ris_tippett2 <- fwe_minp(p_raw, distr, combine = "tippett")
+kable(cbind(p_ris_fisher2, p_ris_liptak2, p_ris_tippett2), col.names = c("Fisher", 
+    "Liptak", "Tippett"))
+
+
+ 
+
 
 ```
