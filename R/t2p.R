@@ -43,19 +43,18 @@ t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
     pboth <- mean(abs(distr) >= abs(t), na.rm = TRUE)
     
     # adjust so there are no 0 p-values? This is what their original code does.
-    # pupper <- mean(distr >= t, na.rm=T) + 1/B 
-    # plower <- mean(distr <= t, na.rm=T) + 1/B 
-    # pboth <- mean(abs(distr) >= abs(t), na.rm=T) + 1/B
+    # pupper <- mean(distr >= t, na.rm=T) + 1/B plower <- mean(distr <= t, na.rm=T)
+    # + 1/B pboth <- mean(abs(distr) >= abs(t), na.rm=T) + 1/B
     
     P <- c(pupper = pupper, plower = plower, pboth = pboth)
     alt <- c("greater", "less", "two-sided")
     keep <- alt %in% alternative
     return(P[keep])
-} 
+}
 
 #' Computes the p-value for every observation in an empirical distribution
 #' 
 #' @inheritParams t2p
-pvalue_distr <- function(distr, alternative = "greater"){
-  sapply(1:length(distr), function(x) t2p(distr[x], distr, alternative))
-}
+pvalue_distr <- function(distr, alternative = "greater") {
+    sapply(1:length(distr), function(x) t2p(distr[x], distr, alternative))
+} 
