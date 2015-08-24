@@ -160,13 +160,13 @@ stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = 
     }  ## end bb
     
     
-    P <- t2p(T)
+    P <- t2p_old(T)
     
     T1 <- apply(P, 1, function(x) {
         -2 * log(prod(x))
     })
     
-    P1 <- t2p(T1)
+    P1 <- t2p_old(T1)
     
     p.val <- P1[1]
     return(P1)
