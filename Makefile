@@ -10,7 +10,8 @@ all: tidy $(vignette_html)
 tidy:
 	cd vignettes; python3 tidy_Rdm.py
 	# add a line here to tidy all the R code and tests
-
+	cd ../R; Rscript $(R_OPTS) tidyR.R
+	
 .DELETE_ON_ERROR:
 vignettes/%.html: vignettes/%.Rmd
 	Rscript $(R_OPTS) -e "rmarkdown::render('$<')"
