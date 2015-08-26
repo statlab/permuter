@@ -16,6 +16,8 @@ This example comes from Chapter 6, page 305-307.
 We'll consider an application concerning a case/control study in which the dependent variable is the haplotypical expression in a chromosome 17 marker. The goal of the study is to estimating the association between the group variable (Cases/Controls) and the marker (the categorical variable).
 ```{r}
 library(permuter)
+library(knitr)
+
 data(chrom17m)
 chrom17m
 
@@ -118,6 +120,20 @@ FWE.p
 
 ## Globals
 ```{r globals}
+###NEW
+null_pvalues <- apply(distr, 2, pvalue_distr)  # get a p-value corresponding to each null test statistic
+tippett_distr <- apply(null_pvalues, 1, tippett)
+fisher_distr <- apply(null_pvalues, 1, fisher)
+liptak_distr <- apply(null_pvalues, 1, liptak)
+
+global_pvalue_tippett <- t2p(tippett(partial_pvalues), tippett_distr, alternative="greater")
+global_pvalue_fisher <- t2p(fisher(partial_pvalues), fisher_distr, alternative="greater")
+global_pvalue_liptak <- t2p(liptak(partial_pvalues), liptak_distr, alternative="greater")
+
+globals <- c(global_pvalue_tippett, global_pvalue_fisher, global_pvalue_liptak)
+kable(t(globals), row.names = F, col.names = c("Tippett", "Fisher", "Liptak"))
+
+###OLD
 T.Tipp <- apply(P, 1, min)
 T.Fish <- apply(P, 1, function(x) {
     -2 * log(prod(x))
@@ -131,6 +147,7 @@ p.glob.Fish <- mean(T.Fish[-1] >= T.Fish[1])
 p.glob.Lipt <- mean(T.Lipt[-1] >= T.Lipt[1])
 
 
+kable(t(c(p.glob.Tipp, p.glob.Fish, p.glob.Lipt)), row.names = F, col.names = c("Tippett", "Fisher", "Liptak"))
 
  
 
