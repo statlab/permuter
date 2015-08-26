@@ -11,26 +11,59 @@ vignette: >
 
 ## Vignette Info
 
-notes from textbook - where is this example?
+This example comes from Chapter 6, page 305-307.
 
-
+We'll consider an application concerning a case/control study in which the dependent variable is the haplotypical expression in a chromosome 17 marker. The goal of the study is to estimating the association between the group variable (Cases/Controls) and the marker (the categorical variable).
 ```{r}
 library(permuter)
 data(chrom17m)
-
+chrom17m
 
 
  
 
 
 ```
+The association test was performed using $\chi^2$ (asymptotic and exact) and $T_{SM}$ tests (Sham and Curtis, 1995). Moreover, the analysis was developed following the multifocus approach. Ten thousand CMC iterations were carried out for the four tests based on a permutation strategy.
 
 
 ```{r firstanalysis}
-source("../R/t2p.r")
+B <- 1000
 
-B <- 100
+###NEW
+X1 <- rep(chrom17m$Groups, chrom17m$Cases)
+X2 <- rep(chrom17m$Groups, chrom17m$Controls)
+X <- as.factor(c(X1, X2))
+k <- nrow(chrom17m)
+n1 <- sum(chrom17m$Cases)
+n2 <- sum(chrom17m$Controls)
+n <- n1 + n2
+l <- rep(c(1, 2), c(n1, n2))
+data <- chrom17m[, -1]
+marginal <- rowSums(chrom17m[,-1])
 
+observed <- rep(0, k)
+distr <- matrix(0, nrow = B, ncol = k)
+for(kk in 1:k){
+  observed[kk] <- (chrom17m[kk, 2] - marginal[kk] * n1/n)^2/(marginal[kk] * n1/n)
+  for(bb in 1:B){
+    X.star <- sample(X)
+    data.star <- table(X.star, l)
+    marginal.star <- rowSums(data.star)
+    distr[bb, kk] <- (data.star[kk, 1] - marginal.star[kk] * n1/n)^2/(marginal.star[kk] * n1/n)
+  }
+}
+
+partial_pvalues <- sapply(1:k, function(i) t2p(observed[i], distr[,i], alternative="greater"))
+names(partial_pvalues) <- chrom17m$Groups
+partial_pvalues
+
+adjusted_pvalues <- fwe_minp(partial_pvalues, distr)
+names(adjusted_pvalues) <- chrom17m$Groups
+adjusted_pvalues
+
+
+###OLD
 G <- chrom17m[, 1]
 f1 <- chrom17m[, 2]
 f2 <- chrom17m[, 3]
