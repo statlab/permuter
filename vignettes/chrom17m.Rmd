@@ -17,7 +17,7 @@ We'll consider an application concerning a case/control study in which the depen
 ```{r}
 library(permuter)
 library(knitr)
-
+set.seed(50)
 data(chrom17m)
 chrom17m
 
@@ -28,11 +28,14 @@ chrom17m
 ```
 The association test was performed using $\chi^2$ (asymptotic and exact) and $T_{SM}$ tests (Sham and Curtis, 1995). Moreover, the analysis was developed following the multifocus approach. Ten thousand CMC iterations were carried out for the four tests based on a permutation strategy.
 
+**This explanation makes no sense. what 4 tests?**
 
+- What is the null/alternative hypothesis?
+
+The permutation proceeds as follows: the number of cases and controls (`n1` and `n2`) remains fixed.  We permute the group labels and then recompute the $k$-by-2 table.  The test statistic is *something* for each of the $k$ categories.
 ```{r firstanalysis}
 B <- 1000
 
-###NEW
 X1 <- rep(chrom17m$Groups, chrom17m$Cases)
 X2 <- rep(chrom17m$Groups, chrom17m$Controls)
 X <- as.factor(c(X1, X2))
@@ -55,72 +58,26 @@ for(kk in 1:k){
     distr[bb, kk] <- (data.star[kk, 1] - marginal.star[kk] * n1/n)^2/(marginal.star[kk] * n1/n)
   }
 }
+```
 
+We compute the p-values for each of the $k$ groups individually.  Then, since we want to make inferences for individual alleles, we need to adjust for multiple tests.  We use `fwe.minp` to do this.
+
+```{r pvalues}
 partial_pvalues <- sapply(1:k, function(i) t2p(observed[i], distr[,i], alternative="greater"))
 names(partial_pvalues) <- chrom17m$Groups
-partial_pvalues
 
 adjusted_pvalues <- fwe_minp(partial_pvalues, distr)
 names(adjusted_pvalues) <- chrom17m$Groups
-adjusted_pvalues
 
-
-###OLD
-G <- chrom17m[, 1]
-f1 <- chrom17m[, 2]
-f2 <- chrom17m[, 3]
-X1 <- rep(G, f1)
-X2 <- rep(G, f2)
-K <- dim(chrom17m)[1]
-n1 <- sum(f1)
-n2 <- sum(f2)
-n <- n1 + n2
-
-L <- rep(c(1, 2), c(n1, n2))
-X <- c(X1, X2)  ## note: the factors are automatically recoded as integer
-
-data <- chrom17m[, -1]
-
-T <- array(0, dim = c((B + 1), K))
-
-
-for (i in 1:K) {
-    T[1, i] <- (data[i, 1] - (sum(data[i, ])) * n1/n)^2/((sum(data[i, ])) * n1/n)
-}
-
-
-for (bb in 2:(B + 1)) {
-    
-    X.star <- sample(X)
-    data.star <- table(X.star, L)
-    
-    for (i in 1:K) {
-        T[bb, i] <- (data.star[i, 1] - (sum(data.star[i, ])) * n1/n)^2/((sum(data.star[i, 
-            ])) * n1/n)
-    }
-    
-}
-
-
-P <- t2p_old(T)
-p.part <- t2p_old(T)[1, ]
-names(p.part) <- G
-p.part
-
-FWE.p <- t(FWE.minP_old(P))
-colnames(FWE.p) <- G
-FWE.p
-
-
-
- 
-
+kable(cbind(partial_pvalues, adjusted_pvalues), row.names = TRUE, col.names = c("Partial P-values", "Adjusted P-values"))
 
 ```
 
+The table above shows the raw p-values and the adjusted p-values for multiplicity using Tippett's combination for each category. The alleles A and C are individually significant at a level of $\alpha = 0.05$. After adjustment for multiplicity (Tippett's step-down procedure; Finos et al., 2003) only allele C remains significant.
+
 ## Globals
+Finally, suppose we want a global p-value for the hypothesis test.  We'll use the NPC methodology.
 ```{r globals}
-###NEW
 null_pvalues <- apply(distr, 2, pvalue_distr)  # get a p-value corresponding to each null test statistic
 tippett_distr <- apply(null_pvalues, 1, tippett)
 fisher_distr <- apply(null_pvalues, 1, fisher)
@@ -132,24 +89,4 @@ global_pvalue_liptak <- t2p(liptak(partial_pvalues), liptak_distr, alternative="
 
 globals <- c(global_pvalue_tippett, global_pvalue_fisher, global_pvalue_liptak)
 kable(t(globals), row.names = F, col.names = c("Tippett", "Fisher", "Liptak"))
-
-###OLD
-T.Tipp <- apply(P, 1, min)
-T.Fish <- apply(P, 1, function(x) {
-    -2 * log(prod(x))
-})
-T.Lipt <- apply(P, 1, function(x) {
-    sum(qnorm(1 - x))
-})
-
-p.glob.Tipp <- mean(T.Tipp[-1] <= T.Tipp[1])
-p.glob.Fish <- mean(T.Fish[-1] >= T.Fish[1])
-p.glob.Lipt <- mean(T.Lipt[-1] >= T.Lipt[1])
-
-
-kable(t(c(p.glob.Tipp, p.glob.Fish, p.glob.Lipt)), row.names = F, col.names = c("Tippett", "Fisher", "Liptak"))
-
- 
-
-
 ```
