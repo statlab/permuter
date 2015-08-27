@@ -16,10 +16,30 @@ This example comes from the textbook section 6.9.3 (p 321).
 
 ```{r kenya}
 library(permuter)
-source("../R/t2p.r")
 data(kenya)
 B <- 100
+```
 
+```{r setup}
+### NEW
+o1 <- order(kenya[,2], decreasing = TRUE)
+o2 <- order(kenya[,3], decreasing = TRUE)
+
+f1 <- kenya[o1, 2]
+f2 <- kenya[o2, 3]
+f <- cbind(f1, f2)
+f <- f[f1 > 0, ]
+k <- seq_len(nrow(f))
+
+y1 <- rep(k, f[ ,1])
+y2 <- rep(k, f[, 2])
+n1 <- length(y1)
+n2 <- length(y2)
+y <- c(y1, y2)
+
+group <- rep(c(1, 2), c(n1, n2))
+
+### OLD
 X1 <- kenya[, 2]
 X2 <- kenya[, 3]
 K <- dim(kenya)[1]
@@ -41,6 +61,10 @@ n2 <- length(Y2)
 Y <- c(Y1, Y2)
 
 G <- rep(c(1, 2), c(n1, n2))
+```
+
+```{r permutation}
+
 
 T.G <- array(0, dim = c((B + 1), 1))
 T.S <- array(0, dim = c((B + 1), 1))
