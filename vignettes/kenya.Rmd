@@ -17,7 +17,7 @@ This example comes from the textbook section 6.9.3 (p 321).
 ```{r kenya}
 library(permuter)
 data(kenya)
-B <- 100
+B <- 10000
 ```
 
 ```{r setup}
@@ -119,6 +119,10 @@ for (bb in 2:(B + 1)) {
 Set Het(1) > Het(2), then $1-\sum_k p_{(k)1}^2 > 1-\sum_k p_{(k)2}^2$. We care about when $\sum_k p_{(k)1}^2 - p_{(k)2}^2< 0$; small is significant.
 
 ```{r kenya2}
+pvalues <- sapply(1:3, function(i) t2p(observed[i], distr[,i], alternative = "less"))
+pvalues
+
+### OLD
 p.G <- t2p_old(-T.G)[1]
 p.S <- t2p_old(-T.S)[1]
 p.R <- t2p_old(-T.R)[1]
