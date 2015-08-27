@@ -63,8 +63,32 @@ Y <- c(Y1, Y2)
 G <- rep(c(1, 2), c(n1, n2))
 ```
 
-```{r permutation}
+We'll use Gini index, Shannon's entropy index, and the Rényi index to measure heterogeneity.
 
+```{r permutation}
+gini <- function(f1, f2) {sum((f1/n1)^2 - (f2/n2)^2)}
+shannon <- function(f1, f2) {
+  logf1 <- rep(0, length(f1))
+  logf1[f1 != 0] <- log(f1[f1 != 0]/n1)
+  logf2 <- rep(0, length(f2))
+  logf2[f2 != 0] <- log(f2[f2 != 0]/n2)
+  sum((f1/n1)*logf1 - (f2/n2)*logf2)
+}
+renyi <- function(f1, f2) {log(max(f1/n1)) - log(max(f2/n2))}
+
+observed <- c(gini(f[,1], f[,2]), shannon(f[,1], f[,2]), renyi(f[,1], f[,2]))
+
+distr <- matrix(0, nrow = B, ncol = 3)
+for(bb in seq_len(B)){
+  y.star <- sample(y)
+  c.star <- table(y.star, group)
+  distr[bb, 1] <- gini(c.star[,1], c.star[,2])
+  distr[bb, 2] <- shannon(c.star[,1], c.star[,2])
+  distr[bb, 3] <- renyi(c.star[,1], c.star[,2])
+}
+
+
+## OLD
 
 T.G <- array(0, dim = c((B + 1), 1))
 T.S <- array(0, dim = c((B + 1), 1))
