@@ -55,6 +55,7 @@ tst <- rep(0, 4)
 distr <- matrix(0, nrow = B, ncol = 4)
 
 
+
  
 
 
@@ -111,6 +112,7 @@ distr <- replicate(B, {
 })
 
 
+
  
 
 
@@ -124,6 +126,8 @@ Using the test statistics and null distributions, we call `t2p` to obtain the p-
 partial_pvalues <- sapply(1:4, function(i) t2p(tst[i], distr[i, ], alternative = "greater"))
 names(partial_pvalues) <- c("O", "X", "Y", "Y2")
 partial_pvalues
+
+
 
  
 
@@ -151,6 +155,8 @@ names(adjusted_pvalues) <- c("O", "X", "Y")
 cat("Adjusted Partial p-values:", "\n")
 adjusted_pvalues
 
+
+
  
 
 
@@ -165,6 +171,8 @@ global_pvalue <- t2p(global_tst, global_distr, alternative = "greater")
 cat("Global p-value:\n")
 global_pvalue
 
+
+
  
 
 
@@ -175,6 +183,8 @@ res <- cbind(c("Germinate", "Weight", "Surface+Surface^2", "Global"), c(new_part
     global_pvalue))
 colnames(res) <- c("Variable", "P-value")
 kable(res, row.names = F)
+
+
 
  
 

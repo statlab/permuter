@@ -25,6 +25,7 @@ set.seed(60)
 data(mult)
 
 
+
  
 
 
@@ -43,6 +44,8 @@ p_raw <- sapply(1:p, function(x) t2p(observed[x], distr[, x], alternative = "two
 names(p_raw) <- colnames(group0)
 p_raw
 
+
+
  
 
 
@@ -56,6 +59,8 @@ p_ord <- sort(p_raw, decreasing = FALSE)
 
 perm_pvalues <- apply(distr, 2, pvalue_distr, alternative = "two-sided")
 perm_pvalues_ord <- perm_pvalues[, order(p_raw)]
+
+
 
  
 
@@ -120,6 +125,8 @@ library(knitr)
 kable(cbind(p_ris_fisher, p_ris_liptak, p_ris_tippett), col.names = c("Fisher", 
     "Liptak", "Tippett"))
 
+
+
  
 
 
@@ -133,6 +140,7 @@ p_ris_fisher2 <- fwe_minp(p_raw, distr, combine = "fisher")
 p_ris_tippett2 <- fwe_minp(p_raw, distr, combine = "tippett")
 kable(cbind(p_ris_fisher2, p_ris_liptak2, p_ris_tippett2), col.names = c("Fisher", 
     "Liptak", "Tippett"))
+
 
 
  

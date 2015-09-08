@@ -2,6 +2,8 @@
 title: "Kenya Data: A Case Study in Population Genetics"
 author: "Kellie Ottoboni"
 date: "`r Sys.Date()`"
+header-includes:
+  - \usepackage{amsmath,amssymb,amsthm}
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -12,53 +14,109 @@ vignette: >
 
 ## Vignette Info
 
-This example comes from the textbook section 6.9.3 (p 321).
+This example comes from the textbook section 6.9.3 (p 318-321).
+
+A typical problem of heterogeneity comparison is discussed in Corrain et al. (1977). This contribution refers to an anthropological study on a number of Kenyan populations. Among these, the Ol Molo is a nomadic population which therefore is expected to have more genetic exchanges with other ethnic groups than, for instance, the Kamba population, non-nomadic with rather rigid endogamous behaviour. Hence Ol Molo is likely characterized by a higher genetic heterogeneity than Kamba. The cited study, comparing genetic heterogeneity, considers four genetic factors (Gm(1), Gm(2), Gm(4), and Gm(12)) and all their phenotypic combinations, corresponding to $2^4 = 16$ nominal categories. The response variable is nominal categorical and each modality is a sequence of four signs ($+$ or $-$) indicating the presence or absence of these factors.
 
 ```{r kenya}
 library(permuter)
-source("../R/t2p.r")
+library(knitr)
 data(kenya)
-B <- 100
-
-X1 <- kenya[, 2]
-X2 <- kenya[, 3]
-K <- dim(kenya)[1]
-
-o1 <- order(X1, decreasing = TRUE)
-o2 <- order(X2, decreasing = TRUE)
-
-C1 <- X1[o1]
-C2 <- X2[o2]
-C <- cbind(C1, C2)
-C <- C[C1 > 0, ]
-
-k <- seq(1, dim(C)[1])
-
-Y1 <- rep(k, C[, 1])
-Y2 <- rep(k, C[, 2])
-n1 <- length(Y1)
-n2 <- length(Y2)
-Y <- c(Y1, Y2)
-
-G <- rep(c(1, 2), c(n1, n2))
-
-T.G <- array(0, dim = c((B + 1), 1))
-T.S <- array(0, dim = c((B + 1), 1))
-T.R <- array(0, dim = c((B + 1), 1))
-
-T.G[1] <- sum((C[, 1]/n1)^2 - (C[, 2]/n2)^2)
-T.S[1] <- sum((C[, 1]/n1) * ifelse(C[, 1] == 0, 0, log(C[, 1]/n1)) - (C[, 2]/n2) * 
-    ifelse(C[, 2] == 0, 0, log(C[, 2]/n2)))
-T.R[1] <- log(max(C[, 1]/n1)) - log(max(C[, 2]/n2))
+B <- 10000
 
 
-for (bb in 2:(B + 1)) {
-    Y.star <- sample(Y)
-    C.star <- table(Y.star, G)
-    T.G[bb] <- sum((C.star[, 1]/n1)^2 - (C.star[, 2]/n2)^2)
-    T.S[bb] <- sum((C.star[, 1]/n1) * ifelse(C.star[, 1] == 0, 0, log(C.star[, 1]/n1)) - 
-        (C.star[, 2]/n2) * ifelse(C.star[, 2] == 0, 0, log(C.star[, 2]/n2)))
-    T.R[bb] <- log(max(C.star[, 1]/n1)) - log(max(C.star[, 2]/n2))
+
+ 
+
+
+```
+In descriptive statistics a variable $X$ is said to be minimally heterogeneous when its distribution is degenerate, and is said to be maximally heterogeneous when its distribution is uniform over its support, i.e. the set of modalities. Thus, heterogeneity is related to the concentration of probabilities, and the degree of heterogeneity depends on the values of these probabilities. Let us suppose that the response variable $X$ takes values in $(A_1,\dots,A_k)$ with probability distribution $\mathbb{P}(X = A_r) = \pi_r$ for $r = 1,\dots,k$. The following properties must be satisfied by an index for measuring the degree of heterogeneity:
+\begin{enumerate}
+\item It reaches its minimum when there is an integer $r \in \{1,\dots,k\}$ such that $\pi_r = 1$ and $\pi_s = 0 \forall s\neq r$;
+\item it assumes increasingly greater values when moving away from the degenerate towards the uniform distribution;
+\item it reaches its maximum when $\pi_r = \frac{1}{k}$, $\forall r \in \{ 1, \dots, k\}$.
+\end{enumerate}
+
+Various indicators satisfy the three properties and can be used to measure the degree of heterogeneity. Among the most commonly used we mention:
+
+\begin{itemize}
+\item Gini's index (Gini, 1912): $G = 1 - \sum_{r=1}^k \pi_r^2$
+\item Shannon's entropy index (Shannon, 1948): $S = -\sum_{r=1}^k \pi_r \log(\pi_r)$, where $\log(\cdot)$ is the natural logarithm and assuming that $0log(0) = 0$.
+\item A family of indexes proposed by Rényi (Rényi, 1996) is called entropy of order $\delta$ and is defined as $R_\delta = \frac{1}{1-\delta}\log\sum_{r=1}^k \pi_r^\delta$.
+\end{itemize}
+
+Given two populations $P_1$ and $P_2$, if we use $Het(P_j)$ to indicate the heterogeneity of $P_j, j = 1,2$, the testing problem can be expressed as $H_0 : Het(P_1) = Het(P_2)$ against some alternatives. In this example, we are interested in whether Ol Molo has greater genetic heterogeneity than Kamba, so the alternative can be written as $H_1 : Het(P_1) > Het(P_2)$. 
+
+If probabilities related to the populations $\{\pi_{jr}, r = 1,\dots,k, j = 1,2\}$ were known, they could be arranged in non-increasing order: $\pi_j(1) , \dots , \pi_j(k)$ and an equivalent representation of the null hypothesis could be made:
+
+\[ H_0 : \left\lbrace Het(P_1) = Het(P_2)\right\rbrace = \left\lbrace \pi_1(r) = \pi_2(r), r = 1,\dots,k\right\rbrace \]
+
+Notice that the null hypothesis just compares probabilities and says nothing of the events corresponding to these probabilities.  We set up the problem as follows: we arrange the frequencies of each phenotype in decreasing order, separately for Ol Molo and Kamba.  These are the vectors `f1` and `f2`, then pair the frequencies according to their order.  We remove pairs where the frequency for Ol Molo is $0$, since they add no information.  $11$ phenotypes remain.
+
+
+```{r setup}
+o1 <- order(kenya[, 2], decreasing = TRUE)
+o2 <- order(kenya[, 3], decreasing = TRUE)
+
+f1 <- kenya[o1, 2]
+f2 <- kenya[o2, 3]
+f <- cbind(f1, f2)
+f <- f[f1 > 0, ]
+k <- seq_len(nrow(f))
+
+y1 <- rep(k, f[, 1])
+y2 <- rep(k, f[, 2])
+n1 <- length(y1)
+n2 <- length(y2)
+y <- c(y1, y2)
+
+group <- rep(c(1, 2), c(n1, n2))
+
+kable(f)
+
+
+
+ 
+
+
+```
+
+Under the null hypothesis, exchangeability holds and the permutation testing principle is applicable. Therefore the one-sided alternative can be written as
+
+\[H_1 : Het(P_1) > Het(P_2) = \left\lbrace \sum_{s=1}^r \pi_1(s) \leq \sum_{s=1}^r \pi_2(s), r = 1,\dots, k \right\rbrace \\
+    \text{and at least one strict inequality holds}\]
+
+Unfortunately, parameters $\pi_{jr}, r = 1,\dots,k, j = 1,2,$ are unknown and we can only estimate them using the observed relative frequencies: $\hat{\pi}_{jr} = \frac{f_{jr}}{n_j}, r = 1,\dots,k, j = 1,2,$.
+
+To solve the testing problem, a reasonable test statistic should be a function of the difference of the measures of heterogeneity for the two populations: $T_I = I_1 - I_2$, where $I_j, j = 1,2,$ is either the Gini index, Shannon's entropy index, or Rényi index of heterogeneity for the $j$th population. Large values of $T_I$ lead to the rejection of $H_0$.  
+
+
+To carry out the permutation test, each individual is given a label according to the index of the ordered group they're in; e.g. the group with largest frequency has $12+15$ individuals, so they're labelled "1".  We condition on the number of individuals in Ol Molo and Kamba (`n1` and `n2`) and permute the labels on individuals.  Under the null, the probability that somebody with a label "r" ends up in the Ol Molo or Kamba group is proportional to the group sizes.
+
+```{r permutation}
+gini <- function(f1, f2) {
+    sum((f1/n1)^2 - (f2/n2)^2)
+}
+shannon <- function(f1, f2) {
+    logf1 <- rep(0, length(f1))
+    logf1[f1 != 0] <- log(f1[f1 != 0]/n1)
+    logf2 <- rep(0, length(f2))
+    logf2[f2 != 0] <- log(f2[f2 != 0]/n2)
+    sum((f1/n1) * logf1 - (f2/n2) * logf2)
+}
+renyi <- function(f1, f2) {
+    log(max(f1/n1)) - log(max(f2/n2))
+}
+
+observed <- c(gini(f[, 1], f[, 2]), shannon(f[, 1], f[, 2]), renyi(f[, 1], f[, 2]))
+
+distr <- matrix(0, nrow = B, ncol = 3)
+for (bb in seq_len(B)) {
+    y.star <- sample(y)
+    c.star <- table(y.star, group)
+    distr[bb, 1] <- gini(c.star[, 1], c.star[, 2])
+    distr[bb, 2] <- shannon(c.star[, 1], c.star[, 2])
+    distr[bb, 3] <- renyi(c.star[, 1], c.star[, 2])
 }
 
 
@@ -68,15 +126,11 @@ for (bb in 2:(B + 1)) {
 
 ```
 
-Set Het(1) > Het(2), then $1-\sum_k p_{(k)1}^2 > 1-\sum_k p_{(k)2}^2$. We care about when $\sum_k p_{(k)1}^2 - p_{(k)2}^2< 0$; small is significant.
-
+P-values:
 ```{r kenya2}
-p.G <- t2p_old(-T.G)[1]
-p.S <- t2p_old(-T.S)[1]
-p.R <- t2p_old(-T.R)[1]
-
-res <- c(p.G, p.S, p.R)
-res
+pvalues <- sapply(1:3, function(i) t2p(observed[i], distr[, i], alternative = "less"))
+names(pvalues) <- c("Gini", "Shannon", "Rényi")
+pvalues
 
 
 

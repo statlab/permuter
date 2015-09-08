@@ -27,3 +27,6 @@ The development process will follow the conventions in [R Packages](http://r-pkg
 
 * Cmd+shift+B in RStudio restarts the session and rebuilds the R package, running all tests in the process.
 
+* In the terminal, calling `make tidy` puts all vignettes and R files into the correct stylistic format.
+
+* In the terminal, calling `make vignettes` creates all the vignettes as html documents.

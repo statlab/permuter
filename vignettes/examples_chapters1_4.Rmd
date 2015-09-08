@@ -46,6 +46,7 @@ observed <- mean(d)
 distr <- one_sample(x = d, reps = B)
 
 
+
  
 
 
@@ -184,6 +185,8 @@ observed <- sum(n * xbar^2)
 distr <- k_sample(X, Y)
 t2p(observed, distr, alternative = "greater")
 
+
+
  
 
 
@@ -289,6 +292,7 @@ distr <- k_sample(x = testosterone$value, group = testosterone$variable, group2 
 t2p(SSB, distr, alternative = "greater")
 
 
+
  
 
 
@@ -330,6 +334,7 @@ partial_pvalue[7] <- t2p(observed_col8, distr[, 7], alternative = "less")
 partial_pvalue
 
 
+
  
 
 
@@ -347,6 +352,8 @@ combined_p_liptak <- npc(partial_pvalue, distr, combine = "liptak", alternatives
 combined_p_tippett <- npc(partial_pvalue, distr, combine = "tippett", alternatives = c(rep("greater", 
     6), "less"))
 print(c(combined_p_fisher, combined_p_liptak, combined_p_tippett))
+
+
 
  
 
