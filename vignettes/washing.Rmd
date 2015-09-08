@@ -61,6 +61,8 @@ dom <- c(rep(1, 6), rep(2, 14), rep(3, 5))
 res <- data.frame(Category = unique(washing_test$Category)[dom], p = p_raw, adjusted_p = p_adjusted)
 res
 
+
+
  
 
 
@@ -73,6 +75,7 @@ washing_test %>% dplyr::filter(Stain == "Blueberry juice") %>% ggplot(aes(x = fa
     y = Reflectance)) + geom_boxplot()
 summary(aov(washing_test[washing_test$Stain == "Blueberry juice", 4] ~ factor(rep(1:8, 
     each = 4))))
+
 
 
  
@@ -98,6 +101,8 @@ p_categories <- sapply(1:length(fisher_observed), function(i) t2p(fisher_observe
     p_distr[, i], alternative = "greater"))
 names(p_categories) <- unique(washing_test$Category)
 p_categories
+
+
 
  
 

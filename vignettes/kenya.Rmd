@@ -24,6 +24,8 @@ library(knitr)
 data(kenya)
 B <- 10000
 
+
+
  
 
 
@@ -71,6 +73,12 @@ y <- c(y1, y2)
 group <- rep(c(1, 2), c(n1, n2))
 
 kable(f)
+
+
+
+ 
+
+
 ```
 
 Under the null hypothesis, exchangeability holds and the permutation testing principle is applicable. Therefore the one-sided alternative can be written as
@@ -110,6 +118,12 @@ for (bb in seq_len(B)) {
     distr[bb, 2] <- shannon(c.star[, 1], c.star[, 2])
     distr[bb, 3] <- renyi(c.star[, 1], c.star[, 2])
 }
+
+
+
+ 
+
+
 ```
 
 P-values:
@@ -117,6 +131,12 @@ P-values:
 pvalues <- sapply(1:3, function(i) t2p(observed[i], distr[, i], alternative = "less"))
 names(pvalues) <- c("Gini", "Shannon", "Rényi")
 pvalues
+
+
+
+ 
+
+
 ```
 
 

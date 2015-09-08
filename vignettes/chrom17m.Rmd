@@ -22,6 +22,7 @@ data(chrom17m)
 chrom17m
 
 
+
  
 
 
@@ -45,31 +46,44 @@ n2 <- sum(chrom17m$Controls)
 n <- n1 + n2
 l <- rep(c(1, 2), c(n1, n2))
 data <- chrom17m[, -1]
-marginal <- rowSums(chrom17m[,-1])
+marginal <- rowSums(chrom17m[, -1])
 
 observed <- rep(0, k)
 distr <- matrix(0, nrow = B, ncol = k)
-for(kk in 1:k){
-  observed[kk] <- (chrom17m[kk, 2] - marginal[kk] * n1/n)^2/(marginal[kk] * n1/n)
-  for(bb in 1:B){
-    X.star <- sample(X)
-    data.star <- table(X.star, l)
-    marginal.star <- rowSums(data.star)
-    distr[bb, kk] <- (data.star[kk, 1] - marginal.star[kk] * n1/n)^2/(marginal.star[kk] * n1/n)
-  }
+for (kk in 1:k) {
+    observed[kk] <- (chrom17m[kk, 2] - marginal[kk] * n1/n)^2/(marginal[kk] * n1/n)
+    for (bb in 1:B) {
+        X.star <- sample(X)
+        data.star <- table(X.star, l)
+        marginal.star <- rowSums(data.star)
+        distr[bb, kk] <- (data.star[kk, 1] - marginal.star[kk] * n1/n)^2/(marginal.star[kk] * 
+            n1/n)
+    }
 }
+
+
+
+ 
+
+
 ```
 
 We compute the p-values for each of the $k$ groups individually.  Then, since we want to make inferences for individual alleles, we need to adjust for multiple tests.  We use `fwe.minp` to do this.
 
 ```{r pvalues}
-partial_pvalues <- sapply(1:k, function(i) t2p(observed[i], distr[,i], alternative="greater"))
+partial_pvalues <- sapply(1:k, function(i) t2p(observed[i], distr[, i], alternative = "greater"))
 names(partial_pvalues) <- chrom17m$Groups
 
 adjusted_pvalues <- fwe_minp(partial_pvalues, distr)
 names(adjusted_pvalues) <- chrom17m$Groups
 
-kable(cbind(partial_pvalues, adjusted_pvalues), row.names = TRUE, col.names = c("Partial P-values", "Adjusted P-values"))
+kable(cbind(partial_pvalues, adjusted_pvalues), row.names = TRUE, col.names = c("Partial P-values", 
+    "Adjusted P-values"))
+
+
+
+ 
+
 
 ```
 
@@ -83,10 +97,16 @@ tippett_distr <- apply(null_pvalues, 1, tippett)
 fisher_distr <- apply(null_pvalues, 1, fisher)
 liptak_distr <- apply(null_pvalues, 1, liptak)
 
-global_pvalue_tippett <- t2p(tippett(partial_pvalues), tippett_distr, alternative="greater")
-global_pvalue_fisher <- t2p(fisher(partial_pvalues), fisher_distr, alternative="greater")
-global_pvalue_liptak <- t2p(liptak(partial_pvalues), liptak_distr, alternative="greater")
+global_pvalue_tippett <- t2p(tippett(partial_pvalues), tippett_distr, alternative = "greater")
+global_pvalue_fisher <- t2p(fisher(partial_pvalues), fisher_distr, alternative = "greater")
+global_pvalue_liptak <- t2p(liptak(partial_pvalues), liptak_distr, alternative = "greater")
 
 globals <- c(global_pvalue_tippett, global_pvalue_fisher, global_pvalue_liptak)
 kable(t(globals), row.names = F, col.names = c("Tippett", "Fisher", "Liptak"))
+
+
+
+ 
+
+
 ```

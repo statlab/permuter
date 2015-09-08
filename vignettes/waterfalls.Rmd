@@ -39,6 +39,7 @@ C <- n/l
 ratings <- split(waterfalls, panelist)
 
 
+
  
 
 
@@ -53,6 +54,7 @@ rel_ratings <- lapply(1:l, function(j) {
     }
     tmp
 })
+
 
 
  
@@ -83,6 +85,8 @@ rownames(partial_pvalue) <- colnames(waterfalls)
 colnames(partial_pvalue) <- c("s-r", "t-r", "v-r", "w-r", "x-r")
 
 kable(partial_pvalue, row.names = TRUE)
+
+
 
  
 
