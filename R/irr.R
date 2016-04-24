@@ -6,7 +6,7 @@
 compute_irr_ts <- function(ratings) {
     R <- nrow(ratings)
     Ns <- ncol(ratings)
-    y <- rowsum(ratings)
+    y <- apply(ratings, 2, sum)
     counts <- y * (y - 1) + (R - y) * (R - y - 1)
     rho_s <- sum(counts)/(Ns * R * (R - 1))
     return(rho_s)
