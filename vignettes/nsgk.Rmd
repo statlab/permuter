@@ -1,0 +1,115 @@
+---
+title: "NSGK"
+author: "Kellie Ottoboni"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## NSGK
+
+summary of the vignette
+
+### Set up for analysis
+
+```{r setup}
+library(permuter)
+library(dplyr)
+
+data(nsgk)
+time_stamps <- c(36, 32, 35, 37, 31, 35, 40, 32)
+nvideos <- length(unique(nsgk$video))
+ncategories <- length(unique(nsgk$domain))
+nraters <- max(nsgk$rater)
+
+head(nsgk)
+```
+We have to turn this table into the right data format: for each tag-video pair, we must create a matrix of 0s and 1s, where 1 in the $i, j$ position indicates that rater $i$ saw the tag at timestamp $j$.  We'll have 8 matrices for each tag, for a total of \Sexpr{ncategories*nvideos} matrices. We'll store these matrices in a list of lists: the first level of the list indexes the tag, and for each tag there is a list of 8 matrices, one for each video.
+
+```{r table_to_matrices}
+unique_tags <- sort(unique(nsgk$domain))
+nsgk_mat <- list()
+for(tag in unique_tags){
+  domain <- list()
+  for(v in seq_len(nvideos)){
+    thisvideo <- nsgk %>% 
+                filter(domain == tag) %>%
+                filter(video == v)
+    tag_mat <- matrix(0, nrow = nraters, ncol = time_stamps[v])
+    for(row in seq_len(nrow(thisvideo))){
+      tag_mat[thisvideo[row, "rater"], thisvideo[row, "time_stamp"]] <- 1
+    }
+    domain[[v]] <- tag_mat
+  }
+  nsgk_mat[[length(nsgk_mat) + 1]] <- domain
+}
+names(nsgk_mat) <- unique_tags
+
+length(nsgk_mat)
+length(nsgk_mat[[1]])
+dim(nsgk_mat[[1]][[1]])
+
+```
+
+### Summary statistics per video
+
+We compute the mean and SD of the number of times a tag was observed in each video.
+Rows index the tag and columns index the video. 
+```{r summary_stats}
+video_means <- t(sapply(nsgk_mat, function(tt){
+                        sapply(tt, mean)
+                        }))
+head(video_means)
+
+video_sds <- t(sapply(nsgk_mat, function(tt){
+                        sapply(tt, sd)
+                        }))
+head(video_sds)
+
+```
+
+### Computing inter-rater reliability
+
+
+```{r irr_results}
+npc_results <- lapply(nsgk_mat, function(tt){
+  video_specific_results <- lapply(tt, function(x){
+                                        res <- irr_ts_distribution(x, 
+                                          num_perm = 1000,    
+                                          keep_dist = TRUE, seed = 101)
+                                  })
+  tag_distribution <- sapply(video_specific_results, function(x) x$dist)
+  tag_pvalues      <- sapply(video_specific_results, function(x) x$pvalue)
+  tag_concordance  <- sapply(video_specific_results, function(x) x$obs_ts)
+  tag_npc_res <- irr_npc_distribution(tag_distribution, size = time_stamps, pvalues = tag_pvalues)
+  return(list("pvalues_per_video" = tag_pvalues,
+              "concordance_per_video" = tag_concordance,
+              "tag_global_pvalue" = tag_npc_res$pvalue))
+})
+
+head(npc_results, 3)
+```
+
+Let's put it all together:
+```{r results_to_csv}
+nsgk_res <- matrix(nrow = ncategories, ncol = (1 + 1 + 8*4))
+for(i in seq_len(ncategories)){
+  nsgk_res[i, ] <- c(unique_tags[i],
+                     npc_results[[i]]$tag_global_pvalue,
+                     npc_results[[i]]$concordance_per_video,
+                     npc_results[[i]]$pvalues_per_video,
+                     video_means[i,],
+                     video_sds[i,])
+}
+colnames(nsgk_res) <- c("tag index",
+                        "global pvalue",
+                        paste("video", 1:8, "concordance"),
+                        paste("video", 1:8, "pvalue"),
+                        paste("video", 1:8, "mean"),
+                        paste("video", 1:8, "sd"))
+head(nsgk_res)
+write.csv(nsgk_res, file = "nsgk_results.csv")
+```
