@@ -2,6 +2,7 @@
 #' 
 #' Fisher combining function is \eqn{-2\sum log(p)}.
 #' @param p Vector of p-values
+#' @return The combined test statistic
 #' 
 fisher <- function(p) {
     -2 * log(prod(p))
@@ -17,6 +18,26 @@ liptak <- function(p) {
 #' \eqn{max(1-p)}.
 tippett <- function(p) {
     max(1 - p)
+}
+
+
+#' Inverse-n weight combining function
+#'
+#' Compute the test statistic \eqn{-\sum p_s/\sqrt{N_s}}
+#' 
+#' @param p Vector of p-values
+#' @param n Vector of sample sizes. The \eqn{i}th entry is the
+#'        sample size used in the \eqn{i}th test
+#' @return The combined test statistic
+inverse_n_weight <- function(p, n){
+  if(length(p) != length(n)){
+    stop("Number of p-values and sample sizes must be equal")
+  }
+  if(!all(n%%1 == 0)){
+    stop("Sample sizes must be integers")
+  }
+  weights <- n^(-1/2)
+  return(sum(-1*p*weights))
 }
 
 
