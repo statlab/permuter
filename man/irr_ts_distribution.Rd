@@ -38,7 +38,7 @@ Simulates the permutation distribution of the irr test statistic for
 a matrix of ratings ``ratings``
 }
 \details{
-If \code{obs_ts} is not \code{None}, computes the reference value of the test
+If \code{obs_ts} is not null, computes the reference value of the test
 statistic before the first permutation. Otherwise, uses the value
 \code{obs_ts} for comparison.
 
