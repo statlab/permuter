@@ -16,11 +16,14 @@ test_that("p-values from toy example", {
     expect_equal(npc(pval, distr, "fisher", "two-sided"), 0.34)
     expect_equal(npc(pval, distr, "liptak"), 0.35)
     expect_equal(npc(pval, distr, "tippett"), 0.25)
+    expect_equal(npc(pval, distr, 
+                     combine = function(p) inverse_n_weight(p, rep(1, length(pval)))),
+                 0.42)
     expect_equal(npc(pval, distr, alternatives = c("less", "greater", "less", "greater", 
         "two-sided")), 0.4)
 })
 
-context("Fisher")
+context("Combining functions")
 test_that("Fisher combining function", {
     pval <- seq(0.05, 0.9, length.out = 5)
     expect_equal(fisher(pval), 11.11546, tolerance = 1e-05)
@@ -29,7 +32,6 @@ test_that("Fisher combining function", {
     expect_warning(fisher(-10), "NaN")
 })
 
-context("Liptak")
 test_that("Liptak combining function", {
     pval <- seq(0.05, 0.9, length.out = 5)
     expect_equal(liptak(pval), 0.5728894, tolerance = 1e-05)
@@ -38,10 +40,18 @@ test_that("Liptak combining function", {
     expect_warning(liptak(-10), "NaN")
 })
 
-context("Tippett")
 test_that("Tippett combining function", {
     pval <- seq(0.05, 0.9, length.out = 5)
     expect_equal(tippett(pval), 0.95)
     expect_equal(tippett(1), 0)
     expect_equal(tippett(10), -9)
 }) 
+
+test_that("Inverse n weight combining function", {
+  pval <- seq(0.05, 0.9, length.out = 5)
+  expect_equal(inverse_n_weight(pval, rep(1, 5)), -1*sum(pval))
+  expect_equal(inverse_n_weight(pval, rep(4, 5)), -0.5*sum(pval))
+  expect_equal(inverse_n_weight(pval, c(4, 9, 16, 25, 36)), -sum(1/(2:6)*pval))
+  expect_error(inverse_n_weight(pval, (1:5)+0.2))
+  expect_error(inverse_n_weight(pval, 1:3))
+})
