@@ -4,7 +4,6 @@
 #' 
 #' @param x A vector of treatment indicators
 #' @param group A vector indicating group membership
-#' 
 #' @return The within-group permuted x
 permute_within_groups <- function(x, group){
   for(g in unique(group)){
