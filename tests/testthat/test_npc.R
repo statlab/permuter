@@ -16,6 +16,9 @@ test_that("p-values from toy example", {
     expect_equal(npc(pval, distr, "fisher", "two-sided"), 0.34)
     expect_equal(npc(pval, distr, "liptak"), 0.35)
     expect_equal(npc(pval, distr, "tippett"), 0.25)
+    expect_equal(npc(pval, distr, 
+                     combine = function(p) inverse_n_weight(p, rep(1, length(pval)))),
+                 0.42)
     expect_equal(npc(pval, distr, alternatives = c("less", "greater", "less", "greater", 
         "two-sided")), 0.4)
 })
