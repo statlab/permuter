@@ -69,21 +69,23 @@ two_sample <- function(x, y, reps = 1000) {
 #' @param group Vector of group memberships or treatment conditions
 #' @param response Vector of measured outcomes, same length as group
 #' @param stratum Vector of stratum assignments, same length as group
-#' @param stat The test statistic.
-#'        (a) If stat == 'mean', the test statistic is (mean(x) - mean(y))
+#' @param stat The test statistic. Default is "mean". See details for other options.
+#' @param reps Number of replications to approximate distribution (default 1000)
+#' @details 
+#' \enumerate{
+#' \item If stat == 'mean', the test statistic is (mean(x) - mean(y))
 #'        (equivalently, sum(x), since those are monotonically related), omitting
 #'        NaNs, which therefore can be used to code non-responders
-#'        (b) If stat == 't', the test statistic is the two-sample t-statistic--
+#' \item If stat == 't', the test statistic is the two-sample t-statistic--
 #'          but the p-value is still estimated by the randomization,
 #'          approximating the permutation distribution.
 #'          The t-statistic is computed using t.test(...,var.equal=TRUE)
-#'        (c) If stat == 'mean_within_strata', the test statistic is the difference
+#' \item If stat == 'mean_within_strata', the test statistic is the difference
 #'          in means within each stratum, added across strata.
-#'        (d) If stat is a function (a callable object), the test statistic is
+#' \item If stat is a function (a callable object), the test statistic is
 #'          that function.  The function should take a permutation of the pooled
 #'          data and compute the test function from it.
-#' @param reps Number of replications to approximate distribution (default 1000)
-#' 
+#'  }
 #' @return A vector of length `reps` containing the permutation distribution
 stratified_two_sample <- function(group, response, stratum, 
                                   stat = "mean", reps = 1000) {
