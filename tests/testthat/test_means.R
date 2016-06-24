@@ -66,5 +66,5 @@ test_that("example from permute",{
   set.seed(55)
   res <- stratified_two_sample(group, response, stratum, reps=10000)
   expect_equal(mean(response[group==1]) - mean(response[group==2]), 0.2)
-  expect_equal(c("pupper"=0.2169), t2p(0.2, res, "greater"))
+  expect_equal(c("Upper"=0.2169), t2p(0.2, res, "greater"))
 })

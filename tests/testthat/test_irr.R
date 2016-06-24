@@ -60,7 +60,7 @@ test_that("NPC test stat distribution", {
   res1 <- irr_npc_distribution(sidebyside, size = rep(35, 3), obs_ts = obs_ts)
   res2 <- irr_npc_distribution(sidebyside, size = rep(35, 3), pvalues = pvalues)
   expected_res <- list("obs_npc" = -0.07606388,
-                       "pvalue" = 0.02,
+                       "pvalue" = 0.01,
                        "num_perm" = 100)
   
   expect_equal(expected_res, res1, tol = 1e-6)
