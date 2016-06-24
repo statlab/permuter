@@ -99,7 +99,7 @@ stratified_two_sample <- function(group, response, stratum,
   }
   
   groups <- unique(group)
-  strata <- unique(strata)
+  strata <- unique(stratum)
   
   ordering <- order(group)
   response <- response[ordering]
@@ -120,7 +120,12 @@ stratified_two_sample <- function(group, response, stratum,
   if(is.function(stat)){
     tst_fun <- stat
   }else{
-    tst_fun <- stats[[stat]]
+    if(stat %in% names(stats)){
+      tst_fun <- stats[[stat]]
+    }
+    else{
+      stop("stat must be in the dictionary of stats or a function")
+    }
   }
 
   
