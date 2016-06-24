@@ -79,7 +79,7 @@ npc <- function(pvalues, distr, combine = "fisher", alternatives = "greater") {
   }
   
   null_pvalues <- sapply(1:ncol(distr), function(j) {
-    sapply(1:nrow(distr), function(b) t2p(distr[b, j], distr[-b, j], alternatives[j]))
+    pvalue_distr(distr[,j], alternatives[j])
   })
   
   if(is.function(combine)){
