@@ -46,9 +46,9 @@ test_that("simple example", {
   
   set.seed(55)
   distr <- stratified_two_sample(group, response, stratum)
-  expect_equal(min(distr), -3.5)
-  expect_equal(median(distr), -0.3)
-  expect_equal(max(distr), 3.3)
+  expect_equal(min(distr), -4.0)
+  expect_equal(median(distr), 0)
+  expect_equal(max(distr), 4.0)
   
   set.seed(55)
   distr <- stratified_two_sample(group, response, stratum, stat = "mean_within_strata")
@@ -66,5 +66,5 @@ test_that("example from permute",{
   set.seed(55)
   res <- stratified_two_sample(group, response, stratum, reps=10000)
   expect_equal(mean(response[group==1]) - mean(response[group==2]), 0.2)
-  expect_equal(c("pupper"=0.1523), t2p(0.2, res, "greater"))
+  expect_equal(c("pupper"=0.2169), t2p(0.2, res, "greater"))
 })

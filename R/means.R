@@ -113,8 +113,8 @@ stratified_two_sample <- function(group, response, stratum,
   
   # If stat is callable, use it as the test function. Otherwise, look in the dictionary
   stats = list(
-    "mean" = function(u) {mean(u[1:ntreat], na.rm=TRUE) - mean(u[ntreat:N])},
-    "t" = function(u) {t.test(u[1:ntreat], u[ntreat:N], var.equal=TRUE)$statistic},
+    "mean" = function(u) {mean(u[1:ntreat], na.rm=TRUE) - mean(u[(ntreat+1):N], na.rm=TRUE)},
+    "t" = function(u) {t.test(u[1:ntreat], u[(ntreat+1):N], var.equal=TRUE)$statistic},
     "mean_within_strata" = function(u) {
       sum(abs(within_group_mean(group, u, stratum, groups, strata)))
       }
