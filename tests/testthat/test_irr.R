@@ -19,27 +19,27 @@ test_that("Test statistic", {
 
 test_that("Test statistic distribution", {
   simple <- matrix(c(1, 1, 1, 0, 0, 1, 0, 0), nrow = 2, byrow = TRUE)
-  perm_distr <- irr_ts_distribution(simple, num_perm = 5, keep_dist = TRUE, seed = 5)
+  perm_distr <- irr_ts_distribution(simple, reps = 5, keep_dist = TRUE, seed = 5)
   expected_perm_distr <- list("obs_ts" = 0.5,
                               "geq" = 4,
-                              "num_perm" = 5,
+                              "reps" = 5,
                               "pvalue" = 4/5,
                               "dist" = c(0.5, 0, 0.5, 0.5, 0.5))
   expect_equal(perm_distr, expected_perm_distr)
   
-  perm_distr <- irr_ts_distribution(simple, num_perm = 5, keep_dist = FALSE, seed = 5)
+  perm_distr <- irr_ts_distribution(simple, reps = 5, keep_dist = FALSE, seed = 5)
   expected_perm_distr <- list("obs_ts" = 0.5,
                               "geq" = 4,
-                              "num_perm" = 5,
+                              "reps" = 5,
                               "pvalue" = 4/5,
                               "dist" = NULL)
   expect_equal(perm_distr, expected_perm_distr)
   
   res <- generate_test_case()
-  perm_distr <- irr_ts_distribution(res, num_perm = 5, keep_dist = TRUE, seed = 1)
+  perm_distr <- irr_ts_distribution(res, reps = 5, keep_dist = TRUE, seed = 1)
   expect_equal(perm_distr$obs_ts, 0.511746, tolerance = 1e-6)
   expect_equal(perm_distr$geq, 0)
-  expect_equal(perm_distr$num_perm, 5)
+  expect_equal(perm_distr$reps, 5)
   expect_equal(perm_distr$pvalue, 0)
   expect_equal(perm_distr$dist, 
                c(0.4939683, 0.4761905, 0.4952381, 0.4901587, 0.4863492), 
@@ -49,9 +49,9 @@ test_that("Test statistic distribution", {
 context("IRR plus NPC")
 test_that("NPC test stat distribution", {
   res <- generate_test_case()
-  perm_distr1 <- irr_ts_distribution(res, num_perm = 100, keep_dist = TRUE, seed = 1)
-  perm_distr2 <- irr_ts_distribution(res, num_perm = 100, keep_dist = TRUE, seed = 3)
-  perm_distr3 <- irr_ts_distribution(res, num_perm = 100, keep_dist = TRUE, seed = 5)
+  perm_distr1 <- irr_ts_distribution(res, reps = 100, keep_dist = TRUE, seed = 1)
+  perm_distr2 <- irr_ts_distribution(res, reps = 100, keep_dist = TRUE, seed = 3)
+  perm_distr3 <- irr_ts_distribution(res, reps = 100, keep_dist = TRUE, seed = 5)
   perm_distr_list <- list(perm_distr1, perm_distr2, perm_distr3)
   
   sidebyside <- sapply(perm_distr_list, function(x) x$dist)
@@ -61,7 +61,7 @@ test_that("NPC test stat distribution", {
   res2 <- irr_npc_distribution(sidebyside, size = rep(35, 3), pvalues = pvalues)
   expected_res <- list("obs_npc" = -0.07606388,
                        "pvalue" = 0.01,
-                       "num_perm" = 100)
+                       "reps" = 100)
   
   expect_equal(expected_res, res1, tol = 1e-6)
   expect_equal(expected_res, res2, tol = 1e-6)  
@@ -76,7 +76,7 @@ test_that("NPC test stat distribution", {
   tst <- rep(NA, 2)
   pval <- rep(NA, 2)
   for(j in seq_along(strata)){
-    res <- irr_ts_distribution(strata[[j]], keep_dist = TRUE, num_perm = B, seed = 5)
+    res <- irr_ts_distribution(strata[[j]], keep_dist = TRUE, reps = B, seed = 5)
     distributions[,j] <- res$dist
     tst[j] <- res$obs_ts
     pval[j] <- res$pvalue
@@ -85,7 +85,7 @@ test_that("NPC test stat distribution", {
   npc_res2 <- irr_npc_distribution(distributions, size = size, pvalues = pval)
   expected_npc_res <- list("obs_npc" = 0,
                            "pvalue" = 0,
-                           "num_perm" = B)
+                           "reps" = B)
   expect_equal(npc_res1, expected_npc_res)  
   expect_equal(npc_res2, expected_npc_res)
 })
