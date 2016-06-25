@@ -24,9 +24,9 @@ A list containing:
 \itemize{
 \item{obs_npc: observed value of the test statistic for the input data, or the input value of \code{obs_ts} if it was given as input}
 \item{geq: integer number of iterations for which the test statistic was greater than or equal to \code{obs_ts}}
-\item{num_perm: number of permutations}
-\item{pvalue: geq/num_perm}
-\item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{num_perm} iterations. Otherwise, NULL.}
+\item{reps: number of permutations}
+\item{pvalue: geq/reps}
+\item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{reps} iterations. Otherwise, NULL.}
 }
 }
 \description{

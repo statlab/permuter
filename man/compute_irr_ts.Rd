@@ -7,7 +7,9 @@
 compute_irr_ts(ratings)
 }
 \arguments{
-\item{ratings}{matrix of dimension [R, Ns]. Each row corresponds to the ratings given by a single rater; columns correspond to items rated.}
+\item{ratings}{matrix of dimension [R, Ns]. 
+Each row corresponds to the ratings given by a single rater; 
+columns correspond to items rated.}
 }
 \value{
 concordance of the ratings, where perfect concordance is 1.0

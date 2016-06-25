@@ -4,7 +4,7 @@
 \alias{irr_ts_distribution}
 \title{Get the permutation distribution of the IRR test statistic}
 \usage{
-irr_ts_distribution(ratings, obs_ts = NULL, num_perm = 10000,
+irr_ts_distribution(ratings, obs_ts = NULL, reps = 10000,
   keep_dist = FALSE, seed = NULL)
 }
 \arguments{
@@ -15,7 +15,7 @@ columns correspond to items rated.}
 \item{obs_ts}{if None, \code{obs_ts} is calculated as the value 
 of the test statistic for the original data}
 
-\item{num_perm}{integer number of random permutations of the elements of each row of ratings}
+\item{reps}{integer number of random permutations of the elements of each row of ratings}
 
 \item{keep_dist}{Boolean flag for whether to store and return the array 
 of permutation values of the irr test statistic}
@@ -28,9 +28,9 @@ A list containing:
 \itemize{
 \item{obs_ts: observed value of the test statistic for the input data, or the input value of \code{obs_ts} if it was given as input}
 \item{geq: integer number of iterations for which the test statistic was greater than or equal to \code{obs_ts}}
-\item{num_perm: number of permutations}
-\item{pvalue: geq/num_perm}
-\item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{num_perm} iterations. Otherwise, NULL.}
+\item{reps: number of permutations}
+\item{pvalue: geq/reps}
+\item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{reps} iterations. Otherwise, NULL.}
 }
 }
 \description{
