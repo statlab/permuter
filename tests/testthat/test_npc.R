@@ -11,16 +11,16 @@ test_that("bad inputs", {
 })
 
 test_that("p-values from toy example", {
-    expect_equal(npc(pval, distr, "fisher", "greater"), 0.34)
-    expect_equal(npc(pval, distr, "fisher", "less"), 0.35)
-    expect_equal(npc(pval, distr, "fisher", "two-sided"), 0.34)
-    expect_equal(npc(pval, distr, "liptak"), 0.35)
+    expect_equal(npc(pval, distr, "fisher", "greater"), 0.32)
+    expect_equal(npc(pval, distr, "fisher", "less"), 0.31)
+    expect_equal(npc(pval, distr, "fisher", "two-sided"), 0.23)
+    expect_equal(npc(pval, distr, "liptak"), 0.34)
     expect_equal(npc(pval, distr, "tippett"), 0.25)
     expect_equal(npc(pval, distr, 
                      combine = function(p) inverse_n_weight(p, rep(1, length(pval)))),
-                 0.42)
+                 0.39)
     expect_equal(npc(pval, distr, alternatives = c("less", "greater", "less", "greater", 
-        "two-sided")), 0.4)
+        "two-sided")), 0.34)
 })
 
 context("Combining functions")

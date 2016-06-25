@@ -33,7 +33,7 @@ compute_irr_ts <- function(ratings) {
 #'    columns correspond to items rated.
 #' @param obs_ts if None, \code{obs_ts} is calculated as the value 
 #'    of the test statistic for the original data
-#' @param num_perm integer number of random permutations of the elements of each row of ratings
+#' @param reps integer number of random permutations of the elements of each row of ratings
 #' @param keep_dist Boolean flag for whether to store and return the array 
 #'    of permutation values of the irr test statistic
 #' @param seed Random seed for random number generator. 
@@ -43,11 +43,11 @@ compute_irr_ts <- function(ratings) {
 #' \itemize{
 #' \item{obs_ts: observed value of the test statistic for the input data, or the input value of \code{obs_ts} if it was given as input}
 #' \item{geq: integer number of iterations for which the test statistic was greater than or equal to \code{obs_ts}}
-#' \item{num_perm: number of permutations}
-#' \item{pvalue: geq/num_perm}
-#' \item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{num_perm} iterations. Otherwise, NULL.}
+#' \item{reps: number of permutations}
+#' \item{pvalue: geq/reps}
+#' \item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{reps} iterations. Otherwise, NULL.}
 #' }
-irr_ts_distribution <- function(ratings, obs_ts = NULL, num_perm = 10000, keep_dist = FALSE,
+irr_ts_distribution <- function(ratings, obs_ts = NULL, reps = 10000, keep_dist = FALSE,
                                 seed = NULL){
   r = ratings
   if(!is.null(seed)){set.seed(seed)}
@@ -57,8 +57,8 @@ irr_ts_distribution <- function(ratings, obs_ts = NULL, num_perm = 10000, keep_d
   }
   
   if(keep_dist){
-    dist <- rep(0, num_perm)
-    for(i in seq_len(num_perm)){
+    dist <- rep(0, reps)
+    for(i in seq_len(reps)){
       r <- permute_within_rows(ratings)
       dist[i] <- compute_irr_ts(r)
     }
@@ -66,13 +66,13 @@ irr_ts_distribution <- function(ratings, obs_ts = NULL, num_perm = 10000, keep_d
   } else {
     dist <- NULL
     geq <- 0
-    for(i in seq_len(num_perm)){
+    for(i in seq_len(reps)){
       r <- permute_within_rows(ratings)
       geq <- geq + (compute_irr_ts(r) >= obs_ts)
     }
   }
-  res <- list("obs_ts" = obs_ts, "geq" = geq, "num_perm" = num_perm,
-              "pvalue" = (geq/num_perm), "dist" = dist)
+  res <- list("obs_ts" = obs_ts, "geq" = geq, "reps" = reps,
+              "pvalue" = (geq/reps), "dist" = dist)
   return(res)
 }
 
@@ -108,9 +108,9 @@ irr_ts_distribution <- function(ratings, obs_ts = NULL, num_perm = 10000, keep_d
 #' \itemize{
 #' \item{obs_npc: observed value of the test statistic for the input data, or the input value of \code{obs_ts} if it was given as input}
 #' \item{geq: integer number of iterations for which the test statistic was greater than or equal to \code{obs_ts}}
-#' \item{num_perm: number of permutations}
-#' \item{pvalue: geq/num_perm}
-#' \item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{num_perm} iterations. Otherwise, NULL.}
+#' \item{reps: number of permutations}
+#' \item{pvalue: geq/reps}
+#' \item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{reps} iterations. Otherwise, NULL.}
 #' }
 #' 
 irr_npc_distribution <- function(perm_distr, size, obs_ts = NULL, pvalues = NULL){
@@ -133,5 +133,5 @@ irr_npc_distribution <- function(perm_distr, size, obs_ts = NULL, pvalues = NULL
   res <- npc(pvalues, perm_distr, combine_func, alternatives = "greater")
   return(list("obs_npc" = obs_npc,
               "pvalue"  = res,
-              "num_perm"= B))
+              "reps"= B))
 } 

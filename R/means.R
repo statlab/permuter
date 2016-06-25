@@ -39,6 +39,8 @@ one_sample <- function(x, reps = 1000, center = 0) {
 #' @param x Vector of observations in group 1
 #' @param y Vector of observations in group 2
 #' @param reps Number of replications to approximate distribution (default 1000)
+#' 
+#' @return A vector of length `reps` containing the permutation distribution
 two_sample <- function(x, y, reps = 1000) {
     if (!is.vector(x) | !is.vector(y)) {
         stop("x and y must be vectors")
@@ -61,6 +63,77 @@ two_sample <- function(x, y, reps = 1000) {
     return(distr)
 }
 
+
+#' Stratified two-sample permutation test for equality of means
+#'
+#' @param group Vector of group memberships or treatment conditions
+#' @param response Vector of measured outcomes, same length as group
+#' @param stratum Vector of stratum assignments, same length as group
+#' @param stat The test statistic. Default is "mean". See details for other options.
+#' @param reps Number of replications to approximate distribution (default 1000)
+#' @details 
+#' \enumerate{
+#' \item If stat == 'mean', the test statistic is (mean(x) - mean(y))
+#'        (equivalently, sum(x), since those are monotonically related), omitting
+#'        NaNs, which therefore can be used to code non-responders
+#' \item If stat == 't', the test statistic is the two-sample t-statistic--
+#'          but the p-value is still estimated by the randomization,
+#'          approximating the permutation distribution.
+#'          The t-statistic is computed using t.test(...,var.equal=TRUE)
+#' \item If stat == 'mean_within_strata', the test statistic is the difference
+#'          in means within each stratum, added across strata.
+#' \item If stat is a function (a callable object), the test statistic is
+#'          that function.  The function should take a permutation of the pooled
+#'          data and compute the test function from it.
+#'  }
+#' @return A vector of length `reps` containing the permutation distribution
+stratified_two_sample <- function(group, response, stratum, 
+                                  stat = "mean", reps = 1000) {
+  if (!is.vector(group) | !is.vector(response) | !is.vector(stratum)) {
+    stop("inputs must be vectors")
+  }
+  if (!is.numeric(response)) {
+    stop("response must be numeric")
+  }
+  
+  if(length(unique(group)) > 2){
+    stop("two samples only")
+  }
+  
+  groups <- unique(group)
+  strata <- unique(stratum)
+  
+  ordering <- order(group)
+  response <- response[ordering]
+  stratum <- stratum[ordering]
+  group <- group[ordering]
+  
+  ntreat <- table(group)[1]
+  N <- length(group)
+  
+  # If stat is callable, use it as the test function. Otherwise, look in the dictionary
+  stats = list(
+    "mean" = function(u) {mean(u[1:ntreat], na.rm=TRUE) - mean(u[(ntreat+1):N], na.rm=TRUE)},
+    "t" = function(u) {t.test(u[1:ntreat], u[(ntreat+1):N], var.equal=TRUE)$statistic},
+    "mean_within_strata" = function(u) {
+      sum(abs(within_group_mean(group, u, stratum, groups, strata)))
+      }
+  )
+  if(is.function(stat)){
+    tst_fun <- stat
+  }else{
+    if(stat %in% names(stats)){
+      tst_fun <- stats[[stat]]
+    }
+    else{
+      stop("stat must be in the dictionary of stats or a function")
+    }
+  }
+
+  
+  distr <- replicate(reps, {tst_fun(permute_within_groups(response, strata))})
+  return(distr)
+}
 
 
 #' Confidence interval for the additive shift in means for a one- or two-sample problem

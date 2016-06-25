@@ -18,6 +18,7 @@ summary of the vignette
 ```{r setup}
 library(permuter)
 library(dplyr)
+library(ggplot2)
 
 data(nsgk)
 time_stamps <- c(36, 32, 35, 37, 31, 35, 40, 32)
@@ -74,7 +75,7 @@ head(video_sds)
 ### Computing inter-rater reliability
 
 
-```{r irr_results}
+```{r irr_results, cache=TRUE}
 npc_results <- lapply(nsgk_mat, function(tt){
   video_specific_results <- lapply(tt, function(x){
                                         res <- irr_ts_distribution(x, 
@@ -94,7 +95,7 @@ head(npc_results, 3)
 ```
 
 Let's put it all together:
-```{r results_to_csv}
+```{r results_to_csv, cache=TRUE}
 nsgk_res <- matrix(nrow = ncategories, ncol = (1 + 1 + 8*4))
 for(i in seq_len(ncategories)){
   nsgk_res[i, ] <- c(unique_tags[i],
@@ -104,12 +105,32 @@ for(i in seq_len(ncategories)){
                      video_means[i,],
                      video_sds[i,])
 }
-colnames(nsgk_res) <- c("tag index",
-                        "global pvalue",
-                        paste("video", 1:8, "concordance"),
-                        paste("video", 1:8, "pvalue"),
-                        paste("video", 1:8, "mean"),
-                        paste("video", 1:8, "sd"))
+colnames(nsgk_res) <- c("tag_index",
+                        "global_pvalue",
+                        paste("video", 1:8, "concordance", sep = ""),
+                        paste("video", 1:8, "pvalue", sep = ""),
+                        paste("video", 1:8, "mean", sep = ""),
+                        paste("video", 1:8, "sd", sep = ""))
 head(nsgk_res)
-write.csv(nsgk_res, file = "nsgk_results.csv")
+write.csv(nsgk_res, file = "nsgk_results.csv", row.names=FALSE)
+```
+
+Overall, what's the relationship between concordance and P?
+```{r plot_pvalues, fig.width=8}
+
+nsgk_res %>%
+  as.data.frame() %>%
+  mutate(avg_concordance = 
+               apply(nsgk_res[, 3:10], 1, mean)) %>%
+  ggplot(aes(x = avg_concordance, y = global_pvalue)) + 
+  geom_point(color = "#629e1f", alpha = 0.6, size = 3) +
+  xlab("Average Concordance") +
+  ylab("Overall P-value") +
+  ggtitle("Average Concordance Across 8 Videos vs P-value") +
+  theme(
+    panel.background = element_rect(fill = "#E8EBEF"),
+    axis.text = element_text(size = 16, color = "#143264"),
+    axis.title = element_text(size = 18, color = "#143264"),
+    title = element_text(color = "#143264", size = 18)
+  )
 ```

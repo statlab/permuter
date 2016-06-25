@@ -32,29 +32,52 @@ t2p_old <- function(T) {
 #' @param distr       The empirical distribution, computed by Monte Carlo
 #' @param alternative P-value desired: 'greater', 'less', 'two-sided' (may specify more than one)
 #' @return the p-value(s)
-t2p <- function(t, distr, alternative = c("greater", "less", "two-sided")) {
+t2p <- function(tst, distr, alternative = c("greater", "less", "two-sided")) {
     
     # check that distr is a vector with appropriate size
     B <- sum(!is.na(distr))
+    
     # check that t is just a single number
     
-    pupper <- mean(distr >= t, na.rm = TRUE)
-    plower <- mean(distr <= t, na.rm = TRUE)
-    pboth <- mean(abs(distr) >= abs(t), na.rm = TRUE)
-    
-    # adjust so there are no 0 p-values? This is what their original code does.
-    # pupper <- mean(distr >= t, na.rm=T) + 1/B plower <- mean(distr <= t, na.rm=T)
-    # + 1/B pboth <- mean(abs(distr) >= abs(t), na.rm=T) + 1/B
-    
-    P <- c(pupper = pupper, plower = plower, pboth = pboth)
-    alt <- c("greater", "less", "two-sided")
-    keep <- alt %in% alternative
-    return(P[keep])
+    p <- c()
+#    pupper <- c("Upper" = mean(distr >= tst, na.rm = TRUE))
+    pupper <- c("Upper" = mean(distr >= tst, na.rm = TRUE))
+    plower <- c("Lower" =  mean(distr <= tst, na.rm = TRUE))
+    if("greater" %in% alternative){
+      p <- c(p, pupper)
+    }
+    if("less" %in% alternative){
+      p <- c(p, plower)
+    }
+    if("two-sided" %in% alternative){
+      pboth <- c("Two-sided" = 2*min(c(pupper, plower)))
+      p <- c(p, pboth)
+    }
+    return(p)
 }
 
 #' Computes the p-value for every observation in an empirical distribution
 #' 
 #' @inheritParams t2p
 pvalue_distr <- function(distr, alternative = "greater") {
-    sapply(1:length(distr), function(x) t2p(distr[x], distr, alternative))
-} 
+  B <- length(distr)
+  if(alternative == "less"){
+      return(rank(distr, ties.method = "max")/B)
+    } else{
+      pupper <- rank(-distr, ties.method = "max")/B
+      if(alternative == "greater"){
+        return(pupper)
+      }else{
+        plower <- rank(distr, ties.method = "max")/B
+        return(pmin(2*pmin(pupper, plower), 1))
+      }
+    }
+}
+
+
+#' Computes the p-value for every observation in an empirical distribution
+#' 
+#' @inheritParams t2p
+pvalue_distr_old <- function(distr, alternative="greater"){
+  sapply(1:length(distr), function(x) t2p(distr[x], distr, alternative))
+}

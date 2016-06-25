@@ -23,3 +23,18 @@ test_that("permute within rows", {
   expect_equal(simple[3,], simple_row_perm[3,2:1])
   expect_equal(simple[4,], simple_row_perm[4,])
 })
+
+context("test stat functions")
+test_that("within group means", {
+  group <- c(rep(1, 4), rep(2, 4))
+  stratum <- c("b", rep("a", 4), rep("b", 3))
+  response <- 1:8
+  groups <- unique(group)
+  strata <- unique(stratum)
+  
+  diff_strat1 <- 1 - mean(6:8)
+  diff_strat2 <- mean(2:4) - 5
+  expected <- c("b" = diff_strat1, "a" = diff_strat2)
+  res <- within_group_mean(group, response, stratum, groups, strata)
+  expect_equal(expected, res)
+})
