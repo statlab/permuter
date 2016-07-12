@@ -61,3 +61,40 @@ permute_rows <- function(x){
   }
   return(xnew)
 }
+
+#' Fisher-Yates shuffle
+#'
+#' Also known as Knuth shuffle - a method of taking a random permutation of a list
+#' 
+#' @param x A vector to shuffle
+#' @return The permuted data
+fisher_yates <- function(x){
+  n <- length(x)
+  for(i in seq_along(x)){
+    J <- i + floor(runif(1)*(n-i+1))
+    x[c(i, J)] <- x[c(J, i)]
+  }
+  return(x)
+}
+
+#' Cormen et al. Random_Sample
+#' 
+#' Recursive method to take a simple random sample from a vector, which does not require sorting.
+#' 
+#' @param x A vector to from which to sample
+#' @param k Desired sample size
+#' @return The selected sample
+Random_Sample <- function(x, k)
+  if(k==0){
+    return(c())
+  } else{
+    n <- length(x)
+    S <- Random_Sample(x[1:(n-1)], k-1)
+    i <- 1 + floor(runif(1)*n)
+    if(x[i] %in% S){
+      S <- c(S, x[n])
+    } else {
+      S <- c(S, x[i])
+    }
+    return(S)
+  }
