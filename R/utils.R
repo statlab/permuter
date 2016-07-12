@@ -57,7 +57,7 @@ permute_rows <- function(x){
   perm <- sample(rowcount)
   xnew <- x[perm, ]
   if(split_cols){
-    xnew <- lapply(1 + (-1 + seq_len(rowcount))*split_cols, function(x) xnew[, x:(x+split_cols-1)])
+    xnew <- lapply(1 + (-1 + seq_len(split_cols))*split_cols, function(x) xnew[, x:(x+split_cols-1)])
   }
   return(xnew)
 }
