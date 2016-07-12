@@ -51,6 +51,17 @@ test_that("Fisher-Yates shuffle", {
   expect_equal(res, expected)
 })
 
+test_that("RCpp permute", {
+  # Since it uses the R PRNG and Fisher-Yates algo
+  # it should give the same output as Fisher-Yates
+  x <- 1:10
+  set.seed(5)
+  expected <- fisher_yates(x)
+  set.seed(5)
+  res <- permute_cpp(x)
+  expect_equal(res, expected)
+})
+
 context("Random sampling")
 
 test_that("Cormen et al. Random_Sample", {
