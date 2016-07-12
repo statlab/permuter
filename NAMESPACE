@@ -1,1 +1,1 @@
-exportPattern("^[^\\.]")
+useDynLib(permuter)exportPattern("^[[:alpha:]]+")importFrom(Rcpp, evalCpp)

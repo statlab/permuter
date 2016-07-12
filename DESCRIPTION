@@ -7,10 +7,12 @@ Description: R functions to develop the application examples presented in
     Pesarin, Salmaso
 Depends:
     R (>= 3.0.2),
-License: What license is it under?
+License: BSD
 LazyData: true
 Suggests:
     testthat,
     knitr
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
+Imports: Rcpp (>= 0.12.2)
+LinkingTo: Rcpp
