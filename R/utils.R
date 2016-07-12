@@ -1,6 +1,7 @@
 #' Permute within groups
 #' 
 #' Permutation of condition within each group.
+#' This is a helper function for stratified permutation tests.
 #' 
 #' @param x A vector of treatment indicators
 #' @param group A vector indicating group membership
@@ -35,22 +36,65 @@ permute_within_rows <- function(x){
 }
 
 
-#' Difference in means within groups
-#'
-#' Compute difference in mean residual between treated and control within each group
-#' @param group Vector of group memberships or treatment conditions
-#' @param response Vector of measured outcomes, same length as group
-#' @param stratum Vector of stratum assignments, same length as group
-#' @param groups Vector of unique group labels
-#' @param strata Vector of unique stratum labels
+#' Permute rows of a matrix
 #' 
-#' @return a vector of differences
-within_group_mean <- function(group, response, stratum, groups, strata){
-  tt <- (group == groups[1])
-  sapply(strata, function(s){
-    ind <- stratum == s
-    treated <- response[tt == 1 & ind]
-    ctrl <- response[tt == 0 & ind]
-    return(mean(treated, na.rm=TRUE) - mean(ctrl, na.rm=TRUE))
-  })
+#' This is a helper function for multivariate permutation tests, when we must
+#' permute multiple variables in lockstep in order to preserve correlations between
+#' them and/or to apply NPC.
+#' 
+#' @param x A matrix or dataframe, or a list of matrices/dataframes of the same size
+#' @return The permuted data. If x is a list, the returned list
+#' will have the same permutation of rows in each matrix/dataframe.
+#' 
+permute_rows <- function(x){
+  split_cols <- 0
+  if(class(x) == "list"){
+    split_cols <- ncol(x[[1]])
+    x <- do.call(cbind, x)
+  }
+  
+  rowcount <- nrow(x)
+  perm <- sample(rowcount)
+  xnew <- x[perm, ]
+  if(split_cols){
+    xnew <- lapply(1 + (-1 + seq_len(split_cols))*split_cols, function(x) xnew[, x:(x+split_cols-1)])
+  }
+  return(xnew)
 }
+
+#' Fisher-Yates shuffle
+#'
+#' Also known as Knuth shuffle - a method of taking a random permutation of a list
+#' 
+#' @param x A vector to shuffle
+#' @return The permuted data
+fisher_yates <- function(x){
+  n <- length(x)
+  for(i in seq_along(x)){
+    J <- i + floor(runif(1)*(n-i+1))
+    x[c(i, J)] <- x[c(J, i)]
+  }
+  return(x)
+}
+
+#' Cormen et al. Random_Sample
+#' 
+#' Recursive method to take a simple random sample from a vector, which does not require sorting.
+#' 
+#' @param x A vector to from which to sample
+#' @param k Desired sample size
+#' @return The selected sample
+Random_Sample <- function(x, k)
+  if(k==0){
+    return(c())
+  } else{
+    n <- length(x)
+    S <- Random_Sample(x[1:(n-1)], k-1)
+    i <- 1 + floor(runif(1)*n)
+    if(x[i] %in% S){
+      S <- c(S, x[n])
+    } else {
+      S <- c(S, x[i])
+    }
+    return(S)
+  }
