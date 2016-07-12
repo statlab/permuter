@@ -32,8 +32,6 @@ test_that("permute rows - dataframe version", {
   expect_equal(res, expected)
 })
 
-
-
 test_that("permute rows - list version", {
   simple1 <- matrix(c(1, 1, 1, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
   simple2 <- matrix(c(1, 1, 1, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
@@ -44,4 +42,25 @@ test_that("permute rows - list version", {
   expect_equal(res[[1]], res[[2]])
   expected <- matrix(c(0, 0, 0, 1, 1, 1, 1, 0), nrow = 4, byrow = TRUE)
   expect_equal(res[[1]], expected)
+})
+
+test_that("Fisher-Yates shuffle", {
+  set.seed(42)
+  res <- fisher_yates(1:5)
+  expected <- c(5, 1, 3, 2, 4)
+  expect_equal(res, expected)
+})
+
+context("Random sampling")
+
+test_that("Cormen et al. Random_Sample", {
+  set.seed(42)
+  res <- Random_Sample(1:20, k = 5)
+  expected <- c(15, 16, 6, 19, 13)
+  expect_equal(res, expected)
+  
+  the_list <- sample(100)[1:20]
+  set.seed(42)
+  res <- Random_Sample(the_list, k = 5)
+  expect_equal(res, the_list[expected])
 })
