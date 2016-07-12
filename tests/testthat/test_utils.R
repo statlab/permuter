@@ -24,3 +24,24 @@ test_that("permute within rows", {
   expect_equal(simple[4,], simple_row_perm[4,])
 })
 
+test_that("permute rows - dataframe version", {
+  simple <- matrix(c(1, 1, 1, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
+  set.seed(42)
+  res <- permute_rows(simple)
+  expected <- matrix(c(0, 0, 0, 1, 1, 1, 1, 0), nrow = 4, byrow = TRUE)
+  expect_equal(res, expected)
+})
+
+
+
+test_that("permute rows - list version", {
+  simple1 <- matrix(c(1, 1, 1, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
+  simple2 <- matrix(c(1, 1, 1, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
+  simple_list <- list(simple1, simple2)
+
+  set.seed(42)
+  res <- permute_rows(simple_list)
+  expect_equal(res[[1]], res[[2]])
+  expected <- matrix(c(0, 0, 0, 1, 1, 1, 1, 0), nrow = 4, byrow = TRUE)
+  expect_equal(res[[1]], expected)
+})
