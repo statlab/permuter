@@ -50,6 +50,7 @@ permute_rows <- function(x){
   split_cols <- 0
   if(class(x) == "list"){
     split_cols <- ncol(x[[1]])
+    num_matrices <- length(x)
     x <- do.call(cbind, x)
   }
   
@@ -57,7 +58,7 @@ permute_rows <- function(x){
   perm <- sample(rowcount)
   xnew <- x[perm, ]
   if(split_cols){
-    xnew <- lapply(1 + (-1 + seq_len(split_cols))*split_cols, function(x) xnew[, x:(x+split_cols-1)])
+    xnew <- lapply(1 + (-1 + seq_len(num_matrices))*split_cols, function(x) xnew[, x:(x+split_cols-1)])
   }
   return(xnew)
 }
