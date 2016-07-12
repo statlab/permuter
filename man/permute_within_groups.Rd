@@ -26,5 +26,6 @@ The within-group permuted x
 Permute values within groups
 
 Permutation of condition within each group.
+This is a helper function for stratified permutation tests.
 }
 
