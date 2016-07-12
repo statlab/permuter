@@ -33,6 +33,21 @@ test_that("jobs example from chapter 1", {
 }) 
 
 context("Stratified two sample")
+test_that("within group means", {
+  group <- c(rep(1, 4), rep(2, 4))
+  stratum <- c("b", rep("a", 4), rep("b", 3))
+  response <- 1:8
+  groups <- unique(group)
+  strata <- unique(stratum)
+  
+  diff_strat1 <- 1 - mean(6:8)
+  diff_strat2 <- mean(2:4) - 5
+  expected <- c("b" = diff_strat1, "a" = diff_strat2)
+  res <- within_group_mean(group, response, stratum, groups, strata)
+  expect_equal(expected, res)
+})
+
+
 test_that("bad inputs", {
   expect_error(stratified_two_sample(4, "k", 5), "numeric")
   expect_error(stratified_two_sample(data.frame(1:5), 20, 40), "vector")
