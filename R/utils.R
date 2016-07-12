@@ -35,3 +35,29 @@ permute_within_rows <- function(x){
   return(x)
 }
 
+
+#' Permute rows of a matrix
+#' 
+#' This is a helper function for multivariate permutation tests, when we must
+#' permute multiple variables in lockstep in order to preserve correlations between
+#' them and/or to apply NPC.
+#' 
+#' @param x A matrix or dataframe, or a list of matrices/dataframes of the same size
+#' @return The permuted data. If x is a list, the returned list
+#' will have the same permutation of rows in each matrix/dataframe.
+#' 
+permute_rows <- function(x){
+  split_cols <- 0
+  if(class(x) == "list"){
+    split_cols <- ncol(x[[1]])
+    x <- do.call(cbind, x)
+  }
+  
+  rowcount <- nrow(x)
+  perm <- sample(rowcount)
+  xnew <- x[perm, ]
+  if(split_cols){
+    xnew <- lapply(1 + (-1 + seq_len(rowcount))*split_cols, function(x) xnew[, x:(x+split_cols-1)])
+  }
+  return(xnew)
+}
