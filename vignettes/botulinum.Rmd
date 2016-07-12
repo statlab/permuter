@@ -12,77 +12,78 @@ vignette: >
 
 ## Vignette Info
 
-A detailed description of the botulinum study is provided on p 369-370 in the text. This is a multivariate case-control study with missing data and repeated measures. The aim of the study is to assess the effect of botulinum, that is expected to have opposite effects on the set of variables considered (i.e. we consider one-sided alternatives on each variable). We consider the difference $D$ between observations at time $t_k$, $k=1,2,3$ and the observations at time $t_0$. We may organize data in a $n\times p \times 3$ matrix, so the third dimension contains the differences $D_{ijk}$ related to the $i$th subject on the $j$th variable at time $k$. This will be useful when a repeated measure analysis will be considered.
+A detailed description of the botulinum study is provided on p 369-370 in the text. 
+This is a multivariate case-control study with missing data and repeated measures.
+The aim of the study is to assess the effect of botox, an injection used to treat myofascial pain.
+Several variables are measured as outcomes; they are described in the text.
+The null hypothesis is that the botox treatment had no effect, and the alternative hypothesis is that patients treated with botox had lower/higher scores than those in the placebo group (one-sided alternatives).
+To account for baseline measurements, we consider the difference between observations at time $t=1,2,3$ and the observations at time $t=0$ rather than the raw measurements.
 
-To begin with we read the data, collect informations about samples (`paz`) and time (`Time`), then we extract the relevant columns. The vector `treatment` is an indicator for whether the patient received botox (`1`) or not (`0`).
+To begin, we read the data, collect informations about samples (`individual`), time (`time`), an indicator for whether the patient received botox (`botox`) or not (`sol_fisio`) (`treatment`), and separate them from the outcomes (`covariates`).
 
 ```{r setup}
 library(permuter)
+library(knitr)
+library(dplyr)
 data(botulinum)
 set.seed(100)
 
-n <- length(unique(botulinum[, 1]))
-p <- ncol(botulinum) - 4
-## Old
-paz <- ifelse(botulinum[, 4] == "botox", 1, 2)[1:20]
-Time <- botulinum$Time + 1
-
-treatment <- ifelse(botulinum$farmaco == "botox", 1, 0)[1:20]
-time <- botulinum$Time + 1
-
-
-botulinum <- botulinum[, -c(1:4)]
-
-
-
- 
-
+individual <- botulinum[1:20 , "paz"]
+treatment <- botulinum[1:20 , "farmaco"]
+time <- botulinum[ , "Time"]
+covariates <- botulinum %>% select(-paz, -tempo, -Time, -farmaco)
+n <- length(unique(individual))
+p <- ncol(covariates)
 
 ```
 
-We abstract the testing problem: a $V$-dimensional non-degenerate variable is observed at $k$ different times on $n$ units in two experimental situations, corresponding to two levels of a symbolic treatment. In our study, $V=24, k=4, n_0 = n_1 = 10$, and $n = 20$. It is worth noting that in this longitudinal study there is a main obstacle to applying classic parametric tests: the number of observed variables at different time points is much higher than the number of subjects ($V \cdot k \gg n$). Furthermore, since all variables may be informative for differentiating two groups, the NPC approach properly applies when analyzing these data. Classic parametric tests or even rank tests in such situations may fail to take into account the dependence structure across variables and time points.
+We abstract the testing problem: a $V$-dimensional non-degenerate variable is observed at $k$ different times on $n_0$ and $n_1$ units in two experimental situations, corresponding to two levels of a symbolic treatment. 
+In our study, $V=24, k=4, n_0 = n_1 = 10$, and $n = n_0+n_1 = 20$. 
+In this longitudinal study there is a main obstacle to applying classic parametric tests: the number of observed variables at different time points is much higher than the number of subjects ($V \cdot k \gg n$). 
+Furthermore, since all variables may be informative for differentiating two groups, the NPC approach properly applies when analyzing these data. 
+Classic parametric tests or even rank tests in such situations may fail to take into account the dependence structure across variables and time points.
 
 The whole data set is denoted by:
 $$
 \begin{aligned}
 \mathbf{X}  &= \{ X_{hji}(t), t=1, \dots, k, i=1,\dots,n_j, j=0,1, h=1,\dots,V\} \\
-            &= \{X_{hji}, i=1,\dots,n_j, j=0,1, h=1,\dots,V\}
+            &= \{\mathbf{X}_{hji}, i=1,\dots,n_j, j=0,1, h=1,\dots,V\}
 \end{aligned}
 $$
 where $\mathbf{X}_{hji} = \{ X_{hji}(t), t = 1,\dots,k\}$.
 
-In order to account for different baseline observations, assumed to have the role of covariates, the $k - 1$ $V$-dimensional differences $D_{hji}(t) = X_{hji}(1) - X_{hji}(t), t = 2,\dots,k, i = 1,\dots,n_j, j = 0,1, h = 1,\dots,V$ are considered in the analysis. Hence the hypothesis testing problem related to the $h$th variable may be formalized as
+In order to account for different baseline observations, we consider the $k - 1$ $V$-dimensional differences $D_{hji}(t) = X_{hji}(t) - X_{hji}(0), t = 1, 2, 3$, $i = 1,\dots,n_j$, $j = 0,1$, $h = 1,\dots,V$. 
+Hence the hypothesis testing problem related to the $h$th variable may be formalized as
 
-$$H_{0h}: \left\lbrace \cap_{t=2}^k \left[ D_{h0}(t) \,{\buildrel d \over =}\, D_{h1}(t)\right] \right\rbrace = \left\lbrace \cap_{t=2}^k H_{0ht}\right\rbrace, h=1,\dots,V$$
+$$H_{0h}: \left\lbrace \bigcap_{t=2}^k \left[ D_{h0}(t) \,{\buildrel d \over =}\, D_{h1}(t)\right] \right\rbrace = \left\lbrace \cap_{t=2}^k H_{0ht}\right\rbrace, h=1,\dots,V$$
 against the alternative:
-$$H_{1h}: \left\lbrace \cup_{t=2}^k H_{1ht}\right\rbrace, h=1,\dots,V,$$
+$$H_{1h}: \left\lbrace \bigcup_{t=2}^k H_{1ht}\right\rbrace, h=1,\dots,V,$$
 
 where $H_{1ht}: \left[ D_{h0}(t) \,{\buildrel d \over >}\,D_{h1}(t)\right]$ or $\left[ D_{h0}(t) \,{\buildrel d \over <}\, D_{h1}(t)\right]$ according to
-which kind of stochastic dominance is of interest for the $h$th variable. The alternative hypothesis is that patients treated with the botulinum toxin had lower values than those treated with the placebo ("less than" alternative), except for variables: ME, Mas, Maf, Mp, Mll, Mlr, E, and T, where the placebo group is expected to have lower values than the toxin group ("greater than" alternative). We encode these alternative hypotheses in the vector `alternatives`.
+which kind of stochastic dominance is of interest for the $h$th variable. 
+The alternative hypothesis is that patients treated with the botulinum toxin had lower values than those treated with the placebo ("less than" alternative) for the first nineteen variables, 
+and that patients treated with botulinum toxin had higher values than those in the placebo group for the variables Mas, Maf, Mp, Mld, and Mls ("greater than" alternative). 
+We encode these alternative hypotheses in the vector `alternatives`.
 
 ```{r alternatives}
-colnames(botulinum)
-# greater_than <- c('ME', 'Mas', 'Maf', 'Mp', 'Mll', 'Mlr', 'E', 'T') # These
-# don't match the column names in botulinum!!
-greater_than <- c("Mas", "Maf", "Mp", "Mld", "Mls")  # I've modified it to match what the original code actually does
-alternatives <- ifelse(colnames(botulinum) %in% greater_than, "greater", "less")
-
-
-
- 
-
+colnames(covariates)
+greater_than <- c("Mas", "Maf", "Mp", "Mld", "Mls")
+alternatives <- ifelse(colnames(covariates) %in% greater_than, "greater", "less")
 
 ```
 
 ## First Analysis
 
-
-Now we put the record of each subject in an $n\times p$ matrix and put these matrices in a list. Each element of the list corresponds to a different time point. Afterwards we obtain the differences $D_{ijk}$ with respect to time zero observations and remove the vector of observations at $t_0$ (`D[[1]]`).
+We create a list called `D`, where each element of the list is an \Sexpr{n}$\times$\Sexpr{p} matrix of measurements corresponding to a different time point. 
+We compute the differences $D_{ijk}$ with respect to time zero observations and remove the vector of observations at $t_0$ (`D[[1]]`).
+The original data is ordered so that the first \Sexpr{n} rows correspond to time 0, the next \Sexpr{n} rows correspond to time 1, and so forth.
+Furthermore, the individuals are stored in the same order within each of these \Sexpr{n}-row sections.
+This facilitates the data processing.
 
 ```{r diffs}
 D <- list()
-for (t in 1:4) {
-    D[[t]] <- botulinum[time == t, ]
+for (t in 0:3) {
+    D[[t+1]] <- covariates[time == t, ]
 }
 
 # Take differences, Tj - T0
@@ -91,36 +92,38 @@ for (t in 2:4) {
 }
 D <- D[-1]
 
-
-
- 
-
-
 ```
 
-We first assess the effect of botulinum by performing a two-sample test with repeated measure. This requires to modify the test statistic according to the number of non-missing observations. Since the distribution of non-missing observations varies between variables, we must consider one variable at time. The vector `o` is the indicator function (missing/not missing) applied to each variable and the vector `nu` contains the number of non-missing observations in the two samples. The previous vectors are related to each variable at each time and are not saved outside of the loops. The test statistic for the $j$th variable is: $T_j = \sum^3_{k=1}[\omega_j D_{1jk} - \omega_j D_{0jk} ]$, where $\omega_j = \sqrt{\nu_{0j}/\nu_{1j}}$ . Note that we have already combined, for sake of simplicity, the repeated measure information with the direct
-combination (sum).
+We first assess the effect of botulinum by performing a two-sample test with repeated measures. 
+We use a modified test statistic, essentially a weighted sum of the difference in means between treatment groups over time.
+The weights depend on the number of non-missing observations. 
+Since the distribution of non-missing observations varies between variables, we must consider one variable at time. 
+The vector `o` is the indicator function (missing/not missing) applied to each variable and the vector `nu` contains the number of non-missing observations in the two samples. 
+The test statistic for the $j$th variable is: $T_j = \sum^3_{k=1}[\omega_j D_{1jk} - \omega_j D_{0jk} ]$, where $\omega_j = \sqrt{\nu_{0j}/\nu_{1j}}$.
+
 ```{r analysis}
-B <- 10
-tst <- rep(0, p)
-for (j in 1:p) {
-    for (t in 1:3) {
-        group1 <- D[[t]][treatment == 1, ]
-        group0 <- D[[t]][treatment == 0, ]
-        o <- ifelse(is.na(D[[t]][, j]), 0, 1)  # indicator for missing data
-        nu <- table(o, treatment)
-        if (nrow(nu) > 1) {
-            nu <- nu[2, ]
-        }
-        omega <- sqrt(nu[2]/nu[1])
-        tst[j] <- tst[j] + omega * (mean(group1[, j], na.rm = TRUE) - mean(group0[, 
-            j], na.rm = TRUE))
-    }
+count_nas <- function(covariate, treatment){
+  tr <- unique(treatment)
+  nu <- rep(0, 2)
+  observed <- !is.na(covariate)
+  nu[1] <- sum(observed & treatment == tr[1])
+  nu[2] <- sum(observed & treatment == tr[2])
+  return(nu)
 }
 
 
+B <- 1000
+tst <- rep(0, p)
+for (t in 1:3) {
+    group1 <- D[[t]][treatment == "botox", ]
+    group0 <- D[[t]][treatment == "sol_fisio", ]
+    for (j in 1:p) {
+      nu <- count_nas(D[[t]][, j], treatment)
+      omega <- sqrt(nu[2]/nu[1])
+      tst[j] <- tst[j] + omega * (mean(group1[, j], na.rm = TRUE) - mean(group0[, j], na.rm = TRUE))
+    }
+}
 
- 
 
 
 ```
@@ -129,28 +132,19 @@ Under the null hypothesis of no effect of botox, `treatment` is essentially a me
 ```{r more}
 distr <- matrix(0, ncol = p, nrow = B)
 for (b in 1:B) {
-    perm <- sample(1:n)
-    D_star <- lapply(D, function(x) x[perm, ])
+  perm <- sample(1:n)
+  D_star <- lapply(D, function(x) x[perm, ])
+  for (t in 1:3) {
+    group1 <- D_star[[t]][treatment == "botox", ]
+    group0 <- D_star[[t]][treatment == "sol_fisio", ]
     for (j in 1:p) {
-        for (t in 1:3) {
-            group1 <- D_star[[t]][treatment == 1, ]
-            group0 <- D_star[[t]][treatment == 0, ]
-            o <- ifelse(is.na(D_star[[t]][, j]), 0, 1)  # indicator for missing data
-            nu <- table(o, treatment)
-            if (nrow(nu) > 1) {
-                nu <- nu[2, ]
-            }
-            omega <- sqrt(nu[2]/nu[1])
-            distr[b, j] <- distr[b, j] + omega * (mean(group1[, j], na.rm = TRUE) - 
-                mean(group0[, j], na.rm = TRUE))
-        }
+      nu <- count_nas(D_star[[t]][, j], treatment)
+      omega <- sqrt(nu[2]/nu[1])
+      distr[b, j] <- distr[b, j] + omega * (mean(group1[, j], na.rm = TRUE) - 
+                                              mean(group0[, j], na.rm = TRUE))
     }
+  }
 }
-
-
-
- 
-
 
 ```
 
@@ -158,15 +152,9 @@ We obtain the raw p-values using `t2p` and then adjust for multiplicity using `f
 ```{r moremore}
 partial_pvalues <- sapply(1:p, function(j) t2p(tst[j], distr[, j], alternatives[j]))
 adjusted_pvalues <- fwe_minp(partial_pvalues, distr, combine = "tippett")
-res <- data.frame(colnames(botulinum), partial_pvalues, adjusted_pvalues)
+res <- data.frame(colnames(covariates), partial_pvalues, adjusted_pvalues)
 colnames(res) <- c("Variable", "Raw p-values", "Adjusted p-values")
-library(knitr)
 kable(res)
-
-
-
- 
-
 
 ```
 
@@ -176,11 +164,12 @@ In contrast to the first analysis, we focus on only on the individuals who recei
 
 **NB: there is no description of this analysis anywhere. Not sure what is being tested.**
 ```{r seconddiffs}
-
+Time <- botulinum$Time+1
+paz <- (treatment=="botox")
 D <- array(0, dim = c(n, p, 4))
 
 for (t in 1:4) {
-    D[, , t] <- as.matrix(botulinum[Time == t, ])
+    D[, , t] <- as.matrix(covariates[Time == t, ])
 }
 
 ### differences T_j-T_{j-1}
@@ -198,8 +187,8 @@ n <- dim(DB)[1]
 
 ############################################################################## NEW Take differences over time for individuals who received botox
 D_new <- list()
-for (t in 1:4) {
-    D_new[[t]] <- botulinum[time == t & treatment == 1, ]
+for (t in 0:3) {
+    D_new[[t+1]] <- covariates[time == t & treatment == "botox", ]
 }
 
 # Take differences, T_j-T_{j-1}
