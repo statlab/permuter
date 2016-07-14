@@ -17,7 +17,6 @@ This example comes from the textbook section 10.5.3 (p 459-462).
 ```{r analysis}
 library(permuter)
 data(monachus)
-source("../R/t2p.r")
 
 
 p <- dim(monachus)[2] - 1

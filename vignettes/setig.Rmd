@@ -17,7 +17,6 @@ This example comes from the textbook section 12.3.3 (p 513-516).
 ```{r load}
 library(permuter)
 data(setig)
-source("../R/t2p.r")
 
 
 

@@ -19,7 +19,6 @@ This example comes from the textbook section 8.4.4 (p 410-413).
 ```{r load}
 library(permuter)
 data(perch)
-source("../R/t2p.r")
 
 
 

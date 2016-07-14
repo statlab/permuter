@@ -13,7 +13,6 @@ vignette: >
 
 ```{r load}
 library(permuter)
-source("../R/t2p.r")
 data(survival)
 
 
