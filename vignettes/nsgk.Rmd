@@ -79,7 +79,7 @@ head(video_sds)
 npc_results <- lapply(nsgk_mat, function(tt){
   video_specific_results <- lapply(tt, function(x){
                                         res <- irr_ts_distribution(x, 
-                                          num_perm = 1000,    
+                                          reps = 1000,    
                                           keep_dist = TRUE, seed = 101)
                                   })
   tag_distribution <- sapply(video_specific_results, function(x) x$dist)

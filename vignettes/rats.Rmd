@@ -17,7 +17,6 @@ This example comes from the textbook section 8.3 (p 397-398). It involves testin
 ```{r load}
 library(permuter)
 data(rats)
-source("t2p_old.r")
 
 
 
