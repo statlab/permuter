@@ -15,16 +15,11 @@ vignette: >
 library(permuter)
 data(survival)
 
-
-
- 
-
-
 ```
 
 ## Unstratified Analysis
 
-```{r unstratified}
+```{r unstratified, eval = FALSE}
 g <- three_sample[, 1]
 str <- 1
 data <- three_sample[, -1]
@@ -119,7 +114,7 @@ t2p_old(T1)[1, ]
 ```
 
 ## Plots
-```{r plots}
+```{r plots, eval = FALSE}
 library(survival)
 
 census <- function(x) {
@@ -156,7 +151,7 @@ for (s in 1:str) {
 
 
 ## Stratified Analysis
-```{r stratified}
+```{r stratified, eval = FALSE}
 data(three_sample_strata)
 g <- three_sample_strata[, 1]
 stratum <- three_sample_strata[, 2]

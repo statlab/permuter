@@ -21,11 +21,6 @@ library(permuter)
 data(confocal)
 data <- confocal
 
-
-
- 
-
-
 ```
 
 ```{r cleandata}

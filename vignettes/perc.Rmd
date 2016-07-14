@@ -36,7 +36,7 @@ mouse <- perch$rat
 
 data <- perch[, -c(1:3)]
 
-B <- 1000
+B <- 100
 p <- dim(data)[2]
 t <- length(unique(time))
 

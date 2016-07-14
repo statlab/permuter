@@ -27,7 +27,7 @@ n
 contr <- rep(c(1/sum(n[2]), -1/sum(n[1])), n[2:1])
 
 
-B <- 5000
+B <- 100
 T <- array(0, dim = c((B + 1), p))
 
 g <- monachus[, 1]

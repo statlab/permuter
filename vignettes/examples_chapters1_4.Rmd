@@ -41,7 +41,7 @@ We begin by loading in the data. The column `YA` contains the first measurement 
 data(ipat)
 d <- ipat$YA - ipat$YB
 n <- nrow(ipat)
-B <- 1000
+B <- 100
 observed <- mean(d)
 distr <- one_sample(x = d, reps = B)
 
