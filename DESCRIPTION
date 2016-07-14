@@ -12,7 +12,11 @@ LazyData: true
 Suggests:
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    dplyr,
+    ggplot2,
+    reshape2,
+    survival
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
 Imports: Rcpp (>= 0.12.2)
