@@ -1,7 +1,7 @@
 #' Use the empirical distribution of a test statistic to get p-values.
 #' 
 #' @param T an array/vector with the observed test statistic in the first entry and the empirical distribution in the remaining entries
-#' @return An array of dimension (B+1) $\times$ `dim(T)`. The first element (of the first dimension) contains the p-value
+#' @return An array of dimension (B+1) by `dim(T)`. The first element (of the first dimension) contains the p-value
 t2p_old <- function(T) {
     
     if (is.null(dim(T))) {

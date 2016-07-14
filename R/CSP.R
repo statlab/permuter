@@ -5,9 +5,6 @@
 #' @param C
 #' @param exact
 #' @return something
-#' @examples
-#' CSP(1, 1)
-#' CSP(10, 1)
 CSP <- function(y, x, C = 1000, exact = FALSE) {
     
     
