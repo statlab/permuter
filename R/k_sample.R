@@ -73,4 +73,4 @@ k_sample <- function(x, group, strata = NULL, reps = 1000, stat = "oneway_anova"
 #' @return A vector of length `reps` containing the permutation distribution
 goodness_of_fit <- function(x, group, reps = 1000, stat = "ks") {
     return(NULL)
-} 
+}

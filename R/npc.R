@@ -29,15 +29,15 @@ tippett <- function(p) {
 #' @param n Vector of sample sizes. The \eqn{i}th entry is the
 #'        sample size used in the \eqn{i}th test
 #' @return The combined test statistic
-inverse_n_weight <- function(p, n){
-  if(length(p) != length(n)){
-    stop("Number of p-values and sample sizes must be equal")
-  }
-  if(!all(n%%1 == 0)){
-    stop("Sample sizes must be integers")
-  }
-  weights <- n^(-1/2)
-  return(sum(-1*p*weights))
+inverse_n_weight <- function(p, n) {
+    if (length(p) != length(n)) {
+        stop("Number of p-values and sample sizes must be equal")
+    }
+    if (!all(n%%1 == 0)) {
+        stop("Sample sizes must be integers")
+    }
+    weights <- n^(-1/2)
+    return(sum(-1 * p * weights))
 }
 
 
@@ -56,54 +56,54 @@ inverse_n_weight <- function(p, n){
 #' either be 1 or match the length of p.
 #' @param pvalues       Vector of partial p-values for tests
 #' @param distr         Matrix or dataframe, columns are approimate null distribution for each partial test
-#' @param combine       Combining function (default is "fisher"). 
-#'        May either be the name of a function ("fisher", "liptak", "tippett") or a function itself
+#' @param combine       Combining function (default is 'fisher'). 
+#'        May either be the name of a function ('fisher', 'liptak', 'tippett') or a function itself
 #' @param alternatives  Optional, vector of alternatives for each test (default is all 'greater')
 #' 
 #' 
 #' @return A single p-value for the global test
 #' 
 npc <- function(pvalues, distr, combine = "fisher", alternatives = "greater") {
-  if (length(pvalues) < 2) {
-    stop("Nothing to combine!")
-  }
-  if (length(pvalues) != ncol(distr)) {
-    stop("Different number of p-values and null distributions")
-  }
-  if (length(alternatives) != length(pvalues)) {
-    if (length(alternatives) == 1) {
-      alternatives <- rep(alternatives, length(pvalues))
-    } else {
-      stop("Bad alternatives")
+    if (length(pvalues) < 2) {
+        stop("Nothing to combine!")
     }
-  }
-  
-  null_pvalues <- sapply(1:ncol(distr), function(j) {
-    pvalue_distr(distr[,j], alternatives[j])
-  })
-  
-  if(is.function(combine)){
-    combn_func <- combine
-  } else {
-    funcs <- list(fisher, liptak, tippett)
-    names(funcs) <- c("fisher", "liptak", "tippett")
-    if (!(combine %in% names(funcs))) {
-      stop(paste(combine, " is not a valid combining function."))
+    if (length(pvalues) != ncol(distr)) {
+        stop("Different number of p-values and null distributions")
     }
-    combn_func <- funcs[[combine]]
+    if (length(alternatives) != length(pvalues)) {
+        if (length(alternatives) == 1) {
+            alternatives <- rep(alternatives, length(pvalues))
+        } else {
+            stop("Bad alternatives")
+        }
+    }
     
-    if (combine == "liptak") {
-      too_small <- which(null_pvalues == 0)
-      too_large <- which(null_pvalues == 1)
-      null_pvalues[too_small] <- null_pvalues[too_small] + 1e-04
-      null_pvalues[too_large] <- null_pvalues[too_large] - 1e-04
+    null_pvalues <- sapply(1:ncol(distr), function(j) {
+        pvalue_distr(distr[, j], alternatives[j])
+    })
+    
+    if (is.function(combine)) {
+        combn_func <- combine
+    } else {
+        funcs <- list(fisher, liptak, tippett)
+        names(funcs) <- c("fisher", "liptak", "tippett")
+        if (!(combine %in% names(funcs))) {
+            stop(paste(combine, " is not a valid combining function."))
+        }
+        combn_func <- funcs[[combine]]
+        
+        if (combine == "liptak") {
+            too_small <- which(null_pvalues == 0)
+            too_large <- which(null_pvalues == 1)
+            null_pvalues[too_small] <- null_pvalues[too_small] + 1e-04
+            null_pvalues[too_large] <- null_pvalues[too_large] - 1e-04
+        }
     }
-  }
-
-  obs_combined_pvalue <- combn_func(pvalues)
-  if (is.infinite(obs_combined_pvalue)) {
-    return(0)
-  }
-  combined_pvalues <- apply(null_pvalues, 1, combn_func)
-  return(mean(combined_pvalues >= obs_combined_pvalue))
-} 
+    
+    obs_combined_pvalue <- combn_func(pvalues)
+    if (is.infinite(obs_combined_pvalue)) {
+        return(0)
+    }
+    combined_pvalues <- apply(null_pvalues, 1, combn_func)
+    return(mean(combined_pvalues >= obs_combined_pvalue))
+}

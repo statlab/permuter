@@ -1,7 +1,7 @@
 #' Use the empirical distribution of a test statistic to get p-values.
 #' 
 #' @param T an array/vector with the observed test statistic in the first entry and the empirical distribution in the remaining entries
-#' @return An array of dimension (B+1)\times `dim(T)`. The first element (of the first dimension) contains the p-value
+#' @return An array of dimension (B+1) $\times$ `dim(T)`. The first element (of the first dimension) contains the p-value
 t2p_old <- function(T) {
     
     if (is.null(dim(T))) {
@@ -40,18 +40,18 @@ t2p <- function(tst, distr, alternative = c("greater", "less", "two-sided")) {
     # check that t is just a single number
     
     p <- c()
-#    pupper <- c("Upper" = mean(distr >= tst, na.rm = TRUE))
-    pupper <- c("Upper" = mean(distr >= tst, na.rm = TRUE))
-    plower <- c("Lower" =  mean(distr <= tst, na.rm = TRUE))
-    if("greater" %in% alternative){
-      p <- c(p, pupper)
+    # pupper <- c('Upper' = mean(distr >= tst, na.rm = TRUE))
+    pupper <- c(Upper = mean(distr >= tst, na.rm = TRUE))
+    plower <- c(Lower = mean(distr <= tst, na.rm = TRUE))
+    if ("greater" %in% alternative) {
+        p <- c(p, pupper)
     }
-    if("less" %in% alternative){
-      p <- c(p, plower)
+    if ("less" %in% alternative) {
+        p <- c(p, plower)
     }
-    if("two-sided" %in% alternative){
-      pboth <- c("Two-sided" = 2*min(c(pupper, plower)))
-      p <- c(p, pboth)
+    if ("two-sided" %in% alternative) {
+        pboth <- c(`Two-sided` = 2 * min(c(pupper, plower)))
+        p <- c(p, pboth)
     }
     return(p)
 }
@@ -60,17 +60,17 @@ t2p <- function(tst, distr, alternative = c("greater", "less", "two-sided")) {
 #' 
 #' @inheritParams t2p
 pvalue_distr <- function(distr, alternative = "greater") {
-  B <- length(distr)
-  if(alternative == "less"){
-      return(rank(distr, ties.method = "max")/B)
-    } else{
-      pupper <- rank(-distr, ties.method = "max")/B
-      if(alternative == "greater"){
-        return(pupper)
-      }else{
-        plower <- rank(distr, ties.method = "max")/B
-        return(pmin(2*pmin(pupper, plower), 1))
-      }
+    B <- length(distr)
+    if (alternative == "less") {
+        return(rank(distr, ties.method = "max")/B)
+    } else {
+        pupper <- rank(-distr, ties.method = "max")/B
+        if (alternative == "greater") {
+            return(pupper)
+        } else {
+            plower <- rank(distr, ties.method = "max")/B
+            return(pmin(2 * pmin(pupper, plower), 1))
+        }
     }
 }
 
@@ -78,6 +78,6 @@ pvalue_distr <- function(distr, alternative = "greater") {
 #' Computes the p-value for every observation in an empirical distribution
 #' 
 #' @inheritParams t2p
-pvalue_distr_old <- function(distr, alternative="greater"){
-  sapply(1:length(distr), function(x) t2p(distr[x], distr, alternative))
+pvalue_distr_old <- function(distr, alternative = "greater") {
+    sapply(1:length(distr), function(x) t2p(distr[x], distr, alternative))
 }

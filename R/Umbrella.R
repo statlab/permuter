@@ -180,4 +180,4 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
     ris <- list(Global.p.value = P.glob, Partial.p.values = p.part, Max = max)  ##,T=T,U=U
     return(ris)
     # return(T2)
-} 
+}

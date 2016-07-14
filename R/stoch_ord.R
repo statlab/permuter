@@ -76,4 +76,4 @@ stoch.ord <- function(y, x, alt = c(-1, 1), B = 1000, seed = 101) {
     
     p.val <- P1[1]
     return(P1)
-} 
+}
