@@ -11,7 +11,8 @@ License: BSD + file LICENSE
 LazyData: true
 Suggests:
     testthat,
-    knitr
+    knitr,
+    rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
 Imports: Rcpp (>= 0.12.2)
