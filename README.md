@@ -1,6 +1,6 @@
 # permuter
 
-[![Travis-CI Build Status](https://travis-ci.org/kellieotto/permuter.svg?branch=master)](https://travis-ci.org/kellieotto/permuter)
+[![Travis-CI Build Status](https://travis-ci.org/statlab/permuter.svg?branch=master)](https://travis-ci.org/statlab/permuter)
 
 R functions to develop the application examples presented in "Permutation Tests
 for Complex Data: Theory, Applications and Software" - Pesarin, Salmaso
