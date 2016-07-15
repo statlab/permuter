@@ -60,12 +60,12 @@ dim(nsgk_mat[[1]][[1]])
 We compute the mean and SD of the number of times a tag was observed in each video.
 Rows index the tag and columns index the video. 
 ```{r summary_stats}
-video_means <- t(sapply(nsgk_mat, function(tt){
+video_means <- t(sapply(nsgk_mat[1:20], function(tt){
                         sapply(tt, mean)
                         }))
 head(video_means)
 
-video_sds <- t(sapply(nsgk_mat, function(tt){
+video_sds <- t(sapply(nsgk_mat[1:20], function(tt){
                         sapply(tt, sd)
                         }))
 head(video_sds)
@@ -76,10 +76,10 @@ head(video_sds)
 
 
 ```{r irr_results, cache=TRUE}
-npc_results <- lapply(nsgk_mat, function(tt){
+npc_results <- lapply(nsgk_mat[1:20], function(tt){
   video_specific_results <- lapply(tt, function(x){
                                         res <- irr_ts_distribution(x, 
-                                          num_perm = 1000,    
+                                          reps = 1000,    
                                           keep_dist = TRUE, seed = 101)
                                   })
   tag_distribution <- sapply(video_specific_results, function(x) x$dist)
@@ -96,6 +96,7 @@ head(npc_results, 3)
 
 Let's put it all together:
 ```{r results_to_csv, cache=TRUE}
+ncategories <- 20
 nsgk_res <- matrix(nrow = ncategories, ncol = (1 + 1 + 8*4))
 for(i in seq_len(ncategories)){
   nsgk_res[i, ] <- c(unique_tags[i],
@@ -112,7 +113,7 @@ colnames(nsgk_res) <- c("tag_index",
                         paste("video", 1:8, "mean", sep = ""),
                         paste("video", 1:8, "sd", sep = ""))
 head(nsgk_res)
-write.csv(nsgk_res, file = "nsgk_results.csv", row.names=FALSE)
+#write.csv(nsgk_res, file = "nsgk_results.csv", row.names=FALSE)
 ```
 
 Overall, what's the relationship between concordance and P?

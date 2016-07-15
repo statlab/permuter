@@ -107,4 +107,4 @@ IC <- function(x1, x2, conf.lev = 0.95, B = 1000, max.delta = 20, length.delta =
 }
 
 ## in Job satisfaction example: set.seed(101)
-## IC(X[Y==1],X[Y==2],max.delta=10,length.delta=100) [1] 8.805303 25.778030 
+## IC(X[Y==1],X[Y==2],max.delta=10,length.delta=100) [1] 8.805303 25.778030

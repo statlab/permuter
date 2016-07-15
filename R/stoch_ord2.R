@@ -170,4 +170,4 @@ stoch.ord2 <- function(y, x, z = NULL, alt = c(-1, 1), B = 1000, cat = 0, rep = 
     
     p.val <- P1[1]
     return(P1)
-} 
+}

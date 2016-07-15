@@ -11,8 +11,8 @@ npc(pvalues, distr, combine = "fisher", alternatives = "greater")
 
 \item{distr}{Matrix or dataframe, columns are approimate null distribution for each partial test}
 
-\item{combine}{Combining function (default is "fisher"). 
-May either be the name of a function ("fisher", "liptak", "tippett") or a function itself}
+\item{combine}{Combining function (default is 'fisher'). 
+May either be the name of a function ('fisher', 'liptak', 'tippett') or a function itself}
 
 \item{alternatives}{Optional, vector of alternatives for each test (default is all 'greater')}
 }

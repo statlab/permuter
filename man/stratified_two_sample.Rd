@@ -13,7 +13,7 @@ stratified_two_sample(group, response, stratum, stat = "mean", reps = 1000)
 
 \item{stratum}{Vector of stratum assignments, same length as group}
 
-\item{stat}{The test statistic. Default is "mean". See details for other options.}
+\item{stat}{The test statistic. Default is 'mean'. See details for other options.}
 
 \item{reps}{Number of replications to approximate distribution (default 1000)}
 }

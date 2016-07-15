@@ -14,7 +14,6 @@ vignette: >
 
 ```{r load}
 library(permuter)
-source("../R/t2p.r")
 data(survival)
 
 
@@ -154,7 +153,7 @@ for (s in 1:str) {
 
 ## Stratified Analysis
 
-```{r stratified}
+```{r stratified, eval = FALSE}
 g <- two_sample_surv_strata[, 1]
 stratum <- two_sample_surv_strata[, 2]
 str <- length(unique(stratum))

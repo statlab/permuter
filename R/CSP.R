@@ -5,9 +5,6 @@
 #' @param C
 #' @param exact
 #' @return something
-#' @examples
-#' CSP(1, 1)
-#' CSP(10, 1)
 CSP <- function(y, x, C = 1000, exact = FALSE) {
     
     
@@ -205,4 +202,4 @@ CSP <- function(y, x, C = 1000, exact = FALSE) {
     return(list(pa = pa, pb = pb, pab = pab, pab.a = pab.a, pab.b = pab.b, TA = T.A[1], 
         TB = T.B[1], TAB.a = T.AB.a[1], TAB.b = T.AB.b[1], type = "Constrained", 
         C = C, min.sig = min.sig, exact = exact))
-} 
+}

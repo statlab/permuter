@@ -10,7 +10,7 @@ t2p_old(T)
 \item{T}{an array/vector with the observed test statistic in the first entry and the empirical distribution in the remaining entries}
 }
 \value{
-An array of dimension (B+1)\times `dim(T)`. The first element (of the first dimension) contains the p-value
+An array of dimension (B+1) by `dim(T)`. The first element (of the first dimension) contains the p-value
 }
 \description{
 Use the empirical distribution of a test statistic to get p-values.

@@ -17,8 +17,4 @@ something
 \description{
 Description about the function
 }
-\examples{
-CSP(1, 1)
-CSP(10, 1)
-}
 

@@ -19,7 +19,6 @@ This example comes from the textbook section 8.4.4 (p 410-413).
 ```{r load}
 library(permuter)
 data(perch)
-source("../R/t2p.r")
 
 
 
@@ -37,7 +36,7 @@ mouse <- perch$rat
 
 data <- perch[, -c(1:3)]
 
-B <- 1000
+B <- 100
 p <- dim(data)[2]
 t <- length(unique(time))
 

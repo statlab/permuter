@@ -12,10 +12,6 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
     
     ## x: array of data y: array of labels
     
-    setwd("F:/R/NPC")
-    source("combine.r")
-    source("T_to_P.r")
-    
     K <- length(unique(y))
     label <- unique(y)
     
@@ -180,4 +176,4 @@ umbrella <- function(x, y, B = 1000, repeated = FALSE, trend = FALSE, alt = NULL
     ris <- list(Global.p.value = P.glob, Partial.p.values = p.part, Max = max)  ##,T=T,U=U
     return(ris)
     # return(T2)
-} 
+}

@@ -74,14 +74,14 @@ two_sample <- function(x, y, reps = 1000) {
 #' @param strata Vector of unique stratum labels
 #' 
 #' @return a vector of differences
-within_group_mean <- function(group, response, stratum, groups, strata){
-  tt <- (group == groups[1])
-  sapply(strata, function(s){
-    ind <- stratum == s
-    treated <- response[tt == 1 & ind]
-    ctrl <- response[tt == 0 & ind]
-    return(mean(treated, na.rm=TRUE) - mean(ctrl, na.rm=TRUE))
-  })
+within_group_mean <- function(group, response, stratum, groups, strata) {
+    tt <- (group == groups[1])
+    sapply(strata, function(s) {
+        ind <- stratum == s
+        treated <- response[tt == 1 & ind]
+        ctrl <- response[tt == 0 & ind]
+        return(mean(treated, na.rm = TRUE) - mean(ctrl, na.rm = TRUE))
+    })
 }
 
 
@@ -90,7 +90,7 @@ within_group_mean <- function(group, response, stratum, groups, strata){
 #' @param group Vector of group memberships or treatment conditions
 #' @param response Vector of measured outcomes, same length as group
 #' @param stratum Vector of stratum assignments, same length as group
-#' @param stat The test statistic. Default is "mean". See details for other options.
+#' @param stat The test statistic. Default is 'mean'. See details for other options.
 #' @param reps Number of replications to approximate distribution (default 1000)
 #' @details 
 #' \enumerate{
@@ -108,52 +108,53 @@ within_group_mean <- function(group, response, stratum, groups, strata){
 #'          data and compute the test function from it.
 #'  }
 #' @return A vector of length `reps` containing the permutation distribution
-stratified_two_sample <- function(group, response, stratum, 
-                                  stat = "mean", reps = 1000) {
-  if (!is.vector(group) | !is.vector(response) | !is.vector(stratum)) {
-    stop("inputs must be vectors")
-  }
-  if (!is.numeric(response)) {
-    stop("response must be numeric")
-  }
-  
-  if(length(unique(group)) > 2){
-    stop("two samples only")
-  }
-  
-  groups <- unique(group)
-  strata <- unique(stratum)
-  
-  ordering <- order(group)
-  response <- response[ordering]
-  stratum <- stratum[ordering]
-  group <- group[ordering]
-  
-  ntreat <- table(group)[1]
-  N <- length(group)
-  
-  # If stat is callable, use it as the test function. Otherwise, look in the dictionary
-  stats = list(
-    "mean" = function(u) {mean(u[1:ntreat], na.rm=TRUE) - mean(u[(ntreat+1):N], na.rm=TRUE)},
-    "t" = function(u) {t.test(u[1:ntreat], u[(ntreat+1):N], var.equal=TRUE)$statistic},
-    "mean_within_strata" = function(u) {
-      sum(abs(within_group_mean(group, u, stratum, groups, strata)))
-      }
-  )
-  if(is.function(stat)){
-    tst_fun <- stat
-  }else{
-    if(stat %in% names(stats)){
-      tst_fun <- stats[[stat]]
+stratified_two_sample <- function(group, response, stratum, stat = "mean", reps = 1000) {
+    if (!is.vector(group) | !is.vector(response) | !is.vector(stratum)) {
+        stop("inputs must be vectors")
     }
-    else{
-      stop("stat must be in the dictionary of stats or a function")
+    if (!is.numeric(response)) {
+        stop("response must be numeric")
     }
-  }
-
-  
-  distr <- replicate(reps, {tst_fun(permute_within_groups(response, strata))})
-  return(distr)
+    
+    if (length(unique(group)) > 2) {
+        stop("two samples only")
+    }
+    
+    groups <- unique(group)
+    strata <- unique(stratum)
+    
+    ordering <- order(group)
+    response <- response[ordering]
+    stratum <- stratum[ordering]
+    group <- group[ordering]
+    
+    ntreat <- table(group)[1]
+    N <- length(group)
+    
+    # If stat is callable, use it as the test function. Otherwise, look in the
+    # dictionary
+    stats <- list(mean = function(u) {
+        mean(u[1:ntreat], na.rm = TRUE) - mean(u[(ntreat + 1):N], na.rm = TRUE)
+    }, t = function(u) {
+        t.test(u[1:ntreat], u[(ntreat + 1):N], var.equal = TRUE)$statistic
+    }, mean_within_strata = function(u) {
+        sum(abs(within_group_mean(group, u, stratum, groups, strata)))
+    })
+    if (is.function(stat)) {
+        tst_fun <- stat
+    } else {
+        if (stat %in% names(stats)) {
+            tst_fun <- stats[[stat]]
+        } else {
+            stop("stat must be in the dictionary of stats or a function")
+        }
+    }
+    
+    
+    distr <- replicate(reps, {
+        tst_fun(permute_within_groups(response, strata))
+    })
+    return(distr)
 }
 
 
@@ -217,4 +218,4 @@ CI_mean <- function(x, y = NULL, reps = 1000, side = "both", alpha = 0.05) {
         shift_permtest(z) - alpha
     }, lower = l_int, upper = u_int, tol = alpha/reps)
     return(d$root)
-} 
+}

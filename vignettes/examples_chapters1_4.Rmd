@@ -41,7 +41,7 @@ We begin by loading in the data. The column `YA` contains the first measurement 
 data(ipat)
 d <- ipat$YA - ipat$YB
 n <- nrow(ipat)
-B <- 1000
+B <- 100
 observed <- mean(d)
 distr <- one_sample(x = d, reps = B)
 
@@ -278,7 +278,8 @@ lines(seq(1, 5), apply(testosterone, 2, mean), lty = "dotted")
 
 The commands above assign the dataset to the object `testosterone` and represent it with a boxplot, the dotted line linking the sample means at each time. The deviance decomposition can be written as $SST = SSA + SSB + SSR$, where $SST$ is the total deviance, $SSA$ and $SSB$ are the deviances due to the main effects and $SSR$ is the residual deviance. Note that $SST$ is constant at each permutation, and so is $SSA$ since we permute observations within the rows of data. On the other hand, $SSB$ and $SSR$ vary at each permutation. The test statistic for the time effect is $F_B = (df_{SSR}/df_{SSB}) \times SSB/SSR$. Leaving out the degrees of freedom $df_{SSB}$ and $df_{SSR}$ that are permutationally invariant, the easiest way to obtain the residual deviance at each permutation is to write it as $SSR^* = SST − SSA − SSB^*$. Therefore, the F statistic can be written as $F^* = SSB^*/(SS − SSB^*)$, where $SS$ is constant at each permutation. It is easy to see that $F^*$ is a monotone function of $T^* = SSB^*$. Thus, $SSB^*$ is the test statistic we will use.
 
-```{r testosterone2, tidy.opts=list(arrow=TRUE, width.cutoff=79)}
+*TO DO: make this chunk run. Error in k_sample call*
+```{r testosterone2, tidy.opts=list(arrow=TRUE, width.cutoff=79), eval = FALSE}
 library(reshape2)
 
 m.col <- apply(testosterone, 2, mean)

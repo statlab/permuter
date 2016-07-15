@@ -84,4 +84,4 @@ fwe_minp <- function(pvalues, distr, combine = "tippett") {
     p_ris[p] <- max(p_ord[p], p_ris[p - 1])
     p_ris[order(pvalues)] <- p_ris
     return(p_ris)
-} 
+}

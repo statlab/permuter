@@ -19,13 +19,7 @@ Section 11.3.2 (p 496-497)	MANOVA Using MATLAB and R Codes
 ```{r loaddata}
 library(permuter)
 data(confocal)
-source("../R/t2p.r")
 data <- confocal
-
-
-
- 
-
 
 ```
 
