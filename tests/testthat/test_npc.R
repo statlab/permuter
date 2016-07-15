@@ -27,7 +27,7 @@ test_that("Fisher combining function", {
     pval <- seq(0.05, 0.9, length.out = 5)
     expect_equal(fisher(pval), 11.11546, tolerance = 1e-05)
     expect_equal(fisher(1), 0)
-    expect_less_than(fisher(10), 0)
+    expect_lt(fisher(10), 0)
     expect_warning(fisher(-10), "NaN")
 })
 
