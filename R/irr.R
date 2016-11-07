@@ -83,11 +83,11 @@ irr_ts_distribution <- function(ratings, obs_ts = NULL, reps = 10000, keep_dist 
 #' Use NPC to combine the IRR statistics across strata.
 #' 
 #'     Simulates the permutation distribution of the combined NPC test
-#'     statistic for S matrices of ratings \code{obs_ts} corresponding to
-#'     S strata. The distribution comes from applying \code{obs_ts}
-#'     to each of the S strata.
+#'     statistic for S matrices of ratings corresponding to
+#'     S strata. The distribution comes from combining p-values across
+#'     the S strata.
 #'     
-#'     If \code{obs_ts} is not null, computes the reference value of the test
+#'     If \code{obs_ts} is null, computes the reference value of the test
 #'     statistic before the first permutation. Otherwise, uses the value
 #'     \code{obs_ts} for comparison.
 #'     
@@ -100,10 +100,7 @@ irr_ts_distribution <- function(ratings, obs_ts = NULL, reps = 10000, keep_dist 
 #'        Column s is the permutation distribution of \eqn{rho_s}, for \eqn{s = 1, \dots, S}.
 #' @param size Vector of S sample sizes. 
 #'        Entry s is the number of items \eqn{N_s} in stratum s.
-#' @param obs_ts Optional: the NPC test statistic.
-#'        If NULL, the NPC test statistic is computed using \code{pvalues}.
-#' @param pvalues Optional: a vector of S IRR p-values for each stratum.
-#'        Entry s is the p-value for \eqn{rho_s}, the concordance in stratum s.
+#' @param obs_ts a vector of test statistics for each stratum
 #' 
 #' @return A list containing:
 #' \itemize{
@@ -114,10 +111,7 @@ irr_ts_distribution <- function(ratings, obs_ts = NULL, reps = 10000, keep_dist 
 #' \item{dist: if \code{keep_dist}, the array of values of the irr test statistic from the \code{reps} iterations. Otherwise, NULL.}
 #' }
 #' 
-irr_npc_distribution <- function(perm_distr, size, obs_ts = NULL, pvalues = NULL) {
-    if (is.null(obs_ts) & is.null(pvalues)) {
-        stop("You must input either obs_ts or pvalues")
-    }
+irr_npc_distribution <- function(perm_distr, size, obs_ts) {
     
     B <- nrow(perm_distr)
     S <- ncol(perm_distr)
@@ -125,14 +119,12 @@ irr_npc_distribution <- function(perm_distr, size, obs_ts = NULL, pvalues = NULL
         inverse_n_weight(p, size)
     }
     
-    if (is.null(pvalues)) {
-        pvalues <- rep(NA, S)
-        for (j in seq_len(S)) {
-            pvalues[j] <- mean(perm_distr[, j] >= obs_ts[j])
-        }
+    pvalues <- rep(NA, S)
+    for (j in seq_len(S)) {
+      pvalues[j] <- mean(perm_distr[, j] >= obs_ts[j])
     }
-    
+
     obs_npc <- combine_func(pvalues)
-    res <- npc(pvalues, perm_distr, combine_func, alternatives = "greater")
+    res <- npc(obs_ts, perm_distr, combine_func, alternatives = "greater")
     return(list(obs_npc = obs_npc, pvalue = res, reps = B))
 }
