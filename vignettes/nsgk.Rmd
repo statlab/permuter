@@ -85,7 +85,7 @@ npc_results <- lapply(nsgk_mat[1:20], function(tt){
   tag_distribution <- sapply(video_specific_results, function(x) x$dist)
   tag_pvalues      <- sapply(video_specific_results, function(x) x$pvalue)
   tag_concordance  <- sapply(video_specific_results, function(x) x$obs_ts)
-  tag_npc_res <- irr_npc_distribution(tag_distribution, size = time_stamps, pvalues = tag_pvalues)
+  tag_npc_res <- irr_npc_distribution(tag_distribution, size = time_stamps, tag_concordance)
   return(list("pvalues_per_video" = tag_pvalues,
               "concordance_per_video" = tag_concordance,
               "tag_global_pvalue" = tag_npc_res$pvalue))
