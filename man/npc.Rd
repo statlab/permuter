@@ -31,6 +31,6 @@ using a combining function.
 For details on the combining functions, see \code{\link{fisher}}, \code{\link{liptak}}, and \code{\link{tippett}}.
 
 Alternative options are 'greater', 'less', or 'two-sided'. If specified, length of alternatives must
-either be 1 or match the length of p.
+either be 1 or match the number of statistics.
 }
 

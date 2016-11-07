@@ -53,7 +53,7 @@ inverse_n_weight <- function(p, n) {
 #' For details on the combining functions, see \code{\link{fisher}}, \code{\link{liptak}}, and \code{\link{tippett}}.
 #' 
 #' Alternative options are 'greater', 'less', or 'two-sided'. If specified, length of alternatives must
-#' either be 1 or match the length of p.
+#' either be 1 or match the number of statistics.
 #' @param statistics    Vector of observed statistics for each partial test
 #' @param distr         Matrix or dataframe, columns are approimate null distribution for each partial test
 #' @param combine       Combining function (default is 'fisher'). 
@@ -68,7 +68,7 @@ npc <- function(statistics, distr, combine = "fisher", alternatives = "greater")
         stop("Nothing to combine!")
     }
     if (length(statistics) != ncol(distr)) {
-        stop("Different number of p-values and null distributions")
+        stop("Different number of statistics and null distributions")
     }
     if (length(alternatives) != length(statistics)) {
         if (length(alternatives) == 1) {
