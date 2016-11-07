@@ -50,12 +50,10 @@ test_that("NPC test stat distribution", {
     pvalues <- sapply(perm_distr_list, function(x) x$pvalue)
     obs_ts <- sapply(perm_distr_list, function(x) x$obs_ts)
     res1 <- irr_npc_distribution(sidebyside, size = rep(35, 3), obs_ts = obs_ts)
-    res2 <- irr_npc_distribution(sidebyside, size = rep(35, 3), pvalues = pvalues)
     expected_res <- list(obs_npc = -0.07606388, pvalue = 0.01, reps = 100)
     
     expect_equal(expected_res, res1, tol = 1e-06)
-    expect_equal(expected_res, res2, tol = 1e-06)
-    
+
     # Perfect concordance between raters in two strata
     B <- 100
     mat1 <- matrix(rep(c(1, 0, 1, 0, 0), 5), nrow = 5, byrow = TRUE)
@@ -72,8 +70,6 @@ test_that("NPC test stat distribution", {
         pval[j] <- res$pvalue
     }
     npc_res1 <- irr_npc_distribution(distributions, size = size, obs_ts = tst)
-    npc_res2 <- irr_npc_distribution(distributions, size = size, pvalues = pval)
     expected_npc_res <- list(obs_npc = 0, pvalue = 0, reps = B)
     expect_equal(npc_res1, expected_npc_res)
-    expect_equal(npc_res2, expected_npc_res)
 })

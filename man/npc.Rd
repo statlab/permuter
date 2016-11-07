@@ -4,10 +4,10 @@
 \alias{npc}
 \title{Non-parametric combination of tests}
 \usage{
-npc(pvalues, distr, combine = "fisher", alternatives = "greater")
+npc(statistics, distr, combine = "fisher", alternatives = "greater")
 }
 \arguments{
-\item{pvalues}{Vector of partial p-values for tests}
+\item{statistics}{Vector of observed statistics for each partial test}
 
 \item{distr}{Matrix or dataframe, columns are approimate null distribution for each partial test}
 
@@ -31,6 +31,6 @@ using a combining function.
 For details on the combining functions, see \code{\link{fisher}}, \code{\link{liptak}}, and \code{\link{tippett}}.
 
 Alternative options are 'greater', 'less', or 'two-sided'. If specified, length of alternatives must
-either be 1 or match the length of p.
+either be 1 or match the number of statistics.
 }
 
