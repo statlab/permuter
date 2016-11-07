@@ -54,7 +54,7 @@ inverse_n_weight <- function(p, n) {
 #' 
 #' Alternative options are 'greater', 'less', or 'two-sided'. If specified, length of alternatives must
 #' either be 1 or match the length of p.
-#' @param pvalues       Vector of partial p-values for tests
+#' @param statistics    Vector of observed statistics for each partial test
 #' @param distr         Matrix or dataframe, columns are approimate null distribution for each partial test
 #' @param combine       Combining function (default is 'fisher'). 
 #'        May either be the name of a function ('fisher', 'liptak', 'tippett') or a function itself
@@ -63,21 +63,24 @@ inverse_n_weight <- function(p, n) {
 #' 
 #' @return A single p-value for the global test
 #' 
-npc <- function(pvalues, distr, combine = "fisher", alternatives = "greater") {
-    if (length(pvalues) < 2) {
+npc <- function(statistics, distr, combine = "fisher", alternatives = "greater") {
+    if (length(statistics) < 2) {
         stop("Nothing to combine!")
     }
-    if (length(pvalues) != ncol(distr)) {
+    if (length(statistics) != ncol(distr)) {
         stop("Different number of p-values and null distributions")
     }
-    if (length(alternatives) != length(pvalues)) {
+    if (length(alternatives) != length(statistics)) {
         if (length(alternatives) == 1) {
-            alternatives <- rep(alternatives, length(pvalues))
+            alternatives <- rep(alternatives, length(statistics))
         } else {
             stop("Bad alternatives")
         }
     }
     
+    pvalues <- sapply(1:ncol(distr), function(j) {
+        t2p(statistics[j], distr[, j], alternatives[j])
+    })
     null_pvalues <- sapply(1:ncol(distr), function(j) {
         pvalue_distr(distr[, j], alternatives[j])
     })
