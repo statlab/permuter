@@ -4,7 +4,7 @@
 \alias{irr_npc_distribution}
 \title{Combine the IRR statistics across strata}
 \usage{
-irr_npc_distribution(perm_distr, size, obs_ts = NULL, pvalues = NULL)
+irr_npc_distribution(perm_distr, size, obs_ts)
 }
 \arguments{
 \item{perm_distr}{Input matrix of dimension [B, S]
@@ -13,11 +13,7 @@ Column s is the permutation distribution of \eqn{rho_s}, for \eqn{s = 1, \dots, 
 \item{size}{Vector of S sample sizes. 
 Entry s is the number of items \eqn{N_s} in stratum s.}
 
-\item{obs_ts}{Optional: the NPC test statistic.
-If NULL, the NPC test statistic is computed using \code{pvalues}.}
-
-\item{pvalues}{Optional: a vector of S IRR p-values for each stratum.
-Entry s is the p-value for \eqn{rho_s}, the concordance in stratum s.}
+\item{obs_ts}{a vector of test statistics for each stratum}
 }
 \value{
 A list containing:
@@ -34,11 +30,11 @@ Use NPC to combine the IRR statistics across strata.
 }
 \details{
 Simulates the permutation distribution of the combined NPC test
-    statistic for S matrices of ratings \code{obs_ts} corresponding to
-    S strata. The distribution comes from applying \code{obs_ts}
-    to each of the S strata.
+    statistic for S matrices of ratings corresponding to
+    S strata. The distribution comes from combining p-values across
+    the S strata.
     
-    If \code{obs_ts} is not null, computes the reference value of the test
+    If \code{obs_ts} is null, computes the reference value of the test
     statistic before the first permutation. Otherwise, uses the value
     \code{obs_ts} for comparison.
     

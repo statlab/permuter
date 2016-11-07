@@ -4,10 +4,10 @@
 \alias{npc}
 \title{Non-parametric combination of tests}
 \usage{
-npc(pvalues, distr, combine = "fisher", alternatives = "greater")
+npc(statistics, distr, combine = "fisher", alternatives = "greater")
 }
 \arguments{
-\item{pvalues}{Vector of partial p-values for tests}
+\item{statistics}{Vector of observed statistics for each partial test}
 
 \item{distr}{Matrix or dataframe, columns are approimate null distribution for each partial test}
 

@@ -7,8 +7,6 @@
 fwe_minp(pvalues, distr, combine = "tippett")
 }
 \arguments{
-\item{pvalues}{Vector of partial p-values for tests}
-
 \item{distr}{Matrix or dataframe, columns are approimate null distribution for each partial test}
 
 \item{combine}{Combining function (default is Tippett)}
