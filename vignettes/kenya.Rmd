@@ -30,7 +30,9 @@ B <- 10000
 
 
 ```
-In descriptive statistics a variable $X$ is said to be minimally heterogeneous when its distribution is degenerate, and is said to be maximally heterogeneous when its distribution is uniform over its support, i.e. the set of modalities. Thus, heterogeneity is related to the concentration of probabilities, and the degree of heterogeneity depends on the values of these probabilities. Let us suppose that the response variable $X$ takes values in $(A_1,\dots,A_k)$ with probability distribution $\mathbb{P}(X = A_r) = \pi_r$ for $r = 1,\dots,k$. The following properties must be satisfied by an index for measuring the degree of heterogeneity:
+In descriptive statistics a variable $X$ is said to be minimally heterogeneous when its distribution is degenerate, and is said to be maximally heterogeneous when its distribution is uniform over its support, i.e. the set of modalities. Thus, heterogeneity is related to the concentration of probabilities, and the degree of heterogeneity depends on the values of these probabilities. 
+
+Suppose that the response variable $X$ takes values in $(A_1,\dots,A_k)$ with probability distribution $\mathbb{P}(X = A_r) = \pi_r$ for $r = 1,\dots,k$. An index for measuring degree of heterogeneity must satisfy the following:
 \begin{enumerate}
 \item It reaches its minimum when there is an integer $r \in \{1,\dots,k\}$ such that $\pi_r = 1$ and $\pi_s = 0 \forall s\neq r$;
 \item it assumes increasingly greater values when moving away from the degenerate towards the uniform distribution;
@@ -51,7 +53,7 @@ If probabilities related to the populations $\{\pi_{jr}, r = 1,\dots,k, j = 1,2\
 
 \[ H_0 : \left\lbrace Het(P_1) = Het(P_2)\right\rbrace = \left\lbrace \pi_1(r) = \pi_2(r), r = 1,\dots,k\right\rbrace \]
 
-Notice that the null hypothesis just compares probabilities and says nothing of the events corresponding to these probabilities.  We set up the problem as follows: we arrange the frequencies of each phenotype in decreasing order, separately for Ol Molo and Kamba.  These are the vectors `f1` and `f2`, then pair the frequencies according to their order.  We remove pairs where the frequency for Ol Molo is $0$, since they add no information.  $11$ phenotypes remain.
+The null hypothesis just compares probabilities and says nothing of the events corresponding to these probabilities.  We set up the problem as follows: we arrange the frequencies of each phenotype in decreasing order, separately for Ol Molo and Kamba.  These are the vectors `f1` and `f2`, then pair the frequencies according to their order.  We remove pairs where the frequency for Ol Molo is $0$, since they add no information. 11 phenotypes remain.
 
 
 ```{r setup}
