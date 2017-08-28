@@ -3,14 +3,23 @@
 #' Permutation of condition within each group.
 #' This is a helper function for stratified permutation tests.
 #' 
-#' @param x A vector of treatment indicators
+#' @param x A vector or dataframe of treatment indicators
 #' @param group A vector indicating group membership
 #' @return The within-group permuted x
 permute_within_groups <- function(x, group) {
-    for (g in unique(group)) {
+  if(is.vector(x)){
+    for(g in unique(group)){
         gg <- (group == g)
         x[gg] <- sample(x[gg])
     }
+  } else if(is.data.frame(x) | is.matrix(x)){
+    for(g in unique(group)){
+      gg <- which(group == g)
+      x[gg, ] <- x[sample(gg), ]
+    }
+  } else {
+    stop("x is an invalid data type")
+  }
     return(x)
 }
 
