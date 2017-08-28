@@ -12,6 +12,13 @@ test_that("permute within groups", {
     set.seed(42)
     simple_gp_permuted <- permute_within_groups(simple, groups)
     expect_equal(simple_gp_permuted, c(1, 1, 0, 0, 1, 1, 0, 0))
+    
+    simple2 <- 1:8
+    simpledf <- cbind(simple, simple2)
+    simple_df_permuted <- permute_within_groups(simpledf, groups)
+    expected_df <- cbind("simple"=c(1, 1, 0, 0, 1, 1, 0, 0),
+                          "simple2"=c(2, 1, 4, 5, 6, 3, 7, 8))
+    expect_equal(simple_df_permuted, expected_df)
 })
 
 test_that("permute within rows", {
